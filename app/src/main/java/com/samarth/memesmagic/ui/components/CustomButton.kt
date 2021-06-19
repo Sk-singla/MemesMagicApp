@@ -22,7 +22,7 @@ import com.samarth.memesmagic.R
 fun CustomButton(
     text:String,
     modifier:Modifier = Modifier,
-    textColor:Color = MaterialTheme.colors.onSurface,
+    textColor:Color = MaterialTheme.colors.primaryVariant,
     textStyle: TextStyle = MaterialTheme.typography.h6,
     backgroundColor:Color = MaterialTheme.colors.surface,
     @DrawableRes icon:Int? = null,
@@ -32,7 +32,7 @@ fun CustomButton(
         onClick = onclick,
         modifier = modifier
             .shadow(
-                elevation = 8.dp,
+                elevation = 4.dp,
                 shape = RoundedCornerShape(10.dp)
             ),
         colors = ButtonDefaults.buttonColors(backgroundColor = backgroundColor),

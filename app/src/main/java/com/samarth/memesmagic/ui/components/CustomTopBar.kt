@@ -9,15 +9,16 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.samarth.memesmagic.ui.theme.Gray200
-import com.samarth.memesmagic.ui.theme.Gray500
 
 @Composable
 fun CustomTopBar(
     title:String,
-    modifier:Modifier = Modifier
+    modifier:Modifier = Modifier,
+    titleColor:Color = MaterialTheme.colors.onSecondary,
 ) {
 
     TopAppBar(
@@ -26,12 +27,11 @@ fun CustomTopBar(
                 text = title,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.h5,
-                color = MaterialTheme.colors.primaryVariant
+                style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold),
+                color = titleColor
             )
         },
-        modifier = modifier.fillMaxWidth().shadow(8.dp),
-        backgroundColor = Gray500
+        modifier = modifier.fillMaxWidth().shadow(4.dp),
     )
 
 }

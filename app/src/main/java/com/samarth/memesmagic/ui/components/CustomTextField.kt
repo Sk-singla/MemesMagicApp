@@ -5,10 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import com.samarth.memesmagic.ui.theme.Gray200
-import com.samarth.memesmagic.ui.theme.Green200
-import com.samarth.memesmagic.ui.theme.Green500
-import com.samarth.memesmagic.ui.theme.Green700
 
 @Composable
 fun CustomTextField(
@@ -19,7 +15,7 @@ fun CustomTextField(
     unFocusedBorderColor:Color = MaterialTheme.colors.secondaryVariant,
     focusedBorderColor:Color = MaterialTheme.colors.secondary,
     cursorColor:Color = MaterialTheme.colors.secondary,
-    leadingIconColor:Color = MaterialTheme.colors.primaryVariant,
+    leadingIconColor:Color = MaterialTheme.colors.secondaryVariant,
     leadingIconDrawable:Int?=null,
     placeholder:String = "",
     focusedLabelColor:Color = MaterialTheme.colors.secondary
@@ -47,7 +43,6 @@ fun CustomTextField(
 //        },
         label = {
             Text(text = placeholder)
-
         }
     )
 

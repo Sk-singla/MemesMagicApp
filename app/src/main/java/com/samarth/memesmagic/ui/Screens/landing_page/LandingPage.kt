@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -31,10 +32,7 @@ fun LandingPage(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .scrollable(
-                state = scrollState,
-                orientation = Orientation.Vertical
-            )
+            .verticalScroll(scrollState)
     ) {
 
         // App Name
@@ -108,6 +106,7 @@ fun SignUp_Login_Buttons(
                 .fillMaxWidth(),
             icon = R.drawable.ic_google,
             backgroundColor = MaterialTheme.colors.secondaryVariant,
+            textColor = MaterialTheme.colors.onSecondary
         ) {
             onSignUpWithGoogle()
         }
@@ -127,7 +126,7 @@ fun SignUp_Login_Buttons(
                 withStyle(style = SpanStyle(color = MaterialTheme.colors.secondaryVariant)) {
                     append("Already have a Account?")
                 }
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.secondary,fontWeight = FontWeight.Bold)) {
+                withStyle(style = SpanStyle(color = MaterialTheme.colors.secondaryVariant,fontWeight = FontWeight.Bold)) {
                     append(" Login here")
                 }
             },
