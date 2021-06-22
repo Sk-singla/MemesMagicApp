@@ -8,11 +8,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="gray_200">#303030</color>  // primaryColor
-    <color name="gray_500">#595959</color>  //primaryLightColor
+    <color name="gray_500">#303030</color>  // primaryColor
+    <color name="gray_200">#595959</color>  //primaryLightColor
     <color name="gray_700">#070707</color>  //primaryDarkColor
-    <color name="green_200">#00ff01</color>  //secondaryColor
-    <color name="green_500">#70ff56</color>  //secondaryLightColor
+    <color name="green_500">#00ff01</color>  //secondaryColor
+    <color name="green_200">#70ff56</color>  //secondaryLightColor
     <color name="green_700">#00ca00</color>  //secondaryDarkColor
     <color name="primaryTextColor">#ffffff</color>  //primaryTextColor
     <color name="secondaryTextColor">#000000</color>  //secondaryTextColor
