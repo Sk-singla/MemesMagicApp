@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.CustomButton
+import com.samarth.memesmagic.ui.components.PartiallyClickableText
 
 @Composable
 fun LandingPage(navController: NavController) {
@@ -78,7 +79,7 @@ fun LandingPage(navController: NavController) {
                     navController.navigate("register_screen")
             },
             onLogin = {
-
+                navController.navigate("login_screen")
             }
         )
 
@@ -121,26 +122,17 @@ fun SignUp_Login_Buttons(
             onSignUpWithEmail()
         }
 
-        Text(
-            text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.secondaryVariant)) {
-                    append("Already have a Account?")
-                }
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.secondaryVariant,fontWeight = FontWeight.Bold)) {
-                    append(" Login here")
-                }
-            },
+        // Login
+        PartiallyClickableText(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .clickable(onClick = {
-                    // GO TO LOGIN SECTION
-                    onLogin()
-                }),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.body1
-        )
-
+                .align(Alignment.CenterHorizontally),
+            nonClickableText = "Already have an Account?",
+            clickableText = " Login here"
+        ) {
+            onLogin()
+        }
     }
 
 }

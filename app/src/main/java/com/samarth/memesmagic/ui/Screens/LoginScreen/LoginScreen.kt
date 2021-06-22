@@ -1,9 +1,6 @@
-package com.samarth.memesmagic.ui.Screens.RegisterScreen
+package com.samarth.memesmagic.ui.Screens.LoginScreen
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,35 +9,39 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.*
 
+
 @Composable
-fun RegisterScreen(
+fun LoginScreen(
     navController: NavController,
-    registerScreenViewModel: RegisterScreenViewModel = hiltViewModel()
+    loginScreenViewModel: LoginScreenViewModel = hiltViewModel()
 ) {
 
     val scaffoldState = rememberScaffoldState()
+    val configuration = LocalConfiguration.current
+
+
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            CustomTopBar(title = "Register")
+            CustomTopBar(title = "Login")
         },
     ) {
 
-        // SIGN UP WITH EMAIL
+
+
         val colScrollState = rememberScrollState()
         Column(
             modifier = Modifier
@@ -50,24 +51,16 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-
-
-            CustomTextField(
-                value = registerScreenViewModel.name.value,
-                onValueChange = {
-                    registerScreenViewModel.name.value = it
-                },
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                    .fillMaxWidth(),
-                placeholder = "Name",
-                leadingIconDrawable = R.drawable.ic_person
-            )
+            if(configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp))
+            }
 
             CustomTextField(
-                value = registerScreenViewModel.email.value,
+                value = loginScreenViewModel.email.value,
                 onValueChange = {
-                    registerScreenViewModel.email.value = it
+                    loginScreenViewModel.email.value = it
                 },
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -77,9 +70,9 @@ fun RegisterScreen(
             )
 
             CustomTextField(
-                value = registerScreenViewModel.password.value,
+                value = loginScreenViewModel.password.value,
                 onValueChange = {
-                    registerScreenViewModel.password.value = it
+                    loginScreenViewModel.password.value = it
                 },
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -88,30 +81,29 @@ fun RegisterScreen(
                 leadingIconDrawable = R.drawable.ic_outline_lock
             )
 
-            CustomTextField(
-                value = registerScreenViewModel.confirmPassword.value,
-                onValueChange = {
-                    registerScreenViewModel.confirmPassword.value = it
-                },
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                    .fillMaxWidth(),
-                placeholder = "Confirm Password",
-                leadingIconDrawable = R.drawable.ic_lock
-            )
+
+            if(configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp))
+            }
 
             CustomButton(
-                text = "Create Account",
+                text = "Login",
                 modifier = Modifier.padding(horizontal = 32.dp,vertical = 16.dp)
             ) {
 
             }
 
 
-            OrText(Modifier.padding(horizontal = 16.dp, vertical = 32.dp))
+            if(configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                OrText(Modifier.padding(horizontal = 16.dp, vertical = 64.dp))
+            } else {
+                OrText(Modifier.padding(horizontal = 16.dp, vertical = 32.dp))
+            }
 
             CustomButton(
-                text = "Sign up with Google",
+                text = "Login with Google",
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 16.dp)
                     .fillMaxWidth(),
@@ -128,11 +120,11 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally),
-                nonClickableText = "Already have an Account?",
-                clickableText = " Login here"
+                nonClickableText = "Don't have an Account?",
+                clickableText = " Sign up here"
             ) {
-                registerScreenViewModel.clearAllTextFields()
-                navController.navigate("login_screen")
+                loginScreenViewModel.clearAllTextFields()
+                navController.navigate("register_screen")
             }
         }
 
