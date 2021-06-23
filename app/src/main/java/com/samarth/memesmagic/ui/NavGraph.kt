@@ -8,27 +8,31 @@ import com.samarth.memesmagic.ui.Screens.LoginScreen.LoginScreen
 import com.samarth.memesmagic.ui.Screens.RegisterScreen.RegisterScreen
 import com.samarth.memesmagic.ui.Screens.home.HomeScreen
 import com.samarth.memesmagic.ui.Screens.landing_page.LandingPage
+import com.samarth.memesmagic.util.Screens.HOME_SCREEN
+import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
+import com.samarth.memesmagic.util.Screens.LOGIN_SCREEN
+import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 
 @Composable
 fun MainNavGraph(){
 
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "landing_page"){
+    NavHost(navController = navController, startDestination = LANDING_SCREEN){
 
 
-        composable("landing_page"){
+        composable(LANDING_SCREEN){
             LandingPage(navController = navController)
         }
 
-        composable("register_screen"){
+        composable(REGISTER_SCREEN){
             RegisterScreen(navController = navController)
         }
 
-        composable("home_screen"){
+        composable(HOME_SCREEN){
             HomeScreen(navController = navController)
         }
 
-        composable("login_screen"){
+        composable(LOGIN_SCREEN){
             LoginScreen(navController = navController)
         }
 

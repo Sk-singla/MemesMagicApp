@@ -10,8 +10,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -25,16 +27,31 @@ import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.CustomButton
 import com.samarth.memesmagic.ui.components.PartiallyClickableText
+import com.samarth.memesmagic.util.Constants
+import com.samarth.memesmagic.util.Constants.navigateWithPop
+import com.samarth.memesmagic.util.Screens.HOME_SCREEN
+import com.samarth.memesmagic.util.Screens.LOGIN_SCREEN
+import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
+import com.samarth.memesmagic.util.TokenHandler.getJwtToken
+import kotlinx.coroutines.launch
 
 @Composable
 fun LandingPage(navController: NavController) {
 
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
     ) {
+
+        scope.launch {
+            if (getJwtToken(context) != null) {
+                navigateWithPop(navController,HOME_SCREEN)
+            }
+        }
 
         // App Name
         Text(
@@ -65,9 +82,17 @@ fun LandingPage(navController: NavController) {
                 .padding(10.dp)
         )
 
+
+
+
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .padding(32.dp))
+
+
+
+
+
         SignUp_Login_Buttons(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,10 +101,10 @@ fun LandingPage(navController: NavController) {
 
             },
             onSignUpWithEmail = {
-                    navController.navigate("register_screen")
+                navController.navigate(REGISTER_SCREEN)
             },
             onLogin = {
-                navController.navigate("login_screen")
+                navController.navigate(LOGIN_SCREEN)
             }
         )
 
