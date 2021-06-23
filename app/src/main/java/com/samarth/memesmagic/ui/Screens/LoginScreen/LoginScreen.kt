@@ -184,8 +184,8 @@ fun LoginScreen(
                             "Login Successful!"
                         )
                     }
-                    navigateWithPop(navController,HOME_SCREEN)
                     navController.popBackStack()
+                    navigateWithPop(navController,HOME_SCREEN)
                 }
                 else -> {
 

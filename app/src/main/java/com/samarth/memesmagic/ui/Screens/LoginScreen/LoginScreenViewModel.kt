@@ -28,7 +28,7 @@ class LoginScreenViewModel @Inject constructor(
         loginStatus.value = Resource.Loading()
         loginStatus.value = memeRepo.loginUser(LoginRequest(email.value, password.value))
 
-        delay(1500)
+        delay(2000)
         loginStatus.value = Resource.Empty()
     }
 

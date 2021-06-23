@@ -16,8 +16,8 @@ object Constants {
 
 
     fun navigateWithPop(navController: NavController,destination:String){
-        navController.navigate(destination)
         navController.popBackStack()
+        navController.navigate(destination)
     }
 
 
