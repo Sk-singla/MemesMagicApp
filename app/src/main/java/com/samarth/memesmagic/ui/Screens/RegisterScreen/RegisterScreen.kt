@@ -212,7 +212,7 @@ fun RegisterScreen(
                 }
                 is Resource.Success -> {
                     scope.launch {
-                        saveJwtToken(context,registerScreenViewModel.registerStatus.value.data!!)
+                        saveJwtToken(context,registerScreenViewModel.registerStatus.value.data!!,registerScreenViewModel.email.value)
                         scaffoldState.snackbarHostState.showSnackbar(
                             "Account Created!"
                         )

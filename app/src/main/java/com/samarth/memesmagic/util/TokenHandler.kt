@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.samarth.memesmagic.util.Constants.DATA_PREFERENCES_NAME_FOR_TOKEN
+import com.samarth.memesmagic.util.Constants.EMAIL_KEY
 import com.samarth.memesmagic.util.Constants.JWT_TOKEN_KEY
 import kotlinx.coroutines.flow.first
 
@@ -15,10 +16,12 @@ object TokenHandler {
     private val Context.dataStore:DataStore<Preferences> by preferencesDataStore(name = DATA_PREFERENCES_NAME_FOR_TOKEN)
 
 
-    suspend fun saveJwtToken(context:Context,token:String){
-        val dataStoreKey = stringPreferencesKey(JWT_TOKEN_KEY)
+    suspend fun saveJwtToken(context:Context,token:String,email:String){
+        val jwtTokeKey = stringPreferencesKey(JWT_TOKEN_KEY)
+        val emailKey = stringPreferencesKey(EMAIL_KEY)
         context.dataStore.edit { tokens->
-            tokens[dataStoreKey] = token
+            tokens[jwtTokeKey] = token
+            tokens[emailKey] = email
         }
     }
 
@@ -26,6 +29,12 @@ object TokenHandler {
         val dataStoreKey = stringPreferencesKey(JWT_TOKEN_KEY)
         val preferences = context.dataStore.data.first()
         return preferences[dataStoreKey]
+    }
+
+    suspend fun getEmail(context: Context):String? {
+        val emailKey = stringPreferencesKey(EMAIL_KEY)
+        val preferences = context.dataStore.data.first()
+        return preferences[emailKey]
     }
 
 

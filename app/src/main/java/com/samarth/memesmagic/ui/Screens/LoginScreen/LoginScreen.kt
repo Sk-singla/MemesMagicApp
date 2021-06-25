@@ -178,7 +178,8 @@ fun LoginScreen(
                     scope.launch {
                         TokenHandler.saveJwtToken(
                             context,
-                            loginScreenViewModel.loginStatus.value.data!!
+                            loginScreenViewModel.loginStatus.value.data!!,
+                            loginScreenViewModel.email.value
                         )
                         scaffoldState.snackbarHostState.showSnackbar(
                             "Login Successful!"

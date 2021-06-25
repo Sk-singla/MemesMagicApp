@@ -10,6 +10,6 @@ data class Post(
     val likedBy:MutableList<UserInfo> = mutableListOf(),
     val comments:MutableList<Comment> = mutableListOf(),
     val tags:List<String>?=null,
-    val mediaLink:String?=null,
-    val text:String?=null
+    val mediaLink:String,
+    val description:String?=null
 )

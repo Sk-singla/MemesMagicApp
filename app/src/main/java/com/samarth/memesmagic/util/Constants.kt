@@ -9,8 +9,10 @@ object Constants {
     private const val API_VERSION = "/v1"
     const val USERS = "$API_VERSION/user"
     const val POSTS = "$API_VERSION/posts"
+    const val FEED = "$API_VERSION/feed"
 
     const val JWT_TOKEN_KEY = "JwtToken"
+    const val EMAIL_KEY = "emailKey"
     const val DATA_PREFERENCES_NAME_FOR_TOKEN = "tokens"
 
 
@@ -21,8 +23,15 @@ object Constants {
     }
 
 
-
-
+    /**
+     * todo -> create post component
+     * todo -> create home page -> ( topbar, lazycolumn, bottombar )
+     * todo -> logout
+     * todo -> fetch posts from server
+     * todo -> create post
+     * todo -> editing,
+     * todo -> Main stuff -> Memes related!
+     */
 
 
 
@@ -37,5 +46,12 @@ object Screens{
     const val REGISTER_SCREEN = "register_screen"
     const val LOGIN_SCREEN = "login_screen"
     const val HOME_SCREEN = "home_screen"
+
+    const val HOME_FEED = "$HOME_SCREEN/feed"
+    const val HOME_SEARCH = "$HOME_SCREEN/search"
+    const val HOME_CREATE = "$HOME_SCREEN/create"
+    const val HOME_REWARDS = "$HOME_SCREEN/rewards"
+    const val HOME_PROFILE = "$HOME_SCREEN/profile"
+
 
 }

@@ -7,7 +7,10 @@ import androidx.navigation.compose.rememberNavController
 import com.samarth.memesmagic.ui.Screens.LoginScreen.LoginScreen
 import com.samarth.memesmagic.ui.Screens.RegisterScreen.RegisterScreen
 import com.samarth.memesmagic.ui.Screens.home.HomeScreen
+import com.samarth.memesmagic.ui.Screens.home.create.CreateScreen
 import com.samarth.memesmagic.ui.Screens.landing_page.LandingPage
+import com.samarth.memesmagic.util.Screens
+import com.samarth.memesmagic.util.Screens.HOME_CREATE
 import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.Screens.LOGIN_SCREEN
@@ -35,6 +38,12 @@ fun MainNavGraph(){
         composable(LOGIN_SCREEN){
             LoginScreen(navController = navController)
         }
+
+
+        composable(HOME_CREATE){
+            CreateScreen()
+        }
+
 
     }
 

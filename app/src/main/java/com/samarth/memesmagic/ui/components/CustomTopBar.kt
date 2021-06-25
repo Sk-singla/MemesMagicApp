@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,5 +35,24 @@ fun CustomTopBar(
         },
         modifier = modifier.fillMaxWidth().shadow(4.dp),
     )
+}
 
+
+@Composable
+fun CustomTopBar(
+    title:AnnotatedString,
+    modifier:Modifier = Modifier,
+) {
+
+    TopAppBar(
+        title = {
+            Text(
+                text = title,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold),
+            )
+        },
+        modifier = modifier.fillMaxWidth().shadow(4.dp),
+    )
 }
