@@ -2,6 +2,7 @@ package com.samarth.memesmagic.repository
 
 import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.RegisterUserRequest
+import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.SimpleResponse
 import com.samarth.memesmagic.data.remote.response.User
@@ -23,6 +24,8 @@ interface MemeRepo {
     suspend fun getUser(token: String,email:String):Resource<User>
 
     suspend fun getPosts(token: String,email:String):Resource<List<Post>>
+
+    suspend fun getMemeTemplates(memeMakerPageNumber:Int):Resource<List<MemeTemplate>>
 
 
 

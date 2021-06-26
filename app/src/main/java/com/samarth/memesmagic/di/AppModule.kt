@@ -1,9 +1,13 @@
 package com.samarth.memesmagic.di
 
+import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
+import com.samarth.memesmagic.data.remote.MemeMakerApi
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.repository.MemeRepository
 import com.samarth.memesmagic.util.Constants.BASE_URL
+import com.samarth.memesmagic.util.Constants.IMAGE_FLIP_BASE_URL
+import com.samarth.memesmagic.util.Constants.MEME_MAKER_BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,12 +32,19 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideMemeApi():MemeApi {
-        val client = OkHttpClient.Builder()
+    fun provideOkHttpClient():OkHttpClient{
+        return OkHttpClient.Builder()
             .addInterceptor(
                 HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
             )
             .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideMemeApi(
+        client:OkHttpClient
+    ):MemeApi {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(BASE_URL)
@@ -41,6 +52,34 @@ object AppModule {
             .build()
             .create(MemeApi::class.java)
     }
+
+
+    @Singleton
+    @Provides
+    fun provideImageFlipApi(
+        client:OkHttpClient
+    ):ImageFlipApi {
+        return Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(IMAGE_FLIP_BASE_URL)
+            .client(client)
+            .build()
+            .create(ImageFlipApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideMemeMakerApi(
+        client:OkHttpClient
+    ):MemeMakerApi {
+        return Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(MEME_MAKER_BASE_URL)
+            .client(client)
+            .build()
+            .create(MemeMakerApi::class.java)
+    }
+
 
 
 }

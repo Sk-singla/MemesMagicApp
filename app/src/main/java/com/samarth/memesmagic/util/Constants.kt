@@ -5,7 +5,10 @@ import androidx.navigation.NavController
 object Constants {
     const val PARTIALLY_CLICKABLE_TEXT_TAG = "Click"
 
+    const val IMAGE_FLIP_BASE_URL = "https://api.imgflip.com"
+    const val MEME_MAKER_BASE_URL = "http://alpha-meme-maker.herokuapp.com"
     const val BASE_URL = "https://memesmagic.herokuapp.com"
+
     private const val API_VERSION = "/v1"
     const val USERS = "$API_VERSION/user"
     const val POSTS = "$API_VERSION/posts"
@@ -16,11 +19,8 @@ object Constants {
     const val DATA_PREFERENCES_NAME_FOR_TOKEN = "tokens"
 
 
-
-    fun navigateWithPop(navController: NavController,destination:String){
-        navController.popBackStack()
-        navController.navigate(destination)
-    }
+    const val MAXIMUM_MEME_MAKER_PAGE_NUMBER = 11
+    const val NO_MEME = "no_meme"
 
 
     /**
