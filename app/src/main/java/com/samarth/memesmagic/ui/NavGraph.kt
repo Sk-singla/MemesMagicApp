@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,6 +17,7 @@ import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.Screens.LOGIN_SCREEN
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 
+@ExperimentalFoundationApi
 @Composable
 fun MainNavGraph(){
 

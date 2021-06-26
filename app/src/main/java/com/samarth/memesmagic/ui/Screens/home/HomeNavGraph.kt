@@ -2,12 +2,14 @@ package com.samarth.memesmagic.ui.Screens.home
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,6 +26,7 @@ import com.samarth.memesmagic.util.Screens.HOME_PROFILE
 import com.samarth.memesmagic.util.Screens.HOME_REWARDS
 import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.HOME_SEARCH
+import com.samarth.memesmagic.util.TokenHandler.getEmail
 
 
 enum class HomeSections(
@@ -41,11 +44,14 @@ enum class HomeSections(
 }
 
 
+@ExperimentalFoundationApi
 @Composable
 fun HomeNavGraph(
     modifier:Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
+
+    val context = LocalContext.current
 
     NavHost(navController = navController, startDestination = HOME_FEED,modifier = modifier){
 

@@ -38,7 +38,7 @@ fun CustomBottomNavBar(
 
         val currentSection = sections.first{ it.route == currentRoute}
         CustomBottomNavigation(
-
+            backgroundColor = MaterialTheme.colors.primarySurface
         ){
 
 
@@ -104,7 +104,6 @@ fun RowScope.CustomBottomNavigationItem(
     currentRoute:String?,
     parentNavController: NavHostController,
     navController: NavHostController,
-
 ) {
 
     if(section.route == HOME_CREATE){
@@ -153,6 +152,8 @@ fun RowScope.CustomBottomNavigationItem(
 
                 }
             },
+            selectedContentColor = MaterialTheme.colors.onPrimary,
+            unselectedContentColor = MaterialTheme.colors.onPrimary.copy(alpha = 0.7f)
         )
     }
 

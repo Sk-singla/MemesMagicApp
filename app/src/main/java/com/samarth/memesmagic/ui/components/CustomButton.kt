@@ -22,7 +22,7 @@ import com.samarth.memesmagic.R
 fun CustomButton(
     text:String,
     modifier:Modifier = Modifier,
-    textColor:Color = MaterialTheme.colors.primaryVariant,
+    textColor:Color = MaterialTheme.colors.secondaryVariant,
     textStyle: TextStyle = MaterialTheme.typography.h6,
     backgroundColor:Color = MaterialTheme.colors.surface,
     @DrawableRes icon:Int? = null,

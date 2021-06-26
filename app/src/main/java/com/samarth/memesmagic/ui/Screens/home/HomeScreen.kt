@@ -1,9 +1,12 @@
 package com.samarth.memesmagic.ui.Screens.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -20,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.samarth.memesmagic.ui.components.CustomBottomNavBar
 import com.samarth.memesmagic.ui.components.CustomTopBar
 
+@ExperimentalFoundationApi
 @Composable
 fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = hiltViewModel()) {
 
@@ -48,10 +52,9 @@ fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = h
 
         }
     ) {
-        Column(modifier = Modifier.fillMaxSize(),horizontalAlignment = Alignment.CenterHorizontally) {
-            HomeNavGraph(modifier = Modifier.fillMaxSize(), homeNavController)
-            Spacer(modifier = Modifier.padding(24.dp))
-        }
+
+        HomeNavGraph(modifier = Modifier.fillMaxSize(), homeNavController)
+
     }
     
 }
