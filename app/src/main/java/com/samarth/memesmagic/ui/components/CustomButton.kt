@@ -49,7 +49,7 @@ fun CustomButton(
 
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_google),
+                    painter = painterResource(id = icon),
                     contentDescription = null,
                 )
                 Text(

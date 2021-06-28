@@ -9,5 +9,5 @@ interface ImageFlipApi {
 
     @Headers("Content-Type: application/json")
     @GET("/get_memes")
-    fun getImageFlipTemplates():ImageFlipResponse
+    suspend fun getImageFlipTemplates():ImageFlipResponse
 }

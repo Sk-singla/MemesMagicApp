@@ -1,6 +1,8 @@
 package com.samarth.memesmagic.repository
 
+import android.content.Context
 import com.samarth.data.models.request.LoginRequest
+import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.response.Post
@@ -26,6 +28,10 @@ interface MemeRepo {
     suspend fun getPosts(token: String,email:String):Resource<List<Post>>
 
     suspend fun getMemeTemplates(memeMakerPageNumber:Int):Resource<List<MemeTemplate>>
+
+    suspend fun uploadFileOnAwsS3(context: Context, fileName:String, onSuccess:(String)->Unit, onFail:(String)->Unit)
+
+    suspend fun uploadPost(token:String,postRequest: PostRequest):Resource<String>
 
 
 

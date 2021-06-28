@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.data.remote
 
 import com.samarth.data.models.request.LoginRequest
+import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.SimpleResponse
@@ -48,6 +49,14 @@ interface MemeApi {
         @Path("email") email: String
     ):SimpleResponse<List<Post>>
 
+
+
+    @Headers("Content-Type: application/json")
+    @POST("$POSTS/create")
+    suspend fun uploadPost(
+        @Header("Authorization") token:String,
+        @Body postRequest: PostRequest
+    ):SimpleResponse<String>
 
 
 

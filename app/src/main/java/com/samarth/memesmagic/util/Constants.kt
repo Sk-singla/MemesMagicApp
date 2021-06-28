@@ -22,6 +22,8 @@ object Constants {
     const val MAXIMUM_MEME_MAKER_PAGE_NUMBER = 11
     const val NO_MEME = "no_meme"
 
+    const val BUCKET_OBJECT_URL_PREFIX = "https://memebucket143419-staging.s3.ap-south-1.amazonaws.com/public/"
+
 
     /**
      * todo -> create post component
@@ -52,6 +54,11 @@ object Screens{
     const val HOME_CREATE = "$HOME_SCREEN/create"
     const val HOME_REWARDS = "$HOME_SCREEN/rewards"
     const val HOME_PROFILE = "$HOME_SCREEN/profile"
+
+    const val EDIT_SCREEN = "${HOME_CREATE}/edit"
+    const val NEW_POST_DETAILS_AND_UPLOAD = "$EDIT_SCREEN/upload"
+
+    val posts = mutableListOf<String>()
 
 
 }

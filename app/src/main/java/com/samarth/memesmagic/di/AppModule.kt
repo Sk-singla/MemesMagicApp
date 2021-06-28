@@ -26,8 +26,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideMemeRepository(
-        api:MemeApi
-    ):MemeRepo = MemeRepository(api)
+        api:MemeApi,
+        imageFlipApi: ImageFlipApi,
+        memeMakerApi: MemeMakerApi
+    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi)
 
 
     @Singleton

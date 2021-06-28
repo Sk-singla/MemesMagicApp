@@ -30,6 +30,7 @@ fun FeedScreen(
 
         when (feedViewModel.postStatus.value) {
 
+            // todo  -> In ktor , upload post route-> add functionality to increment post count of user
 
             is Resource.Error -> {
 
@@ -43,9 +44,7 @@ fun FeedScreen(
             }
 
             is Resource.Loading -> {
-
                 CircularProgressIndicator()
-
             }
 
             else -> {
@@ -59,7 +58,16 @@ fun FeedScreen(
 
                             PostItem(
                                 post = post,
-                                isLiked = feedViewModel.isPostLiked(post, context)
+                                isLiked = feedViewModel.isPostLiked(post, context),
+                                onLike = {
+
+                                },
+                                onCommentIconPressed = {
+
+                                },
+                                onShareIconPressed = {
+
+                                }
                             )
 
                             if (!feedViewModel.isItLastItem(pos)) {

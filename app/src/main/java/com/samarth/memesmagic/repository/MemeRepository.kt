@@ -1,6 +1,16 @@
 package com.samarth.memesmagic.repository
 
+import android.content.Context
+import android.util.Log
+import com.amplifyframework.core.Amplify
+import com.amplifyframework.core.Consumer
+import com.amplifyframework.storage.StorageAccessLevel
+import com.amplifyframework.storage.StorageException
+import com.amplifyframework.storage.options.StorageListOptions
+import com.amplifyframework.storage.options.StorageUploadFileOptions
+import com.amplifyframework.storage.result.StorageUploadFileResult
 import com.samarth.data.models.request.LoginRequest
+import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
@@ -13,6 +23,7 @@ import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.saveJwtToken
 import dagger.hilt.android.scopes.ActivityScoped
+import java.io.File
 
 
 @ActivityScoped
@@ -66,6 +77,10 @@ class MemeRepository(
 
     }
 
+    suspend fun likePost(postId:String, userEmail:String){
+
+    }
+
 
     override suspend fun getUser(token: String,email: String): Resource<User> {
         return try{
@@ -115,4 +130,61 @@ class MemeRepository(
             Resource.Error(e.message ?: "Error!")
         }
     }
+
+
+    override suspend fun uploadFileOnAwsS3(
+        context: Context,
+        fileName: String,
+        onSuccess: (String) -> Unit,
+        onFail: (String) -> Unit
+    ){
+        try {
+            val files = context.filesDir.listFiles()
+            val file = files?.find { it.canRead() && it.isFile && it.name == fileName }
+
+            if(file == null){
+                onFail("File Not Found!")
+                return
+            }
+
+            val options = StorageUploadFileOptions.builder()
+                .accessLevel(StorageAccessLevel.PUBLIC)
+                .targetIdentityId("Posts")
+                .build()
+
+
+            Amplify.Storage.uploadFile(
+                fileName,
+                file,
+                options,
+                {
+                    onSuccess(it.key)
+                },
+                {
+                    onFail(it.message ?: "Some Problem Occurred!!")
+                }
+            )
+        } catch (error: StorageException) {
+            onFail(error.message ?: "Some Problem Occurred!")
+        }
+    }
+
+
+    override suspend fun uploadPost(
+        token:String,
+        postRequest: PostRequest
+    ):Resource<String>{
+        return try {
+            val response = memeApi.uploadPost("Bearer $token",postRequest)
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+
 }

@@ -97,8 +97,8 @@ fun ProfileScreen(
 
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(),
-    //                    .fillMaxHeight(0.5f),
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
                     contentAlignment = Alignment.Center
                 ) {
                     when (profileViewModel.postStatus.value) {

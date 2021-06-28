@@ -28,11 +28,11 @@ import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.CustomButton
 import com.samarth.memesmagic.ui.components.PartiallyClickableText
 import com.samarth.memesmagic.util.Constants
-import com.samarth.memesmagic.util.Constants.navigateWithPop
 import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.LOGIN_SCREEN
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
+import com.samarth.memesmagic.util.navigateWithPop
 import kotlinx.coroutines.launch
 
 @Composable

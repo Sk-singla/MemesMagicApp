@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui.Screens.LoginScreen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,20 +12,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.*
-import com.samarth.memesmagic.util.Constants.navigateWithPop
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import com.samarth.memesmagic.util.TokenHandler
+import com.samarth.memesmagic.util.navigateWithPop
 import kotlinx.coroutines.launch
 
 
@@ -83,7 +84,13 @@ fun LoginScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .fillMaxWidth(),
                     placeholder = "Email",
-                    leadingIconDrawable = R.drawable.ic_email
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_email),
+                            contentDescription = null
+                        )
+                    }
+
                 )
 
                 CustomTextField(
@@ -95,18 +102,28 @@ fun LoginScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .fillMaxWidth(),
                     placeholder = "Password",
-                    leadingIconDrawable = R.drawable.ic_outline_lock,
+                    leadingIcon ={
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_outline_lock),
+                            contentDescription = null
+                        )
+                    } ,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = passwordVisual,
-                    trailingIconDrawable = passwordTrailingIcon,
-                    onTrailingIconClick = {
-                        if (passwordTrailingIcon == R.drawable.ic_eye) {
-                            passwordVisual = VisualTransformation.None
-                            passwordTrailingIcon = R.drawable.ic_visibility_off
-                        } else {
-                            passwordVisual = PasswordVisualTransformation()
-                            passwordTrailingIcon = R.drawable.ic_eye
-                        }
+                    trailingIcon ={
+                        Icon(
+                            painter = painterResource(id = passwordTrailingIcon),
+                            contentDescription = null,
+                            modifier = Modifier.clickable {
+                                if (passwordTrailingIcon == R.drawable.ic_eye) {
+                                    passwordVisual = VisualTransformation.None
+                                    passwordTrailingIcon = R.drawable.ic_visibility_off
+                                } else {
+                                    passwordVisual = PasswordVisualTransformation()
+                                    passwordTrailingIcon = R.drawable.ic_eye
+                                }
+                            }
+                        )
                     }
                 )
 

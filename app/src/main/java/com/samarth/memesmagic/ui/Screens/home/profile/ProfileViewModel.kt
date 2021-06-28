@@ -12,6 +12,7 @@ import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
+import com.samarth.memesmagic.util.Screens.posts
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,8 +34,9 @@ class ProfileViewModel @Inject constructor(
 
     fun getUser(email:String?,context:Context) = viewModelScope.launch{
         userStatus.value = Resource.Loading()
-//        userStatus.value = memeRepo.getUser(getJwtToken(context)!!,email ?: getEmail(context)!!)
+        userStatus.value = memeRepo.getUser(getJwtToken(context)!!,email ?: getEmail(context)!!)
 
+        /*
         userStatus.value = Resource.Success(
             User(
                 UserInfo("Samarth","hihi","https://yt3.ggpht.com/yti/APfAmoFnRSyAAd-_w-q3fodH9GHLox265DUgq1UD7c56eA=s88-c-k-c0x00ffffff-no-rj-mo","Sri Muktsar Sahib\nPB30"),
@@ -52,16 +54,17 @@ class ProfileViewModel @Inject constructor(
                     UserInfo("Samarth","hihi",)
                 ),id = "asdfasdf"))
 
+         */
+
 
     }
 
 
     fun getPosts(email: String?,context: Context) = viewModelScope.launch {
         postStatus.value = Resource.Loading()
-//        postStatus.value = memeRepo.getPosts(getJwtToken(context)!!,email ?: getEmail(context)!!)
-//        postStatus.value = Resource.Error("myerror")
+        postStatus.value = memeRepo.getPosts(getJwtToken(context)!!,email ?: getEmail(context)!!)
 
-
+        /**
         postStatus.value = Resource.Success(
             mutableListOf(
                 Post(
@@ -70,7 +73,7 @@ class ProfileViewModel @Inject constructor(
                     PostType.IMAGE,
                     System.currentTimeMillis(),
                     description = "This is first Image",
-                    mediaLink = "https://www.nasa.gov/sites/default/files/styles/full_width_feature/public/thumbnails/image/latest_1024_0211.jpg"
+                    mediaLink = "https://memebucket90630-staging.s3.us-east-2.amazonaws.com/public/a3c5e6e2-5bc1-42fd-b47f-d774e9b20fca.jpg"
                 ),
                 Post(
                     "id2",
@@ -271,6 +274,22 @@ class ProfileViewModel @Inject constructor(
                 )
             )
         )
+
+        postStatus.value  = Resource.Success(
+            posts.map {
+                Post(
+                    "id2",
+                    UserInfo("Samarth","asasdf@gmail.com","https://cdn.pixabay.com/photo/2018/08/28/12/41/avatar-3637425_960_720.png"),
+                    PostType.IMAGE,
+                    System.currentTimeMillis(),
+                    description = "This is first Image",
+                    likedBy = mutableListOf(UserInfo("adfs","test","")),
+                    mediaLink = it
+
+                )
+            }
+        )
+        */
 
 
     }

@@ -10,7 +10,7 @@ interface MemeMakerApi {
 
     @Headers("Content-Type: application/json")
     @GET("/{page}")
-    fun getMemeTemplates(
+    suspend fun getMemeTemplates(
         @Path("page") pageNumber:Int
     ):MemeMakerResponse
 }

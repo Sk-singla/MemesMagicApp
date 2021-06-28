@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -30,7 +31,10 @@ import com.samarth.memesmagic.ui.theme.Green500
 fun PostItem(
     post: Post,
     modifier: Modifier = Modifier,
-    isLiked: Boolean
+    isLiked: Boolean,
+    onLike:(postId:String)->Unit,
+    onCommentIconPressed: (post:Post) -> Unit,
+    onShareIconPressed: (post:Post) -> Unit
 ) {
 
 
@@ -111,18 +115,24 @@ fun PostItem(
                 Icon(
                     painter = painterResource(id = if(isLiked) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
                     contentDescription = "Like",
-                    modifier = Modifier.padding(start = 4.dp),
+                    modifier = Modifier.padding(start = 4.dp).clickable{
+                           onLike(post.id)
+                    },
                     tint = if(isLiked) Green500 else LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_baseline_comment_24),
                     contentDescription = "Comment",
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp).clickable{
+                        onCommentIconPressed(post)
+                    }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_baseline_share_24),
                     contentDescription = "Share",
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp).clickable{
+                        onShareIconPressed(post)
+                    }
                 )
             }
 

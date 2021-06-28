@@ -16,8 +16,11 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.gson.Gson
+import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.ui.Screens.home.HomeSections
 import com.samarth.memesmagic.ui.theme.Green500
+import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.HOME_CREATE
 
 @Composable
@@ -120,6 +123,10 @@ fun RowScope.CustomBottomNavigationItem(
             onClick = {
                 if (currentRoute != section.route) {
                     parentNavController.navigate(section.route)
+//                    val template = Gson().toJson(MemeTemplate("Hi","abcd"))
+//                    template?.let { memeTemp ->
+//                        parentNavController.navigate("${Screens.EDIT_SCREEN}/$memeTemp")
+//                    }
                 }
             },
         )

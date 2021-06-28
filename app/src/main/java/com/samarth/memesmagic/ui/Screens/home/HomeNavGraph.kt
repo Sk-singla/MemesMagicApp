@@ -3,30 +3,22 @@ package com.samarth.memesmagic.ui.Screens.home
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.samarth.memesmagic.R
-import com.samarth.memesmagic.ui.Screens.home.create.CreateScreen
 import com.samarth.memesmagic.ui.Screens.home.profile.ProfileScreen
 import com.samarth.memesmagic.ui.Screens.home.rewards.RewardScreen
 import com.samarth.memesmagic.ui.Screens.home.search.SearchScreen
-import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.HOME_CREATE
 import com.samarth.memesmagic.util.Screens.HOME_FEED
 import com.samarth.memesmagic.util.Screens.HOME_PROFILE
 import com.samarth.memesmagic.util.Screens.HOME_REWARDS
-import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.HOME_SEARCH
-import com.samarth.memesmagic.util.TokenHandler.getEmail
 
 
 enum class HomeSections(

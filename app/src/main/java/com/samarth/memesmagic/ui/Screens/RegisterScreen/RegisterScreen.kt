@@ -1,9 +1,6 @@
 package com.samarth.memesmagic.ui.Screens.RegisterScreen
 
-import android.content.res.Configuration
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,30 +14,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.*
-import com.samarth.memesmagic.util.Constants
-import com.samarth.memesmagic.util.Constants.navigateWithPop
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.LOGIN_SCREEN
 import com.samarth.memesmagic.util.TokenHandler.saveJwtToken
-import kotlinx.coroutines.coroutineScope
+import com.samarth.memesmagic.util.navigateWithPop
 import kotlinx.coroutines.launch
-import javax.annotation.meta.When
 
 @Composable
 fun RegisterScreen(
@@ -96,7 +85,12 @@ fun RegisterScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .fillMaxWidth(),
                     placeholder = "Name",
-                    leadingIconDrawable = R.drawable.ic_person
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_person),
+                            contentDescription = null
+                        )
+                    }
                 )
 
                 CustomTextField(
@@ -108,7 +102,12 @@ fun RegisterScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .fillMaxWidth(),
                     placeholder = "Email",
-                    leadingIconDrawable = R.drawable.ic_email,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_email),
+                            contentDescription = null
+                        )
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                 )
 
@@ -121,18 +120,28 @@ fun RegisterScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .fillMaxWidth(),
                     placeholder = "Password",
-                    leadingIconDrawable = R.drawable.ic_outline_lock,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    trailingIconDrawable = passwordTrailingIcon,
-                    onTrailingIconClick = {
-                        if(passwordTrailingIcon == R.drawable.ic_eye) {
-                            passwordVisual = VisualTransformation.None
-                            passwordTrailingIcon = R.drawable.ic_visibility_off
-                        } else{
-                            passwordVisual = PasswordVisualTransformation()
-                            passwordTrailingIcon = R.drawable.ic_eye
-                        }
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_outline_lock),
+                            contentDescription = null
+                        )
                     },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = passwordTrailingIcon),
+                            contentDescription = null,
+                            modifier = Modifier.clickable {
+                                if(passwordTrailingIcon == R.drawable.ic_eye) {
+                                    passwordVisual = VisualTransformation.None
+                                    passwordTrailingIcon = R.drawable.ic_visibility_off
+                                } else{
+                                    passwordVisual = PasswordVisualTransformation()
+                                    passwordTrailingIcon = R.drawable.ic_eye
+                                }
+                            }
+                        )
+                    } ,
                     visualTransformation = passwordVisual
                 )
 
@@ -145,18 +154,28 @@ fun RegisterScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .fillMaxWidth(),
                     placeholder = "Confirm Password",
-                    leadingIconDrawable = R.drawable.ic_lock,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    trailingIconDrawable = confirmPasswordTrailingIcon,
-                    onTrailingIconClick = {
-                        if(confirmPasswordTrailingIcon == R.drawable.ic_eye) {
-                            confirmPasswordVisual = VisualTransformation.None
-                            confirmPasswordTrailingIcon = R.drawable.ic_visibility_off
-                        } else{
-                            confirmPasswordVisual = PasswordVisualTransformation()
-                            confirmPasswordTrailingIcon = R.drawable.ic_eye
-                        }
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_lock),
+                            contentDescription = null
+                        )
                     },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = confirmPasswordTrailingIcon),
+                            contentDescription = null,
+                            modifier = Modifier.clickable {
+                                if(confirmPasswordTrailingIcon == R.drawable.ic_eye) {
+                                    confirmPasswordVisual = VisualTransformation.None
+                                    confirmPasswordTrailingIcon = R.drawable.ic_visibility_off
+                                } else{
+                                    confirmPasswordVisual = PasswordVisualTransformation()
+                                    confirmPasswordTrailingIcon = R.drawable.ic_eye
+                                }
+                            }
+                        )
+                    } ,
                     visualTransformation = confirmPasswordVisual
                 )
 

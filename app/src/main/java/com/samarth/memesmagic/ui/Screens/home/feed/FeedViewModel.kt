@@ -102,5 +102,12 @@ class FeedViewModel @Inject constructor(
         postStatus.value = Resource.Empty()
     }
 
+    fun likePost(postId:String){
+
+
+    }
+
+
+
 
 }

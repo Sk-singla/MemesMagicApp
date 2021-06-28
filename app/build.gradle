@@ -30,6 +30,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -106,6 +107,25 @@ dependencies {
 
     // Data Store
     implementation "androidx.datastore:datastore-preferences:1.0.0-beta02"
+
+    // Photo editor
+    implementation 'com.burhanrashid52:photoeditor:1.1.4'
+
+    // Gson
+    implementation "com.google.code.gson:gson:2.8.6"
+
+    // Rxjava
+    implementation "io.reactivex.rxjava3:rxjava:3.0.13"
+
+    // Amazon s3
+
+    implementation 'com.amplifyframework:aws-storage-s3:1.18.0'
+    implementation 'com.amplifyframework:aws-auth-cognito:1.18.0'
+    implementation 'com.amplifyframework:core:1.18.0'
+
+    // Support for Java 8 features
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
 
 
 }
