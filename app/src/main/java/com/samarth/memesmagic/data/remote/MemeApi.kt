@@ -3,10 +3,9 @@ package com.samarth.memesmagic.data.remote
 import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
-import com.samarth.memesmagic.data.remote.response.Post
-import com.samarth.memesmagic.data.remote.response.SimpleResponse
-import com.samarth.memesmagic.data.remote.response.User
-import com.samarth.memesmagic.data.remote.response.UserInfo
+import com.samarth.memesmagic.data.remote.request.CommentRequest
+import com.samarth.memesmagic.data.remote.response.*
+import com.samarth.memesmagic.util.Constants.COMMENTS
 import com.samarth.memesmagic.util.Constants.FEED
 import com.samarth.memesmagic.util.Constants.POSTS
 import com.samarth.memesmagic.util.Constants.USERS
@@ -42,6 +41,28 @@ interface MemeApi {
         @Path("email") email:String
     ):SimpleResponse<User>
 
+    @Headers("Content-Type: application/json")
+    @GET("$USERS/search/{searchKeyWord}")
+    suspend fun findUsers(
+        @Header("Authorization") token:String,
+        @Path("searchKeyWord") searchKeyWord:String
+    ):SimpleResponse<List<UserInfo>>
+
+
+    @Headers("Content-Type: application/json")
+    @POST("$USERS/follow/{email}")
+    suspend fun followUser(
+        @Header("Authorization") token:String,
+        @Path("email") email: String
+    ):SimpleResponse<UserInfo>
+
+    @Headers("Content-Type: application/json")
+    @POST("$USERS/unfollow/{email}")
+    suspend fun unFollowUser(
+        @Header("Authorization") token:String,
+        @Path("email") email: String
+    ):SimpleResponse<UserInfo>
+
 
     @Headers("Content-Type: application/json")
     @GET("$POSTS/get/{email}")
@@ -72,6 +93,38 @@ interface MemeApi {
         @Header("Authorization") token:String,
         @Path("postId") postId:String
     ):SimpleResponse<UserInfo>
+
+
+
+    @Headers("Content-Type: application/json")
+    @POST("$COMMENTS/add/{postId}")
+    suspend fun uploadComment(
+        @Header("Authorization") token:String,
+        @Path("postId") postId: String,
+        @Body commentRequest: CommentRequest
+    ):SimpleResponse<Comment>
+
+    @Headers("Content-Type: application/json")
+    @POST("$COMMENTS/like/{postId}/{commentId}")
+    suspend fun likeComment(
+        @Header("Authorization") token:String,
+        @Path("postId") postId:String,
+        @Path("commentId") commentId:String
+    ):SimpleResponse<UserInfo>
+
+    @Headers("Content-Type: application/json")
+    @POST("$COMMENTS/dislike/{postId}/{commentId}")
+    suspend fun dislikeComment(
+        @Header("Authorization") token:String,
+        @Path("postId") postId:String,
+        @Path("commentId") commentId:String
+    ):SimpleResponse<UserInfo>
+
+
+
+
+
+
 
 
 

@@ -1,15 +1,19 @@
 package com.samarth.memesmagic.ui.Screens.LoginScreen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -111,10 +115,8 @@ fun LoginScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = passwordVisual,
                     trailingIcon ={
-                        Icon(
-                            painter = painterResource(id = passwordTrailingIcon),
-                            contentDescription = null,
-                            modifier = Modifier.clickable {
+                        IconButton(
+                            onClick = {
                                 if (passwordTrailingIcon == R.drawable.ic_eye) {
                                     passwordVisual = VisualTransformation.None
                                     passwordTrailingIcon = R.drawable.ic_visibility_off
@@ -122,8 +124,14 @@ fun LoginScreen(
                                     passwordVisual = PasswordVisualTransformation()
                                     passwordTrailingIcon = R.drawable.ic_eye
                                 }
-                            }
-                        )
+                            },
+                            modifier =Modifier.background(color = Color.Transparent).clip(CircleShape)
+                        ){
+                            Icon(
+                                painter = painterResource(id = passwordTrailingIcon),
+                                contentDescription = null
+                            )
+                        }
                     }
                 )
 

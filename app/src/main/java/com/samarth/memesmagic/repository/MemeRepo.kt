@@ -5,10 +5,8 @@ import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
-import com.samarth.memesmagic.data.remote.response.Post
-import com.samarth.memesmagic.data.remote.response.SimpleResponse
-import com.samarth.memesmagic.data.remote.response.User
-import com.samarth.memesmagic.data.remote.response.UserInfo
+import com.samarth.memesmagic.data.remote.request.CommentRequest
+import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.util.Resource
 
 interface MemeRepo {
@@ -37,13 +35,30 @@ interface MemeRepo {
     suspend fun likePost(token: String,postId:String):Resource<UserInfo>
     suspend fun dislikePost(token: String,postId:String):Resource<UserInfo>
 
+    suspend fun findUsers(token:String, searchKeyWord:String):Resource<List<UserInfo>>
+
+    suspend fun followUser(token: String,email: String):Resource<UserInfo>
+    suspend fun unFollowUser(token: String,email: String):Resource<UserInfo>
+
+
+    suspend fun addComment(token: String, postId: String, commentRequest: CommentRequest):Resource<Comment>
+    suspend fun likeComment(token: String,postId: String,commentId:String):Resource<UserInfo>
+    suspend fun dislikeComment(token: String,postId: String,commentId:String):Resource<UserInfo>
+
 
     /**
      * 1. Share meme on other platforms -> Done
-     * todo -> 2. send friend request
-     * todo -> 3. comments
+     * 2. send friend request / follow , unfollow
+     * 3. comments
      * todo -> 4. add stickers while editing, and make everything working
      * todo -> 5. Rewards
+     *
+     * todo -> 6. posts  lazy column in profile when click on post item,  single post when screen for feed post
+     * todo -> 7. feed algo
+     * todo -> 8. Make default fn calls in EFFECTS
+     * todo -> 9. Landing page
+     * todo -> 10. Logo
+     * todo -> 11. light Mode -> primary colour
      *
      */
 

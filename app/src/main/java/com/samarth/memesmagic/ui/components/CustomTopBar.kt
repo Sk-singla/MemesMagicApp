@@ -20,7 +20,8 @@ fun CustomTopBar(
     modifier:Modifier = Modifier,
     titleColor:Color = MaterialTheme.colors.onSecondary,
     navigationIcon:@Composable (()->Unit)?=null,
-    actions: @Composable RowScope.()->Unit = {}
+    actions: @Composable RowScope.()->Unit = {},
+    backgroundColor:Color = MaterialTheme.colors.surface
 ) {
 
     TopAppBar(
@@ -37,7 +38,8 @@ fun CustomTopBar(
             .fillMaxWidth()
             .shadow(4.dp),
         navigationIcon = navigationIcon,
-        actions = actions
+        actions = actions,
+        backgroundColor = backgroundColor
     )
 }
 
@@ -46,6 +48,7 @@ fun CustomTopBar(
 fun CustomTopBar(
     title:AnnotatedString,
     modifier:Modifier = Modifier,
+    backgroundColor:Color = MaterialTheme.colors.surface
 ) {
 
     TopAppBar(
@@ -60,5 +63,6 @@ fun CustomTopBar(
         modifier = modifier
             .fillMaxWidth()
             .shadow(4.dp),
+        backgroundColor = backgroundColor
     )
 }

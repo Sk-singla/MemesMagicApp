@@ -85,6 +85,8 @@ class FeedViewModel @Inject constructor(
             mediaLink = "https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg"
         )
 
+
+
     )
 
     fun isItLastItem(itemNumber:Int):Boolean{
@@ -101,7 +103,7 @@ class FeedViewModel @Inject constructor(
 
     init {
         viewModelScope.launch{
-            val token = getJwtToken(getApplication<Application>().applicationContext)
+            val token = getJwtToken(getApplication<Application>().applicationContext)!!
 //            Log.d("Token",token)
 //            getFeed(token, getEmail(getApplication<Application>().applicationContext)!!)
         }

@@ -16,6 +16,8 @@ import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
 import com.samarth.memesmagic.data.remote.MemeMakerApi
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
+import com.samarth.memesmagic.data.remote.request.CommentRequest
+import com.samarth.memesmagic.data.remote.response.Comment
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
@@ -62,6 +64,44 @@ class MemeRepository(
     }
 
 
+    override suspend fun findUsers(token: String, searchKeyWord: String): Resource<List<UserInfo>> {
+        return try{
+            val response = memeApi.findUsers("Bearer $token",searchKeyWord)
+            if(response.success && response.data != null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+    override suspend fun followUser(token: String, email: String): Resource<UserInfo> {
+        return try {
+            val response = memeApi.followUser("Bearer $token",email)
+            if(response.success && response.data != null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+    override suspend fun unFollowUser(token: String, email: String): Resource<UserInfo> {
+        return try {
+            val response = memeApi.unFollowUser("Bearer $token",email)
+            if(response.success && response.data != null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
 
     override suspend fun getFeed(token:String):Resource<List<Post>> {
 
@@ -210,4 +250,54 @@ class MemeRepository(
     }
 
 
+    override suspend fun addComment(
+        token: String,
+        postId: String,
+        commentRequest: CommentRequest
+    ): Resource<Comment> {
+        return try {
+            val response = memeApi.uploadComment("Bearer $token",postId,commentRequest)
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+    override suspend fun likeComment(
+        token: String,
+        postId: String,
+        commentId: String
+    ): Resource<UserInfo> {
+        return try {
+            val response = memeApi.likeComment("Bearer $token",postId,commentId)
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+    override suspend fun dislikeComment(
+        token: String,
+        postId: String,
+        commentId: String
+    ): Resource<UserInfo> {
+        return try {
+            val response = memeApi.dislikeComment("Bearer $token",postId,commentId)
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
 }

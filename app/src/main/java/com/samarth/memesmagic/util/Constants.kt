@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.util
 
 import androidx.navigation.NavController
+import com.samarth.memesmagic.data.remote.response.Post
 
 object Constants {
     const val PARTIALLY_CLICKABLE_TEXT_TAG = "Click"
@@ -13,6 +14,7 @@ object Constants {
     const val USERS = "$API_VERSION/user"
     const val POSTS = "$API_VERSION/posts"
     const val FEED = "$API_VERSION/feed"
+    const val COMMENTS = "$API_VERSION/comments"
 
     const val JWT_TOKEN_KEY = "JwtToken"
     const val EMAIL_KEY = "emailKey"
@@ -58,7 +60,8 @@ object Screens{
     const val EDIT_SCREEN = "${HOME_CREATE}/edit"
     const val NEW_POST_DETAILS_AND_UPLOAD = "$EDIT_SCREEN/upload"
 
+    const val COMMENT_SCREEN = "comments_screen"
+
     val posts = mutableListOf<String>()
-
-
 }
+

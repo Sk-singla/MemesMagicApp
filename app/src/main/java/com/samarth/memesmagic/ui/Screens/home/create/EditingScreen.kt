@@ -4,14 +4,11 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowRight
-import androidx.compose.material.icons.filled.ArrowRightAlt
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -36,6 +34,7 @@ import com.samarth.memesmagic.util.Screens.NEW_POST_DETAILS_AND_UPLOAD
 import ja.burhanrashid52.photoeditor.PhotoEditorView
 import kotlinx.coroutines.launch
 
+@ExperimentalFoundationApi
 @Composable
 fun EditingScreen(
     navController: NavHostController,
@@ -57,25 +56,31 @@ fun EditingScreen(
             CustomTopBar(
                 title = "Edit",
                 actions = {
-                    Icon(
-                        imageVector = if(createViewModel.textMode.value) Icons.Default.Done else Icons.Default.ArrowForward,
-                        contentDescription = "Done",
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .clickable {
-
-                                if(createViewModel.textMode.value){
-                                    if(createViewModel.selectedTextView.value == null){
-                                        createViewModel.addText()
-                                    } else {
-                                        createViewModel.editText()
-                                    }
+                    IconButton(
+                        onClick = {
+                            if (createViewModel.textMode.value) {
+                                if (createViewModel.selectedTextView.value == null) {
+                                    createViewModel.addText()
                                 } else {
-                                    navController.navigate(NEW_POST_DETAILS_AND_UPLOAD)
+                                    createViewModel.editText()
                                 }
-                            },
-                        tint = if(createViewModel.notToolMode.value) Green500 else Green700
-                    )
+                            } else {
+                                navController.navigate(NEW_POST_DETAILS_AND_UPLOAD)
+                            }
+                        },
+                        modifier = Modifier
+                            .background(color = Color.Transparent)
+                            .clip(CircleShape)
+                    ) {
+
+                        Icon(
+                            imageVector = if(createViewModel.textMode.value) Icons.Default.Done else Icons.Default.ArrowForward,
+                            contentDescription = "Done",
+                            tint = if(createViewModel.noToolMode.value) Green500 else Green700
+                        )
+
+                    }
+
                 }
             )
 
@@ -102,14 +107,19 @@ fun EditingScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.7f)
+                        .fillMaxHeight(0.65f)
                 ) {
                     coroutineScope.launch{
                         createViewModel.initPhotoEditor(
                             context,
                             it,
                             createViewModel.templatesList.value[memeTemplateIndex].url
-                        )
+                        ){
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(it)
+                            }
+                            navController.popBackStack()
+                        }
                     }
                 }
             }
@@ -117,7 +127,7 @@ fun EditingScreen(
 
 
             // TOOLS ->
-            if(createViewModel.notToolMode.value) {
+            if(createViewModel.noToolMode.value) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -132,15 +142,32 @@ fun EditingScreen(
                     ) {
                         Row{
 
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_undo_24),
-                                contentDescription = "Undo"
-                            )
+                            IconButton(
+                                onClick = {
+                                    createViewModel.undo()
+                                },
+                                modifier = Modifier.clip(CircleShape).background(Color.Transparent)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_baseline_undo_24),
+                                    contentDescription = "Undo"
+                                )
+                            }
+
                             Spacer(modifier = Modifier.padding(16.dp))
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_redo_24),
-                                contentDescription = "Redo"
-                            )
+
+                            IconButton(
+                                onClick = {
+                                    createViewModel.redo()
+                                },
+                                modifier = Modifier.clip(CircleShape).background(Color.Transparent)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_baseline_redo_24),
+                                    contentDescription = "Redo"
+                                )
+                            }
+
 
                         }
 
@@ -205,15 +232,14 @@ fun EditingScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.3f)
-                        .padding(8.dp)
+                        .fillMaxHeight(0.35f)
                         .verticalScroll(rememberScrollState())
                         .align(Alignment.BottomCenter)
                 ) {
 
                     Column(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp)){
+                        .padding(top = 2.dp)){
                         Text(text = "Brush Size", style = MaterialTheme.typography.body1)
                         Slider(
                             value = brushSize,
@@ -232,7 +258,7 @@ fun EditingScreen(
 
                     Column(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp)){
+                        .padding(top = 4.dp)){
                         Text(text = "Opacity", style = MaterialTheme.typography.body1)
                         Slider(
                             value = opacity.toFloat(),
@@ -251,7 +277,7 @@ fun EditingScreen(
 
                     Column(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp)
+                        .padding(top = 4.dp)
                     ) {
                         Text(text = "Brush Colour", style = MaterialTheme.typography.body1)
                         LazyRow() {
@@ -299,7 +325,7 @@ fun EditingScreen(
                 }
                 Column(modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.3f)
+                    .fillMaxHeight(0.35f)
                     .padding(8.dp)
                     .align(Alignment.BottomCenter),
                     verticalArrangement = Arrangement.Center
@@ -341,15 +367,16 @@ fun EditingScreen(
                     onDispose {  }
                 }
 
-                Column(
+                Box (
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha=0.5f)),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .background(Color.Black.copy(alpha = 0.65f)),
                 ){
 
 
-                    LazyRow {
+                    LazyRow(
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    ) {
 
                         items(createViewModel.coloursList){ color ->
 
@@ -383,9 +410,10 @@ fun EditingScreen(
                         },
                         modifier= Modifier
                             .fillMaxWidth()
+                            .align(Alignment.Center)
                             .padding(top = 32.dp, start = 4.dp, end = 4.dp)
                             .focusRequester(focusRequester),
-                        textStyle = TextStyle(textAlign = TextAlign.Center),
+                        textStyle = TextStyle(textAlign = TextAlign.Center,fontSize = 24.sp),
                         colors = TextFieldDefaults.textFieldColors(
                             backgroundColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent,
@@ -400,6 +428,38 @@ fun EditingScreen(
 
             }
 
+
+            // EMOJI MODE ->
+
+            if(createViewModel.emojiMode.value) {
+                BackHandler {
+                    createViewModel.endEmojiMode()
+                }
+
+                LazyVerticalGrid(
+                    cells = GridCells.Fixed(3),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color.Black.copy(alpha = 0.65f))
+                ) {
+
+                    items(createViewModel.emojiList.value) { emoji ->
+
+                        IconButton(
+                            onClick = {
+                                createViewModel.addEmoji(emoji)
+                            },
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(color = Color.Transparent)
+                        ) {
+                            Text(text = emoji,fontSize = 32.sp)
+                        }
+
+                    }
+                }
+
+            }
 
 
         }

@@ -56,7 +56,7 @@ fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = h
         }
     ) {
 
-        HomeNavGraph(modifier = Modifier.fillMaxSize(), homeNavController,scaffoldState,startActivity = startActivity)
+        HomeNavGraph(modifier = Modifier.fillMaxSize(), homeNavController,navController,scaffoldState,startActivity = startActivity)
 
     }
     

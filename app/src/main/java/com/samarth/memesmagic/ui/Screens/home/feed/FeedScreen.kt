@@ -14,16 +14,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.PostItem
+import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Resource
+import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
 import kotlinx.coroutines.launch
 
 @Composable
 fun FeedScreen(
     scaffoldState: ScaffoldState,
     feedViewModel: FeedViewModel = hiltViewModel(),
-    startActivity:(Intent)->Unit
+    startActivity:(Intent)->Unit,
+    parentNavController: NavController
 ) {
 
     val context = LocalContext.current
@@ -68,7 +72,8 @@ fun FeedScreen(
                                     }
                                 },
                                 onCommentIconPressed = {
-
+                                    CommentsUtil.post = it
+                                    parentNavController.navigate(COMMENT_SCREEN)
                                 },
                                 onShareIconPressed = {
                                     feedViewModel.shareImage(

@@ -3,15 +3,14 @@ package com.samarth.memesmagic.ui.Screens.home.create
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.Coil
 import com.samarth.data.models.request.PostRequest
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
@@ -21,16 +20,17 @@ import com.samarth.memesmagic.util.Constants
 import com.samarth.memesmagic.util.Constants.BUCKET_OBJECT_URL_PREFIX
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
 import ja.burhanrashid52.photoeditor.*
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.net.URL
 import java.util.*
 import javax.inject.Inject
 import kotlin.Exception
+import java.lang.NumberFormatException
+
 
 @HiltViewModel
 class CreateViewModel  @Inject constructor(
@@ -84,7 +84,7 @@ class CreateViewModel  @Inject constructor(
     lateinit var photoEditor:PhotoEditor
 
     val brushMode = mutableStateOf(false)
-    val notToolMode = mutableStateOf(true)
+    val noToolMode = mutableStateOf(true)
     val brushSize = mutableStateOf(0f)
     val curBrushColor = mutableStateOf(Color.WHITE)
     val opacity = mutableStateOf(100)
@@ -93,8 +93,10 @@ class CreateViewModel  @Inject constructor(
     val textMode = mutableStateOf(false)
     val selectedTextView = mutableStateOf<View?>(null)
     val curText = mutableStateOf("")
-    val curTextColor = mutableStateOf(Color.WHITE)
+    val curTextColor = mutableStateOf(Color.BLACK)
     val caption = mutableStateOf("")
+    val emojiMode = mutableStateOf(false)
+    var emojiList = mutableStateOf(listOf<String>())
 
     val coloursList = listOf(Color.BLACK,Color.BLUE,Color.RED,Color.CYAN,Color.GREEN,Color.DKGRAY,Color.MAGENTA,Color.WHITE,Color.YELLOW)
 
@@ -111,7 +113,7 @@ class CreateViewModel  @Inject constructor(
                         initTextMode()
             },
             EditTool("Emoji", R.drawable.ic_outline_emoji) {
-
+                initEmojiMode()
             }
         )
 
@@ -119,23 +121,26 @@ class CreateViewModel  @Inject constructor(
     fun initPhotoEditor(
         context: Context,
         photoEditorView: PhotoEditorView,
-        imageUrl:String
+        imageUrl:String,
+        onFail: (String) -> Unit
     ){
-        Single.fromCallable {
-            return@fromCallable BitmapFactory.decodeStream(
-                URL(imageUrl).openConnection().getInputStream()
-            )
-        }
-            .subscribeOn(Schedulers.io())
-            .subscribe { bmp ->
-                photoEditorView.source.setImageBitmap(bmp)
-                photoEditListeners()
-            }
+        Picasso.get().load(imageUrl).into(photoEditorView.source)
         photoEditor = PhotoEditor
             .Builder(context,photoEditorView)
             .setPinchTextScalable(true)
             .build()
         photoEditor.setBrushDrawingMode(false)
+        photoEditListeners()
+        emojiList.value = getEmojis(context)
+
+    }
+
+    fun undo(){
+        photoEditor.undo()
+    }
+
+    fun redo(){
+        photoEditor.redo()
     }
 
 
@@ -158,7 +163,7 @@ class CreateViewModel  @Inject constructor(
     fun initBrush(){
         photoEditor.setBrushDrawingMode(true)
         brushMode.value = true
-        notToolMode.value = false
+        noToolMode.value = false
         brushSize.value = photoEditor.brushSize
         photoEditor.brushColor = Color.WHITE
         curBrushColor.value = Color.WHITE
@@ -167,14 +172,14 @@ class CreateViewModel  @Inject constructor(
     fun endBrushMode(){
         photoEditor.setBrushDrawingMode(false)
         brushMode.value = false
-        notToolMode.value = true
+        noToolMode.value = true
     }
 
     fun initEraserMode(){
         curEraserSize.value = photoEditor.eraserSize
         photoEditor.brushEraser()
         eraserMode.value = true
-        notToolMode.value = false
+        noToolMode.value = false
     }
 
     fun setEraserSize(size:Float){
@@ -186,14 +191,14 @@ class CreateViewModel  @Inject constructor(
     fun endEraserMode(){
         photoEditor.setBrushDrawingMode(false)
         eraserMode.value = false
-        notToolMode.value = true
+        noToolMode.value = true
     }
 
 
     fun initTextMode(){
 
         textMode.value = true
-        notToolMode.value = false
+        noToolMode.value = false
 
     }
 
@@ -230,7 +235,8 @@ class CreateViewModel  @Inject constructor(
     }
 
     fun addText() {
-        photoEditor.addText(curText.value,curTextColor.value)
+        if(curText.value.isNotEmpty())
+            photoEditor.addText(curText.value,curTextColor.value)
         endTextMode()
     }
 
@@ -238,16 +244,48 @@ class CreateViewModel  @Inject constructor(
         if(selectedTextView.value != null) {
             Log.d("MyLog","Curtext value ->  ${curText.value}")
             photoEditor.editText(selectedTextView.value!!, curText.value, curTextColor.value)
+        } else {
+            Log.d("MyLog","edit null edit null")
         }
-        endTextMode()
+//        endTextMode()
     }
 
     fun endTextMode(){
         textMode.value = false
-        notToolMode.value = true
+        noToolMode.value = true
         curText.value = ""
         curTextColor.value = Color.WHITE
         selectedTextView.value = null
+    }
+
+    fun initEmojiMode(){
+        emojiMode.value = true
+        noToolMode.value = false
+    }
+
+
+    fun getEmojis(context: Context): List<String> {
+        val emojiList = context.resources.getStringArray(R.array.photo_editor_emoji)
+        return emojiList.map { convertEmoji(it) }
+    }
+
+    private fun convertEmoji(emoji: String): String {
+        return try {
+            val convertEmojiToInt = emoji.substring(2).toInt(16)
+            String(Character.toChars(convertEmojiToInt))
+        } catch (e: NumberFormatException) {
+            ""
+        }
+    }
+
+    fun addEmoji(emoji: String){
+        photoEditor.addEmoji(emoji)
+        endEmojiMode()
+    }
+
+    fun endEmojiMode(){
+        emojiMode.value = false
+        noToolMode.value = true
     }
 
 

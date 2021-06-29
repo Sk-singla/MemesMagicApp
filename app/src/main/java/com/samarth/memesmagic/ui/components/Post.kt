@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -116,41 +118,59 @@ fun PostItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(4.dp)
             ) {
-                Icon(
-                    painter = painterResource(id = if(isPostLiked) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
-                    contentDescription = "Like",
+
+                IconButton(
+                    onClick = {
+                        onLikeIconPressed(post, isPostLiked) {
+                            isPostLiked = !isPostLiked
+                        }
+                    },
                     modifier = Modifier
-                        .padding(start = 4.dp)
-                        .clickable {
-                            onLikeIconPressed(post, isPostLiked) {
-                                isPostLiked = !isPostLiked
-                            }
-                        },
-                    tint = if(isPostLiked) Green500 else LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_comment_24),
-                    contentDescription = "Comment",
+                        .padding(start = 2.dp)
+                        .background(color = Color.Transparent,shape = CircleShape)
+                ) {
+                    Icon(
+                        painter = painterResource(id = if(isPostLiked) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
+                        contentDescription = "Like",
+                        tint = if(isPostLiked) Green500 else LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        onCommentIconPressed(post)
+                    },
                     modifier = Modifier
                         .padding(start = 8.dp)
-                        .clickable {
-                            onCommentIconPressed(post)
-                        }
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_share_24),
-                    contentDescription = "Share",
+                        .background(color = Color.Transparent,shape = CircleShape),
+
+                ) {
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_comment_24),
+                        contentDescription = "Comment"
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        onShareIconPressed(post)
+                    },
                     modifier = Modifier
                         .padding(start = 8.dp)
-                        .clickable {
-                            onShareIconPressed(post)
-                        }
-                )
+                        .background(color = Color.Transparent,shape = CircleShape),
+
+                    ) {
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_share_24),
+                        contentDescription = "Share"
+                    )
+                }
             }
 
-            // Description ->
+            // Caption ->
 
 
             Text(

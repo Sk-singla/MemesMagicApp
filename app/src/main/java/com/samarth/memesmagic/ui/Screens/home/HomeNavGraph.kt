@@ -43,6 +43,7 @@ enum class HomeSections(
 fun HomeNavGraph(
     modifier:Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
+    parentNavHostController: NavHostController,
     scaffoldState: ScaffoldState,
     startActivity:(Intent)->Unit
 ) {
@@ -52,11 +53,14 @@ fun HomeNavGraph(
     NavHost(navController = navController, startDestination = HOME_FEED,modifier = modifier){
 
         composable(HOME_FEED){
-            FeedScreen(scaffoldState,startActivity = startActivity)
+            FeedScreen(scaffoldState,startActivity = startActivity,parentNavController = parentNavHostController)
         }
 
         composable(HOME_SEARCH){
-            SearchScreen()
+            SearchScreen(
+                scaffoldState,
+                navController
+            )
         }
 
         composable(HOME_REWARDS){

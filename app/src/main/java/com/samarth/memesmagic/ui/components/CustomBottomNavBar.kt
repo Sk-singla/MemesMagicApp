@@ -41,7 +41,7 @@ fun CustomBottomNavBar(
 
         val currentSection = sections.first{ it.route == currentRoute}
         CustomBottomNavigation(
-            backgroundColor = MaterialTheme.colors.primarySurface
+            backgroundColor = MaterialTheme.colors.surface
         ){
 
 

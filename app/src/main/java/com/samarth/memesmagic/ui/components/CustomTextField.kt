@@ -20,6 +20,7 @@ fun CustomTextField(
     unFocusedBorderColor:Color = MaterialTheme.colors.secondaryVariant,
     focusedBorderColor:Color = MaterialTheme.colors.secondary,
     cursorColor:Color = MaterialTheme.colors.secondary,
+    backgroundColor:Color = MaterialTheme.colors.surface,
     leadingIconColor:Color = MaterialTheme.colors.secondaryVariant,
     leadingIcon:@Composable (()->Unit)?=null,
     trailingIcon:@Composable (()->Unit)?=null,
@@ -42,6 +43,7 @@ fun CustomTextField(
                 cursorColor = cursorColor,
                 leadingIconColor = leadingIconColor,
                 focusedLabelColor = focusedLabelColor,
+                backgroundColor = backgroundColor
             ),
         leadingIcon = leadingIcon,
         keyboardOptions = keyboardOptions,
