@@ -171,11 +171,9 @@ fun EditingScreen(
 
                         }
 
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_download_24),
-                            contentDescription = "Download",
-                            modifier = Modifier.clickable {
-                                createViewModel.saveAsBitmapInInternalStorage(
+                        IconButton(
+                            onClick = {
+                                createViewModel.saveAsBitmapInExternalStorage(
                                     context = context,
                                     onSuccess = {
                                         coroutineScope.launch {
@@ -192,8 +190,15 @@ fun EditingScreen(
                                         }
                                     }
                                 )
-                            }
-                        )
+                            },
+                            modifier = Modifier.clip(CircleShape).background(Color.Transparent)
+                        ) {
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_download_24),
+                                contentDescription = "Download"
+                            )
+                        }
                     }
 
                     Row(

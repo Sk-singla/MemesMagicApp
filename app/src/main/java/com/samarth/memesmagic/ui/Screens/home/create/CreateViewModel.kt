@@ -1,10 +1,12 @@
 package com.samarth.memesmagic.ui.Screens.home.create
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import androidx.annotation.ColorInt
@@ -20,11 +22,14 @@ import com.samarth.memesmagic.util.Constants
 import com.samarth.memesmagic.util.Constants.BUCKET_OBJECT_URL_PREFIX
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
+import com.samarth.memesmagic.util.sdk29AndUp
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ja.burhanrashid52.photoeditor.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
@@ -288,6 +293,56 @@ class CreateViewModel  @Inject constructor(
         noToolMode.value = true
     }
 
+
+    fun saveAsBitmapInExternalStorage(context: Context,fileName:String = UUID.randomUUID().toString(),onSuccess: () -> Unit, onFail: (String) -> Unit){
+
+        photoEditor.saveAsBitmap(object :OnSaveBitmap{
+            override fun onBitmapReady(saveBitmap: Bitmap?) {
+                saveBitmap?.let { bmp->
+                    viewModelScope.launch {
+                        if (saveImageToExternalStorage(context, fileName, bmp)) {
+                            onSuccess()
+                        } else {
+                            onFail("Can't save to Internal Storage!!")
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(e: java.lang.Exception?) {
+                onFail(e?.message ?: "Failed to create Bitmap!!")
+            }
+        })
+
+    }
+
+    private suspend fun saveImageToExternalStorage(context: Context,displayName:String,bmp:Bitmap):Boolean {
+        return withContext(Dispatchers.IO){
+            val imageCollection = sdk29AndUp {
+                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            } ?: MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME,"$displayName.jpg")
+                put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg")
+                put(MediaStore.Images.Media.WIDTH,bmp.width)
+                put(MediaStore.Images.Media.HEIGHT,bmp.height)
+            }
+            try {
+                context.contentResolver.insert(imageCollection,contentValues)?.also { uri ->
+                    context.contentResolver.openOutputStream(uri).use { outputStream->
+                        if(!bmp.compress(Bitmap.CompressFormat.JPEG,95,outputStream)){
+                            throw IOException("Couldn't save Image")
+                        }
+                    }
+                } ?: throw IOException("Couldn't create Mediastore Entry")
+                true
+            } catch (e:Exception){
+                e.printStackTrace()
+                false
+            }
+        }
+    }
 
 
 

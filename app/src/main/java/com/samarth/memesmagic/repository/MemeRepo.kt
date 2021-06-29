@@ -60,6 +60,8 @@ interface MemeRepo {
      * todo -> 10. Logo
      * todo -> 11. light Mode -> primary colour
      *
+     * todo -> comment box background not transparent
+     *
      */
 
 
