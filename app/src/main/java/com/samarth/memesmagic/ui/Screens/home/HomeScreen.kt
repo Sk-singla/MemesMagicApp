@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui.Screens.home
 
+import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,12 +26,14 @@ import com.samarth.memesmagic.ui.components.CustomTopBar
 
 @ExperimentalFoundationApi
 @Composable
-fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = hiltViewModel(),startActivity:(Intent)->Unit) {
 
 
     val homeNavController = rememberNavController()
     val tabs = remember{ HomeSections.values() }
+    val scaffoldState = rememberScaffoldState()
     Scaffold(
+        scaffoldState = scaffoldState,
         modifier = Modifier.fillMaxSize(),
         topBar = {
 
@@ -53,7 +56,7 @@ fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = h
         }
     ) {
 
-        HomeNavGraph(modifier = Modifier.fillMaxSize(), homeNavController)
+        HomeNavGraph(modifier = Modifier.fillMaxSize(), homeNavController,scaffoldState,startActivity = startActivity)
 
     }
     

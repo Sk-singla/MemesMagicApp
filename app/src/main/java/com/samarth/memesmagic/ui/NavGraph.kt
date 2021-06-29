@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui
 
+import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,7 +28,9 @@ import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 
 @ExperimentalFoundationApi
 @Composable
-fun MainNavGraph(){
+fun MainNavGraph(
+    startActivity:(Intent)->Unit
+){
 
     val navController = rememberNavController()
     val createViewModel:CreateViewModel = hiltViewModel()
@@ -44,7 +47,7 @@ fun MainNavGraph(){
         }
 
         composable(HOME_SCREEN){
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController,startActivity = startActivity)
         }
 
         composable(LOGIN_SCREEN){

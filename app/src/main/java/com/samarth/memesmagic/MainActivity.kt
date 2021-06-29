@@ -72,7 +72,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MemesMagicTheme {
-                MainNavGraph()
+                MainNavGraph { intent ->
+                    startActivity(intent)
+                }
             }
         }
 //        configureGSI()

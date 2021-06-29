@@ -6,6 +6,7 @@ import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.SimpleResponse
 import com.samarth.memesmagic.data.remote.response.User
+import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.util.Constants.FEED
 import com.samarth.memesmagic.util.Constants.POSTS
 import com.samarth.memesmagic.util.Constants.USERS
@@ -57,6 +58,21 @@ interface MemeApi {
         @Header("Authorization") token:String,
         @Body postRequest: PostRequest
     ):SimpleResponse<String>
+
+    @Headers("Content-Type: application/json")
+    @POST("$POSTS/like/{postId}")
+    suspend fun likePost(
+        @Header("Authorization") token:String,
+        @Path("postId") postId:String
+    ):SimpleResponse<UserInfo>
+
+    @Headers("Content-Type: application/json")
+    @POST("$POSTS/dislike/{postId}")
+    suspend fun dislikePost(
+        @Header("Authorization") token:String,
+        @Path("postId") postId:String
+    ):SimpleResponse<UserInfo>
+
 
 
 

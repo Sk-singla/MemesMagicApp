@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -39,127 +40,128 @@ import java.lang.Error
 @ExperimentalFoundationApi
 @Composable
 fun ProfileScreen(
+    scaffoldState: ScaffoldState,
     email:String?=null,
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
 
 
     val context = LocalContext.current
-    profileViewModel.getUser(email,context)
-    profileViewModel.getPosts(email,context)
 
-    val scaffoldState = rememberScaffoldState()
-     val coroutineScope = rememberCoroutineScope()
+    DisposableEffect(key1 = Unit) {
+        profileViewModel.getUser(email,context)
+        profileViewModel.getPosts(email,context)
+        onDispose {  }
+    }
 
-    Scaffold(
-        scaffoldState = scaffoldState,
-        modifier = Modifier.fillMaxSize(),
-    ){
+
+
+    val coroutineScope = rememberCoroutineScope()
+
         // todo -> complete profile -> then meme part start
 
-        Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()){
 
-            Column(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-    //                .fillMaxHeight(0.5f)
-                    , contentAlignment = Alignment.Center
-                ) {
-                    when (profileViewModel.userStatus.value) {
-                        is Resource.Success -> {
-                            ProfileTopSection(
-                                user = profileViewModel.userStatus.value.data!!,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            )
-                        }
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+//                .fillMaxHeight(0.5f)
+                , contentAlignment = Alignment.Center
+            ) {
+                when (profileViewModel.userStatus.value) {
+                    is Resource.Success -> {
+                        ProfileTopSection(
+                            user = profileViewModel.userStatus.value.data!!,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
 
-                        is Resource.Error -> {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(profileViewModel.userStatus.value.message!!)
-                            }
-                        }
-
-                        is Resource.Loading -> {
-                            CircularProgressIndicator()
-                        }
-
-                        else -> {
-
+                    is Resource.Error -> {
+                        coroutineScope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar(profileViewModel.userStatus.value.message!!)
                         }
                     }
 
-                }
-
-                Divider(modifier=Modifier.padding(horizontal = 12.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    when (profileViewModel.postStatus.value) {
-                        is Resource.Success -> {
-
-                            profileViewModel.postStatus.value.data?.let { posts ->
-                                if (posts.isEmpty()) {
-                                    Text(
-                                        text = "No Post to Show!",
-                                        style = MaterialTheme.typography.h5,
-                                        modifier = Modifier.fillMaxWidth().align(Alignment.Center),
-                                        textAlign = TextAlign.Center
-                                    )
-                                } else {
-                                    ProfilePostsSection(
-                                        posts = posts,
-                                        modifier = Modifier.padding(horizontal = 4.dp)
-                                    )
-                                }
-
-                            }
-
-                        }
-
-                        is Resource.Error -> {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState
-                                    .showSnackbar(
-                                        profileViewModel.userStatus.value.message ?: "Error!!"
-                                    )
-                            }
-                        }
-
-                        is Resource.Loading -> {
-                            CircularProgressIndicator()
-                        }
-
-                        else -> {
-
-                        }
+                    is Resource.Loading -> {
+                        CircularProgressIndicator()
                     }
 
+                    else -> {
 
+                    }
                 }
+
             }
 
+            Divider(modifier=Modifier.padding(horizontal = 12.dp))
 
-            SnackbarHost(
-                hostState = scaffoldState.snackbarHostState,
+            Box(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.BottomCenter)
-            ){
-                Snackbar(
-                    snackbarData = it,
-                    modifier = Modifier.padding(bottom = 32.dp),
-                )
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+            ) {
+                when (profileViewModel.postStatus.value) {
+                    is Resource.Success -> {
+
+                        profileViewModel.postStatus.value.data?.let { posts ->
+                            if (posts.isEmpty()) {
+                                Text(
+                                    text = "No Post to Show!",
+                                    style = MaterialTheme.typography.h5,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.Center),
+                                    textAlign = TextAlign.Center
+                                )
+                            } else {
+                                ProfilePostsSection(
+                                    posts = posts,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                            }
+
+                        }
+
+                    }
+
+                    is Resource.Error -> {
+                        coroutineScope.launch {
+                            scaffoldState.snackbarHostState
+                                .showSnackbar(
+                                    profileViewModel.userStatus.value.message ?: "Error!!"
+                                )
+                        }
+                    }
+
+                    is Resource.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    else -> {
+
+                    }
+                }
+
 
             }
         }
 
+
+        SnackbarHost(
+            hostState = scaffoldState.snackbarHostState,
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.BottomCenter)
+        ){
+            Snackbar(
+                snackbarData = it,
+                modifier = Modifier.padding(bottom = 32.dp),
+            )
+
+        }
     }
 
 }
@@ -198,7 +200,7 @@ fun ProfileTopSection(
                     .clip(CircleShape)
                     .border(
                         width = 2.dp,
-                        color = MaterialTheme.colors.onBackground.copy(alpha=0.8f),
+                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
                         shape = CircleShape
                     )
 //                    .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.85f)),

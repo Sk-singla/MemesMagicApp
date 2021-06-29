@@ -1,13 +1,13 @@
 package com.samarth.memesmagic.ui.Screens.home
 
+import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -16,21 +16,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.PostItem
-import com.samarth.memesmagic.ui.theme.Gray500
 import com.samarth.memesmagic.util.Resource
+import kotlinx.coroutines.launch
 
 @Composable
 fun FeedScreen(
-    feedViewModel: FeedViewModel = hiltViewModel()
+    scaffoldState: ScaffoldState,
+    feedViewModel: FeedViewModel = hiltViewModel(),
+    startActivity:(Intent)->Unit
 ) {
 
     val context = LocalContext.current
+    val coroutineScope  = rememberCoroutineScope()
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
 
         when (feedViewModel.postStatus.value) {
-
-            // todo  -> In ktor , upload post route-> add functionality to increment post count of user
 
             is Resource.Error -> {
 
@@ -59,14 +60,27 @@ fun FeedScreen(
                             PostItem(
                                 post = post,
                                 isLiked = feedViewModel.isPostLiked(post, context),
-                                onLike = {
-
+                                onLikeIconPressed = { post,isPostLiked, onSuccess  ->
+                                    if(isPostLiked) {
+                                        feedViewModel.dislikePost(post,context,onSuccess)
+                                    } else {
+                                        feedViewModel.likePost(post, context, onSuccess)
+                                    }
                                 },
                                 onCommentIconPressed = {
 
                                 },
                                 onShareIconPressed = {
-
+                                    feedViewModel.shareImage(
+                                        it.mediaLink,
+                                        context,
+                                        startActivity
+                                    ){
+                                        coroutineScope.launch {
+                                            Log.d("MyLog",it)
+                                            scaffoldState.snackbarHostState.showSnackbar(it)
+                                        }
+                                    }
                                 }
                             )
 

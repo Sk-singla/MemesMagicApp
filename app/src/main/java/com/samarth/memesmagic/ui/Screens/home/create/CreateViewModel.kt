@@ -11,6 +11,7 @@ import androidx.annotation.ColorInt
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.Coil
 import com.samarth.data.models.request.PostRequest
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
@@ -120,17 +121,16 @@ class CreateViewModel  @Inject constructor(
         photoEditorView: PhotoEditorView,
         imageUrl:String
     ){
-
-       Single.fromCallable {
+        Single.fromCallable {
             return@fromCallable BitmapFactory.decodeStream(
                 URL(imageUrl).openConnection().getInputStream()
             )
-       }
-           .subscribeOn(Schedulers.io())
-           .subscribe { bmp ->
-               photoEditorView.source.setImageBitmap(bmp)
-               photoEditListeners()
-           }
+        }
+            .subscribeOn(Schedulers.io())
+            .subscribe { bmp ->
+                photoEditorView.source.setImageBitmap(bmp)
+                photoEditListeners()
+            }
         photoEditor = PhotoEditor
             .Builder(context,photoEditorView)
             .setPinchTextScalable(true)

@@ -11,7 +11,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.samarth.memesmagic"
+        applicationId "com.samarth.myapplication"
         minSdk 23
         targetSdk 30
         versionCode 1
@@ -30,7 +30,6 @@ android {
         }
     }
     compileOptions {
-        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -46,6 +45,8 @@ android {
         kotlinCompilerVersion '1.4.32'
     }
 }
+
+
 kapt{
     correctErrorTypes true
 }
@@ -70,14 +71,14 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07"
     implementation "androidx.navigation:navigation-compose:2.4.0-alpha03"
-    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha07"
+    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha08'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation "com.squareup.okhttp3:okhttp:4.9.0"
-    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2'
 
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
@@ -92,7 +93,7 @@ dependencies {
 
 
     // Coil
-    implementation "io.coil-kt:coil:1.2.1"
+    implementation 'io.coil-kt:coil:1.2.2'
     implementation "com.google.accompanist:accompanist-coil:0.12.0"
 
     //Dagger - Hilt
@@ -112,20 +113,22 @@ dependencies {
     implementation 'com.burhanrashid52:photoeditor:1.1.4'
 
     // Gson
-    implementation "com.google.code.gson:gson:2.8.6"
+    implementation 'com.google.code.gson:gson:2.8.7'
 
     // Rxjava
     implementation "io.reactivex.rxjava3:rxjava:3.0.13"
 
     // Amazon s3
 
-    implementation 'com.amplifyframework:aws-storage-s3:1.18.0'
-    implementation 'com.amplifyframework:aws-auth-cognito:1.18.0'
-    implementation 'com.amplifyframework:core:1.18.0'
+    implementation 'com.amplifyframework:aws-storage-s3:1.20.0'
+    implementation 'com.amplifyframework:aws-auth-cognito:1.20.0'
+    implementation 'com.amplifyframework:core:1.20.0'
 
     // Support for Java 8 features
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
+    // Picasso
+    implementation 'com.squareup.picasso:picasso:2.8'
 
 
 }

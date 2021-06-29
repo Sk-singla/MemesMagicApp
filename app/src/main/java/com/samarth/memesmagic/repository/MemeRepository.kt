@@ -18,6 +18,7 @@ import com.samarth.memesmagic.data.remote.MemeMakerApi
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
+import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
 import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
@@ -77,8 +78,30 @@ class MemeRepository(
 
     }
 
-    suspend fun likePost(postId:String, userEmail:String){
+    override suspend fun likePost(token: String,postId:String):Resource<UserInfo>{
+        return try{
+            val response = memeApi.likePost("Bearer $token",postId = postId)
+            if(response.success && response.data != null){
+                Resource.Success(response.data)
+            } else{
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Error!")
+        }
+    }
 
+    override suspend fun dislikePost(token: String,postId:String):Resource<UserInfo>{
+        return try{
+            val response = memeApi.likePost("Bearer $token",postId = postId)
+            if(response.success && response.data != null){
+                Resource.Success(response.data)
+            } else{
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Error!")
+        }
     }
 
 

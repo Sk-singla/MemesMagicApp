@@ -1,8 +1,10 @@
 package com.samarth.memesmagic.ui.Screens.home
 
+import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +43,8 @@ enum class HomeSections(
 fun HomeNavGraph(
     modifier:Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
+    scaffoldState: ScaffoldState,
+    startActivity:(Intent)->Unit
 ) {
 
     val context = LocalContext.current
@@ -48,7 +52,7 @@ fun HomeNavGraph(
     NavHost(navController = navController, startDestination = HOME_FEED,modifier = modifier){
 
         composable(HOME_FEED){
-            FeedScreen()
+            FeedScreen(scaffoldState,startActivity = startActivity)
         }
 
         composable(HOME_SEARCH){
@@ -60,7 +64,7 @@ fun HomeNavGraph(
         }
 
         composable(HOME_PROFILE){
-            ProfileScreen()
+            ProfileScreen(scaffoldState)
         }
 
 

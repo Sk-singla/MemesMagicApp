@@ -2,10 +2,18 @@ package com.samarth.memesmagic.ui.Screens.home.feed
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.UserInfo
@@ -13,10 +21,16 @@ import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.IOException
+import java.lang.Exception
 import javax.inject.Inject
+
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
@@ -26,7 +40,9 @@ class FeedViewModel @Inject constructor(
 
 
     val postStatus = mutableStateOf<Resource<List<Post>>>(Resource.Empty())
-    val posts = mutableListOf(
+
+    val posts = mutableListOf<Post>(
+
         Post(
             "id1",
             UserInfo("Samarth","asasdf@gmail.com","https://cdn.pixabay.com/photo/2018/08/28/12/41/avatar-3637425_960_720.png"),
@@ -68,6 +84,7 @@ class FeedViewModel @Inject constructor(
             likedBy = mutableListOf(UserInfo("adfs","test","")),
             mediaLink = "https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg"
         )
+
     )
 
     fun isItLastItem(itemNumber:Int):Boolean{
@@ -84,15 +101,16 @@ class FeedViewModel @Inject constructor(
 
     init {
         viewModelScope.launch{
-            val token = getJwtToken(getApplication<Application>().applicationContext)!!
-            Log.d("Token",token)
-            getFeed(token)
+            val token = getJwtToken(getApplication<Application>().applicationContext)
+//            Log.d("Token",token)
+//            getFeed(token, getEmail(getApplication<Application>().applicationContext)!!)
         }
     }
 
-    fun getFeed(token:String) = viewModelScope.launch{
+    fun getFeed(token:String,email:String) = viewModelScope.launch{
         postStatus.value = Resource.Loading()
 //        postStatus.value = memeRepo.getFeed(token)
+        postStatus.value = memeRepo.getPosts(token,email)
 
         if(postStatus.value is Resource.Success){
             posts.addAll(postStatus.value.data!!)
@@ -102,10 +120,65 @@ class FeedViewModel @Inject constructor(
         postStatus.value = Resource.Empty()
     }
 
-    fun likePost(postId:String){
-
-
+    fun likePost(post:Post,context: Context,onSuccess:()->Unit) = viewModelScope.launch{
+        val result = memeRepo.likePost(getJwtToken(context)!!,post.id)
+        if(result is Resource.Success){
+            post.likedBy.add(result.data!!)
+            onSuccess()
+        }
     }
+
+    fun dislikePost(post:Post,context: Context,onSuccess:()->Unit) = viewModelScope.launch{
+        val result = memeRepo.dislikePost(getJwtToken(context)!!,post.id)
+        if(result is Resource.Success){
+            post.likedBy.add(result.data!!)
+            onSuccess()
+        }
+    }
+
+
+    fun shareImage(url:String,context: Context,startActivity:(Intent)->Unit,onFail:(String)->Unit) {
+        val fileName = "${System.currentTimeMillis()}.jpg"
+        Picasso.get().load(url).into(
+            object : Target {
+                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                    try{
+                        bitmap?.let { bmp ->
+                            getApplication<Application>().applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE).use { stream ->
+                                if (!bmp.compress(Bitmap.CompressFormat.JPEG, 95, stream)) {
+                                    throw IOException("Couldn't Save Bitmap!")
+                                } else{
+
+
+                                    val imageUri = FileProvider.getUriForFile(
+                                        getApplication<Application>().applicationContext,
+                                        BuildConfig.APPLICATION_ID + ".provider",
+                                        File(getApplication<Application>().applicationContext.filesDir,fileName)
+                                    )
+                                    val intent = Intent(Intent.ACTION_SEND)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    intent.type = "image/*"
+                                    intent.putExtra(Intent.EXTRA_STREAM,imageUri)
+                                    startActivity(Intent.createChooser(intent,"Share Image"))
+                                }
+                            }
+                        }
+                    }catch (e:Exception){
+                        onFail(e.message ?: "Some Problem Occurred!!")
+                    }
+                }
+
+                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                    onFail(e?.message ?: "Bitmap creation Failed!!")
+                }
+
+                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+
+                }
+            }
+        )
+    }
+
 
 
 
