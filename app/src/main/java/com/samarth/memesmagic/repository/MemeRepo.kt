@@ -45,20 +45,23 @@ interface MemeRepo {
     suspend fun likeComment(token: String,postId: String,commentId:String):Resource<UserInfo>
     suspend fun dislikeComment(token: String,postId: String,commentId:String):Resource<UserInfo>
 
-
+    suspend fun getCurrentMonthReward(token: String):Resource<Reward>
+    suspend fun getMyRewards(token: String):Resource<List<Reward>>
     /**
      * 1. Share meme on other platforms -> Done
      * 2. send friend request / follow , unfollow
      * 3. comments
      * todo -> 4. add stickers while editing, and make everything working
-     * todo -> 5. Rewards
+     * 5. Rewards
+     *
+     * rewards -> make a table in table in ktor -> reward type, email who won reward, time,
      *
      * todo -> 6. posts  lazy column in profile when click on post item,  single post when screen for feed post
      * todo -> 7. feed algo
      * todo -> 8. Make default fn calls in EFFECTS
      * todo -> 9. Landing page
      * todo -> 10. Logo
-     * todo -> 11. light Mode -> primary colour
+     * light Mode -> primary colour
      *
      * todo -> comment box background not transparent
      *

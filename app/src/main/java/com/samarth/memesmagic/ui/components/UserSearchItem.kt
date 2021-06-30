@@ -3,6 +3,7 @@ package com.samarth.memesmagic.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -32,7 +33,8 @@ fun UserSearchItem(
     userInfo: UserInfo,
     following: Boolean,
     onFollowUnFollowBtnPressed: (onSuccess:()->Unit) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick:()->Unit
 ) {
 
     var isFollowingToUser by remember {
@@ -68,7 +70,9 @@ fun UserSearchItem(
                         width = 2.dp,
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
                         shape = CircleShape
-                    )
+                    ).clickable{
+                        onClick()
+                    }
             )
 
 
@@ -77,7 +81,10 @@ fun UserSearchItem(
                 style = MaterialTheme.typography.body2,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.clickable{
+                    onClick()
+                }
             )
         }
 

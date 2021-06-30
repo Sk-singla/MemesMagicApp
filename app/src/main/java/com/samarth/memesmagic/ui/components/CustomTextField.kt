@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
+import kotlin.math.max
 
 @Composable
 fun CustomTextField(
@@ -28,7 +29,8 @@ fun CustomTextField(
     visualTransformation: VisualTransformation =  VisualTransformation.None,
     focusedLabelColor:Color = MaterialTheme.colors.secondary,
     keyboardOptions:KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    maxLines:Int = Int.MAX_VALUE
 ) {
 
     OutlinedTextField(
@@ -52,7 +54,8 @@ fun CustomTextField(
             Text(text = placeholder)
         },
         trailingIcon = trailingIcon,
-        visualTransformation = visualTransformation
+        visualTransformation = visualTransformation,
+        maxLines = maxLines
     )
 
 }

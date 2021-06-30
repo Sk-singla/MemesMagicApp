@@ -108,15 +108,13 @@ dependencies {
 
     // Data Store
     implementation "androidx.datastore:datastore-preferences:1.0.0-beta02"
+    implementation "androidx.datastore:datastore:1.0.0-beta02"
 
     // Photo editor
     implementation 'com.burhanrashid52:photoeditor:1.1.4'
 
     // Gson
     implementation 'com.google.code.gson:gson:2.8.7'
-
-    // Rxjava
-    implementation "io.reactivex.rxjava3:rxjava:3.0.13"
 
     // Amazon s3
 

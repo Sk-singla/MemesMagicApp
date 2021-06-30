@@ -38,7 +38,8 @@ fun PostItem(
     isLiked: Boolean,
     onLikeIconPressed:(post:Post,isPostLiked:Boolean, onSuccess:()->Unit)->Unit,
     onCommentIconPressed: (post:Post) -> Unit,
-    onShareIconPressed: (post:Post) -> Unit
+    onShareIconPressed: (post:Post) -> Unit,
+    onClick:()->Unit
 ) {
 
     var isPostLiked by remember {
@@ -75,13 +76,16 @@ fun PostItem(
                     contentDescription = "User Image",
                     modifier = Modifier
                         .size(32.dp)
-                        .clip(CircleShape),
+                        .clip(CircleShape)
+                        .clickable {
+                           onClick()
+                        },
                 )
 
                 Text(
                     text = post.createdBy.name,
                     style = MaterialTheme.typography.h6,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp).clickable { onClick() }
                 )
 
             }

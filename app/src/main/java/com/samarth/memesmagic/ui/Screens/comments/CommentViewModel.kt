@@ -47,7 +47,7 @@ class CommentViewModel @Inject constructor(
 
 
             if (result is Resource.Success) {
-//                commentsList.value.add(result.data!!)
+                commentsList.value.add(result.data!!)
                 onSuccess(result.data!!)
             }
         }

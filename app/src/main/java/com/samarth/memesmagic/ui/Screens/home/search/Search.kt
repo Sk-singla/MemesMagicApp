@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.ScaffoldState
@@ -15,18 +16,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.UserSearchItem
+import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(
     scaffoldState: ScaffoldState,
-    navController: NavHostController,
+    parentNavController: NavHostController,
     searchViewModel: SearchViewModel = hiltViewModel()
 ) {
 
@@ -49,6 +52,7 @@ fun SearchScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {
                     searchViewModel.searchUser(context)
@@ -63,7 +67,8 @@ fun SearchScreen(
                     }
                 )
             },
-            placeholder = "Search People"
+            placeholder = "Search People",
+            maxLines = 1
         )
 
 
@@ -104,7 +109,10 @@ fun SearchScreen(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 12.dp)
+                                .padding(top = 12.dp),
+                            onClick = {
+                                parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${userInfo.email}")
+                            }
                         )
 
                     }

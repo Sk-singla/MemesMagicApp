@@ -8,7 +8,7 @@ data class Post(
     val postType: PostType,
     val time:Long,
     val likedBy:MutableList<UserInfo> = mutableListOf(),
-    val comments:MutableList<Comment> = mutableListOf(),
+    var comments:MutableList<Comment> = mutableListOf(),
     val tags:List<String>?=null,
     val mediaLink:String,
     val description:String?=null

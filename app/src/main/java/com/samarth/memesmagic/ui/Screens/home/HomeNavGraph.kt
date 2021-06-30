@@ -53,7 +53,7 @@ fun HomeNavGraph(
     NavHost(navController = navController, startDestination = HOME_FEED,modifier = modifier){
 
         composable(HOME_FEED){
-            FeedScreen(scaffoldState,startActivity = startActivity,parentNavController = parentNavHostController)
+            FeedScreen(scaffoldState,startActivity = startActivity,currentNavController = navController,parentNavController = parentNavHostController)
         }
 
         composable(HOME_SEARCH){
@@ -68,7 +68,7 @@ fun HomeNavGraph(
         }
 
         composable(HOME_PROFILE){
-            ProfileScreen(scaffoldState)
+            ProfileScreen(parentNavHostController)
         }
 
 

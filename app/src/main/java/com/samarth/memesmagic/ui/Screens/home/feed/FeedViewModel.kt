@@ -16,11 +16,15 @@ import androidx.lifecycle.viewModelScope
 import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
+import com.samarth.memesmagic.data.remote.response.Reward
+import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
+import com.samarth.memesmagic.util.TokenHandler.getRewardId
+import com.samarth.memesmagic.util.TokenHandler.saveRewardId
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +44,8 @@ class FeedViewModel @Inject constructor(
 
 
     val postStatus = mutableStateOf<Resource<List<Post>>>(Resource.Empty())
+    val rewardWinner = mutableStateOf<UserInfo?>(null)
+    val isFollowingToRewardyy = mutableStateOf(false)
 
     val posts = mutableListOf<Post>(
 
@@ -105,7 +111,48 @@ class FeedViewModel @Inject constructor(
         viewModelScope.launch{
             val token = getJwtToken(getApplication<Application>().applicationContext)!!
 //            Log.d("Token",token)
-//            getFeed(token, getEmail(getApplication<Application>().applicationContext)!!)
+            getFeed(token, getEmail(getApplication<Application>().applicationContext)!!)
+        }
+    }
+
+    fun getReward(context: Context,newReward:(reward:Reward,isItForMe:Boolean)->Unit) = viewModelScope.launch{
+
+        val prevReward = getRewardId(context)
+        val getMemerReward = memeRepo.getCurrentMonthReward(getJwtToken(context)!!)
+
+        if(getMemerReward is Resource.Success){
+            if(prevReward == null || prevReward != getMemerReward.data!!.id){
+                newReward(getMemerReward.data!!, getEmail(context)!! == getMemerReward.data.userEmail)
+                getUser(context,getMemerReward.data.userEmail){
+                    rewardWinner.value = it.userInfo
+                }
+                isFollowingToRewardy(context)
+                saveRewardId(context,getMemerReward.data.id)
+            }
+        }
+    }
+
+    fun followUser(context: Context) = viewModelScope.launch{
+        memeRepo.followUser(
+            getJwtToken(context)!!,
+            rewardWinner.value!!.email
+        )
+
+    }
+
+    private fun isFollowingToRewardy(context: Context) = viewModelScope.launch{
+        getUser(context,getEmail(context)!!){
+            rewardWinner.value?.email?.let { rewardyEmail ->
+                isFollowingToRewardyy.value = it.followings.map{it.email}.contains(rewardyEmail)
+            }
+        }
+    }
+
+
+    private fun getUser(context: Context,email: String,onSuccess: (user:User) -> Unit) = viewModelScope.launch{
+        val result = memeRepo.getUser(getJwtToken(context)!!,email)
+        if(result  is Resource.Success){
+            onSuccess(result.data!!)
         }
     }
 

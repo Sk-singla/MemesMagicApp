@@ -48,7 +48,7 @@ class CreateViewModel  @Inject constructor(
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
 
-    private var curPage = 1
+    private var curPage = 0
     private var pagesLeft = (0..Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER).toList()
 
     init {
@@ -57,16 +57,14 @@ class CreateViewModel  @Inject constructor(
 
     fun getMemeTemplates() = viewModelScope.launch{
         isLoading.value = true
-
-        pagesLeft = pagesLeft - curPage
+        curPage = pagesLeft.random()
         when(val result =  memeRepo.getMemeTemplates(curPage)){
 
             is Resource.Success -> {
                 endReached.value = pagesLeft.isEmpty()
                 templatesList.value.addAll(result.data!!)
 
-                if(!endReached.value)
-                    curPage = pagesLeft.random()
+                pagesLeft = pagesLeft - curPage
 
                 loadError.value = ""
                 isLoading.value = false

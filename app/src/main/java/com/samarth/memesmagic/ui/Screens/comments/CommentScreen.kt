@@ -62,10 +62,10 @@ fun CommentScreen(
         Box(modifier = Modifier.fillMaxSize()) {
 
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .background(color = MaterialTheme.colors.surface)
-                .align(Alignment.BottomCenter),horizontalArrangement = Arrangement.SpaceBetween) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.surface).align(
+                    Alignment.BottomCenter)
+            ) {
 
                 CustomTextField(
                     value = comment,
@@ -82,12 +82,15 @@ fun CommentScreen(
                                 // post comment
                                 commentViewModel.addComment(context) {
                                     commentViewModel.comment.value = ""
-                                    post?.comments?.add(it)
+                                    if(post?.comments != null){
+                                        post?.comments?.add(it)
+                                    } else {
+                                        post?.comments = mutableListOf(it)
+                                    }
                                 }
                             })
                     }
                 )
-
 
             }
 

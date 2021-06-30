@@ -8,6 +8,7 @@ import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.util.Constants.COMMENTS
 import com.samarth.memesmagic.util.Constants.FEED
 import com.samarth.memesmagic.util.Constants.POSTS
+import com.samarth.memesmagic.util.Constants.REWARDS
 import com.samarth.memesmagic.util.Constants.USERS
 import retrofit2.http.*
 
@@ -120,6 +121,18 @@ interface MemeApi {
         @Path("commentId") commentId:String
     ):SimpleResponse<UserInfo>
 
+
+    @Headers("Content-Type: application/json")
+    @GET("$REWARDS/get/month")
+    suspend fun getCurrentMonthReward(
+        @Header("Authorization") token:String,
+    ):SimpleResponse<Reward>
+
+    @Headers("Content-Type: application/json")
+    @GET("$REWARDS/get/user")
+    suspend fun getUserRewards(
+        @Header("Authorization") token:String
+    ):SimpleResponse<List<Reward>>
 
 
 

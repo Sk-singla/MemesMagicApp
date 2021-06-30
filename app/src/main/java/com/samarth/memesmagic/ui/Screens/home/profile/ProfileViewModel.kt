@@ -26,43 +26,36 @@ class ProfileViewModel @Inject constructor(
     val memeRepo: MemeRepo
 ):AndroidViewModel(app) {
 
-    val userStatus = mutableStateOf<Resource<User>>(Resource.Empty())
-    val postStatus = mutableStateOf<Resource<List<Post>>>(Resource.Empty())
 
+    val user = mutableStateOf<User?>(null)
+    val posts = mutableStateOf<List<Post>>(listOf())
+    val isLoading = mutableStateOf(false)
+    val loadError = mutableStateOf("")
 
-
-
-    fun getUser(email:String?,context:Context) = viewModelScope.launch{
-        userStatus.value = Resource.Loading()
-        userStatus.value = memeRepo.getUser(getJwtToken(context)!!,email ?: getEmail(context)!!)
-
-        /*
-        userStatus.value = Resource.Success(
-            User(
-                UserInfo("Samarth","hihi","https://yt3.ggpht.com/yti/APfAmoFnRSyAAd-_w-q3fodH9GHLox265DUgq1UD7c56eA=s88-c-k-c0x00ffffff-no-rj-mo","Sri Muktsar Sahib\nPB30"),
-                hashPassword = "asdfsdf",
-                postCount = 20,
-                followers = mutableListOf(
-                    UserInfo("Samarth","hihi",),
-                    UserInfo("Samarth","hihi",),
-                    UserInfo("Samarth","hihi",)
-                ),
-                followings = mutableListOf(
-                    UserInfo("Samarth","hihi",),
-                    UserInfo("Samarth","hihi",),
-                    UserInfo("Samarth","hihi",),
-                    UserInfo("Samarth","hihi",)
-                ),id = "asdfasdf"))
-
-         */
-
-
+    fun getUser(context: Context) = viewModelScope.launch {
+        isLoading.value = true
+        val result = memeRepo.getUser(getJwtToken(context)!!, getEmail(context)!!)
+        if (result is Resource.Success) {
+            user.value = result.data!!
+            loadError.value = ""
+        } else {
+            loadError.value = result.message ?: "Some Problem Occurred!!"
+        }
+        isLoading.value = false
     }
 
 
-    fun getPosts(email: String?,context: Context) = viewModelScope.launch {
-        postStatus.value = Resource.Loading()
-        postStatus.value = memeRepo.getPosts(getJwtToken(context)!!,email ?: getEmail(context)!!)
+    fun getPosts(context: Context) = viewModelScope.launch {
+        isLoading.value = true
+        val result = memeRepo.getPosts(getJwtToken(context)!!, getEmail(context)!!)
+        if (result is Resource.Success) {
+            posts.value = result.data!!
+            loadError.value = ""
+        } else {
+            loadError.value = result.message ?: "Some Problem Occurred!!"
+        }
+        isLoading.value = false
+    }
 
         /**
         postStatus.value = Resource.Success(
@@ -290,10 +283,5 @@ class ProfileViewModel @Inject constructor(
             }
         )
         */
-
-
-    }
-
-
 
 }

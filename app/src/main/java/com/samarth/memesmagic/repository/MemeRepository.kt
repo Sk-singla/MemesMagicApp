@@ -17,10 +17,7 @@ import com.samarth.memesmagic.data.remote.MemeApi
 import com.samarth.memesmagic.data.remote.MemeMakerApi
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.request.CommentRequest
-import com.samarth.memesmagic.data.remote.response.Comment
-import com.samarth.memesmagic.data.remote.response.Post
-import com.samarth.memesmagic.data.remote.response.User
-import com.samarth.memesmagic.data.remote.response.UserInfo
+import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
 import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
@@ -291,6 +288,32 @@ class MemeRepository(
     ): Resource<UserInfo> {
         return try {
             val response = memeApi.dislikeComment("Bearer $token",postId,commentId)
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+    override suspend fun getCurrentMonthReward(token: String): Resource<Reward> {
+        return try {
+            val response = memeApi.getCurrentMonthReward("Bearer $token")
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+    override suspend fun getMyRewards(token: String): Resource<List<Reward>> {
+        return try {
+            val response = memeApi.getUserRewards("Bearer $token")
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {

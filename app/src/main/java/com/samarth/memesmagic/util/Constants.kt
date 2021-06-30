@@ -15,9 +15,11 @@ object Constants {
     const val POSTS = "$API_VERSION/posts"
     const val FEED = "$API_VERSION/feed"
     const val COMMENTS = "$API_VERSION/comments"
+    const val REWARDS = "$API_VERSION/rewards"
 
     const val JWT_TOKEN_KEY = "JwtToken"
     const val EMAIL_KEY = "emailKey"
+    const val REWARD_ID_KEY = "rewardId"
     const val DATA_PREFERENCES_NAME_FOR_TOKEN = "tokens"
 
 
@@ -61,6 +63,8 @@ object Screens{
     const val NEW_POST_DETAILS_AND_UPLOAD = "$EDIT_SCREEN/upload"
 
     const val COMMENT_SCREEN = "comments_screen"
+    const val ANOTHER_USER_PROFILE_SCREEN = "another_user_profile"
+    const val EDIT_PROFILE_SCREEN = "edit_profile"
 
     val posts = mutableListOf<String>()
 }

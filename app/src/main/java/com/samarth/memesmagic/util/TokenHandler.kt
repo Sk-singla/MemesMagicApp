@@ -9,6 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.samarth.memesmagic.util.Constants.DATA_PREFERENCES_NAME_FOR_TOKEN
 import com.samarth.memesmagic.util.Constants.EMAIL_KEY
 import com.samarth.memesmagic.util.Constants.JWT_TOKEN_KEY
+import com.samarth.memesmagic.util.Constants.REWARD_ID_KEY
 import kotlinx.coroutines.flow.first
 
 object TokenHandler {
@@ -35,6 +36,20 @@ object TokenHandler {
         val emailKey = stringPreferencesKey(EMAIL_KEY)
         val preferences = context.dataStore.data.first()
         return preferences[emailKey]
+    }
+
+
+    suspend fun saveRewardId(context: Context,rewardId:String){
+        val rewardKey = stringPreferencesKey(REWARD_ID_KEY)
+        context.dataStore.edit { tokens->
+            tokens[rewardKey] = rewardId
+        }
+    }
+
+    suspend fun getRewardId(context: Context):String?{
+        val rewardKey = stringPreferencesKey(REWARD_ID_KEY)
+        val preferences = context.dataStore.data.first()
+        return preferences[rewardKey]
     }
 
 
