@@ -6,8 +6,11 @@ import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.request.CommentRequest
+import com.samarth.memesmagic.data.remote.request.UserInfoRequest
 import com.samarth.memesmagic.data.remote.response.*
+import com.samarth.memesmagic.data.remote.response.meme_api_github.MemeApiGithub
 import com.samarth.memesmagic.util.Resource
+import java.io.File
 
 interface MemeRepo {
 
@@ -23,12 +26,13 @@ interface MemeRepo {
     suspend fun getFeed(token:String):Resource<List<Post>>
 
     suspend fun getUser(token: String,email:String):Resource<User>
+    suspend fun updateUserInfo(token: String,userInfoRequest: UserInfoRequest):Resource<UserInfo>
 
     suspend fun getPosts(token: String,email:String):Resource<List<Post>>
 
     suspend fun getMemeTemplates(memeMakerPageNumber:Int):Resource<List<MemeTemplate>>
 
-    suspend fun uploadFileOnAwsS3(context: Context, fileName:String, onSuccess:(String)->Unit, onFail:(String)->Unit)
+    suspend fun uploadFileOnAwsS3(context: Context, fileName:String,file:File?, onSuccess:(String)->Unit, onFail:(String)->Unit)
 
     suspend fun uploadPost(token:String,postRequest: PostRequest):Resource<String>
 
@@ -47,23 +51,26 @@ interface MemeRepo {
 
     suspend fun getCurrentMonthReward(token: String):Resource<Reward>
     suspend fun getMyRewards(token: String):Resource<List<Reward>>
+    suspend fun getLastYearReward(token:String):Resource<Reward>
+
+    suspend fun getMemesFromGithubApi():Resource<MemeApiGithub>
     /**
      * 1. Share meme on other platforms -> Done
      * 2. send friend request / follow , unfollow
      * 3. comments
-     * todo -> 4. add stickers while editing, and make everything working
      * 5. Rewards
      *
      * rewards -> make a table in table in ktor -> reward type, email who won reward, time,
      *
-     * todo -> 6. posts  lazy column in profile when click on post item,  single post when screen for feed post
-     * todo -> 7. feed algo
+     * posts  lazy column in profile when click on post item,  single post when screen for feed post
+     * 7. feed algo
      * todo -> 8. Make default fn calls in EFFECTS
      * todo -> 9. Landing page
      * todo -> 10. Logo
      * light Mode -> primary colour
-     *
+     * todo -> user experience
      * todo -> comment box background not transparent
+     * todo -> documentation, repository public
      *
      */
 

@@ -387,9 +387,13 @@ class CreateViewModel  @Inject constructor(
             fileName=fileName,
             onSuccess = {
                 viewModelScope.launch {
+
+                    val files = context.filesDir.listFiles()
+                    val file = files?.find { it.canRead() && it.isFile && it.name == fileName }
                     memeRepo.uploadFileOnAwsS3(
                         context = context,
                         fileName = fileName,
+                        file = file,
                         onSuccess = { awsKey ->
                             viewModelScope.launch {
                                 val result = memeRepo.uploadPost(

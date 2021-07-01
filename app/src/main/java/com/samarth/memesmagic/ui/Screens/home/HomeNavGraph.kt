@@ -8,11 +8,14 @@ import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.ui.Screens.SinglePostScreen
+import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.Screens.home.profile.ProfileScreen
 import com.samarth.memesmagic.ui.Screens.home.rewards.RewardScreen
 import com.samarth.memesmagic.ui.Screens.home.search.SearchScreen
@@ -21,6 +24,7 @@ import com.samarth.memesmagic.util.Screens.HOME_FEED
 import com.samarth.memesmagic.util.Screens.HOME_PROFILE
 import com.samarth.memesmagic.util.Screens.HOME_REWARDS
 import com.samarth.memesmagic.util.Screens.HOME_SEARCH
+import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
 
 
 enum class HomeSections(
@@ -45,15 +49,21 @@ fun HomeNavGraph(
     navController: NavHostController = rememberNavController(),
     parentNavHostController: NavHostController,
     scaffoldState: ScaffoldState,
-    startActivity:(Intent)->Unit
+    startActivity:(Intent)->Unit,
+    feedViewModel: FeedViewModel
 ) {
 
-    val context = LocalContext.current
 
     NavHost(navController = navController, startDestination = HOME_FEED,modifier = modifier){
 
         composable(HOME_FEED){
-            FeedScreen(scaffoldState,startActivity = startActivity,currentNavController = navController,parentNavController = parentNavHostController)
+            FeedScreen(
+                scaffoldState,
+                startActivity = startActivity,
+                currentNavController = navController,
+                parentNavController = parentNavHostController,
+                feedViewModel = feedViewModel
+            )
         }
 
         composable(HOME_SEARCH){

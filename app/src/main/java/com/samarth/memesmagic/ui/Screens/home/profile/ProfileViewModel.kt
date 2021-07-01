@@ -13,6 +13,7 @@ import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.Screens.posts
+import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,6 +56,11 @@ class ProfileViewModel @Inject constructor(
             loadError.value = result.message ?: "Some Problem Occurred!!"
         }
         isLoading.value = false
+    }
+
+
+    fun logoutUser(context: Context) = viewModelScope.launch {
+        TokenHandler.logout(context)
     }
 
         /**

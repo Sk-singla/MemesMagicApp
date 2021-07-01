@@ -79,19 +79,22 @@ fun AdvertiseDialogBox(
                 onDismiss()
             },
             buttons = {
-                OutlinedButton(onClick = {
-                    onFollowBtnPressed()
-                },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .shadow(2.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        backgroundColor = MaterialTheme.colors.surface,
-                        contentColor = Green700
-                    ),
-                    enabled = !isFollowingToUser
-                ) {
-                    Text(text = if(isFollowingToUser) "Following!" else "Follow")
+                Box(modifier = Modifier.fillMaxWidth().padding(8.dp),contentAlignment = Alignment.CenterEnd) {
+                    OutlinedButton(
+                        onClick = {
+                            onFollowBtnPressed()
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .shadow(2.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colors.surface,
+                            contentColor = Green700
+                        ),
+                        enabled = !isFollowingToUser
+                    ) {
+                        Text(text = if (isFollowingToUser) "Following!" else "Follow")
+                    }
                 }
             },
             title = {
@@ -158,5 +161,6 @@ fun AdvertiseDialogBox(
         )
     }
 }
+
 
 

@@ -14,10 +14,13 @@ import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
+import com.samarth.memesmagic.data.remote.MemeGithubApi
 import com.samarth.memesmagic.data.remote.MemeMakerApi
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.request.CommentRequest
+import com.samarth.memesmagic.data.remote.request.UserInfoRequest
 import com.samarth.memesmagic.data.remote.response.*
+import com.samarth.memesmagic.data.remote.response.meme_api_github.MemeApiGithub
 import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
 import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
@@ -30,7 +33,8 @@ import java.io.File
 class MemeRepository(
     val memeApi: MemeApi,
     val imageFlipApi: ImageFlipApi,
-    val memeMakerApi: MemeMakerApi
+    val memeMakerApi: MemeMakerApi,
+    val memeGithubApi: MemeGithubApi
 ): MemeRepo{
 
     override suspend fun registerUser(userRegisterRequest: RegisterUserRequest): Resource<String> {
@@ -155,6 +159,22 @@ class MemeRepository(
         }
     }
 
+    override suspend fun updateUserInfo(
+        token: String,
+        userInfoRequest: UserInfoRequest
+    ): Resource<UserInfo> {
+        return try{
+            val response = memeApi.updateUserInfo("Bearer $token",userInfoRequest)
+            if(response.success && response.data != null){
+                Resource.Success(response.data)
+            } else{
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Error!")
+        }
+    }
+
     override suspend fun getPosts(token: String, email: String): Resource<List<Post>> {
         return try {
             val response = memeApi.getPosts("Bearer $token",email)
@@ -195,12 +215,12 @@ class MemeRepository(
     override suspend fun uploadFileOnAwsS3(
         context: Context,
         fileName: String,
+        file:File?,
         onSuccess: (String) -> Unit,
         onFail: (String) -> Unit
     ){
         try {
-            val files = context.filesDir.listFiles()
-            val file = files?.find { it.canRead() && it.isFile && it.name == fileName }
+
 
             if(file == null){
                 onFail("File Not Found!")
@@ -311,6 +331,19 @@ class MemeRepository(
         }
     }
 
+    override suspend fun getLastYearReward(token: String): Resource<Reward> {
+        return try {
+            val response = memeApi.getLastYearReward("Bearer $token")
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
     override suspend fun getMyRewards(token: String): Resource<List<Reward>> {
         return try {
             val response = memeApi.getUserRewards("Bearer $token")
@@ -319,6 +352,14 @@ class MemeRepository(
             } else {
                 Resource.Error(response.message)
             }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
+
+    override suspend fun getMemesFromGithubApi():Resource<MemeApiGithub>{
+        return try {
+            Resource.Success(memeGithubApi.getMemes())
         } catch (e:Exception){
             Resource.Error(e.message ?: "Some Problem Occurred!!")
         }

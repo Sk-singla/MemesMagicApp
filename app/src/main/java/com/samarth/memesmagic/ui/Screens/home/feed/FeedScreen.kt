@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.samarth.memesmagic.data.remote.models.MemeBadgeType
+import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.AdvertiseDialogBox
@@ -23,8 +24,10 @@ import com.samarth.memesmagic.ui.components.PostItem
 import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.Screens
+import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
 import com.samarth.memesmagic.util.Screens.EDIT_PROFILE_SCREEN
+import com.samarth.memesmagic.util.Screens.HOME_PROFILE
 import com.samarth.memesmagic.util.Screens.HOME_REWARDS
 import kotlinx.coroutines.launch
 
@@ -49,8 +52,9 @@ fun FeedScreen(
 
 
     DisposableEffect(key1 = Unit) {
-        feedViewModel.getReward(context){ reward, isItForMe ->
 
+
+        feedViewModel.getYearReward(context){ reward, isItForMe ->
             if(isItForMe){
                 showCongratsDialog = true
             } else {
@@ -122,6 +126,13 @@ fun FeedScreen(
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
 
                     itemsIndexed(feedViewModel.posts) { pos, post ->
+
+
+                        if(pos >= feedViewModel.posts.size - 10){
+                            feedViewModel.getFeedFromGithub()
+                        }
+
+
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -131,10 +142,15 @@ fun FeedScreen(
                                 post = post,
                                 isLiked = feedViewModel.isPostLiked(post, context),
                                 onLikeIconPressed = { post,isPostLiked, onSuccess  ->
-                                    if(isPostLiked) {
-                                        feedViewModel.dislikePost(post,context,onSuccess)
+
+                                    if(post.postResource == PostResource.GITHUB_API){
+                                        onSuccess()
                                     } else {
-                                        feedViewModel.likePost(post, context, onSuccess)
+                                        if (isPostLiked) {
+                                            feedViewModel.dislikePost(post, context, onSuccess)
+                                        } else {
+                                            feedViewModel.likePost(post, context, onSuccess)
+                                        }
                                     }
                                 },
                                 onCommentIconPressed = {
@@ -154,7 +170,14 @@ fun FeedScreen(
                                     }
                                 },
                                 onClick = {
-                                    parentNavController.navigate(EDIT_PROFILE_SCREEN)
+                                    if(post.postResource == PostResource.GITHUB_API) {
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar("It is a Bot!")
+                                        }
+                                    }
+                                    else {
+                                        parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${post.createdBy.email}")
+                                    }
                                 }
                             )
 

@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -10,21 +11,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
-import com.samarth.memesmagic.data.remote.models.PostType
-import com.samarth.memesmagic.data.remote.response.Comment
-import com.samarth.memesmagic.data.remote.response.Post
-import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.ui.Screens.AnotherUserProfile
 import com.samarth.memesmagic.ui.Screens.comments.CommentScreen
 import com.samarth.memesmagic.ui.Screens.LoginScreen.LoginScreen
 import com.samarth.memesmagic.ui.Screens.RegisterScreen.RegisterScreen
+import com.samarth.memesmagic.ui.Screens.SinglePostScreen
 import com.samarth.memesmagic.ui.Screens.edit_profile.EditProfileScreen
 import com.samarth.memesmagic.ui.Screens.home.HomeScreen
 import com.samarth.memesmagic.ui.Screens.home.create.CreateViewModel
 import com.samarth.memesmagic.ui.Screens.home.create.EditingScreen
 import com.samarth.memesmagic.ui.Screens.home.create.NewPostDetailsScreen
 import com.samarth.memesmagic.ui.Screens.home.create.TemplateSelectionScreen
+import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.Screens.landing_page.LandingPage
+import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
 import com.samarth.memesmagic.util.Screens.EDIT_PROFILE_SCREEN
@@ -39,10 +39,13 @@ import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 @ExperimentalFoundationApi
 @Composable
 fun MainNavGraph(
-    startActivity:(Intent)->Unit
+    startActivity:(Intent)->Unit,
+    startActivityForResult:(String,(Uri?)->Unit)->Unit,
+    updateOrRequestPermissions:()->Boolean
 ){
 
     val navController = rememberNavController()
+    val feedViewModel:FeedViewModel = hiltViewModel()
     val createViewModel:CreateViewModel = hiltViewModel()
 
     NavHost(navController = navController, startDestination = LANDING_SCREEN){
@@ -57,7 +60,7 @@ fun MainNavGraph(
         }
 
         composable(HOME_SCREEN){
-            HomeScreen(navController = navController,startActivity = startActivity)
+            HomeScreen(navController = navController,startActivity = startActivity,feedViewModel = feedViewModel)
         }
 
         composable(LOGIN_SCREEN){
@@ -81,7 +84,8 @@ fun MainNavGraph(
                 EditingScreen(
                     navController = navController,
                     memeTemplateIndex = memeTemplateIndex,
-                    createViewModel = createViewModel
+                    createViewModel = createViewModel,
+                    updateOrRequestPermissions = updateOrRequestPermissions
                 )
             }
         }
@@ -113,7 +117,19 @@ fun MainNavGraph(
         }
 
         composable(EDIT_PROFILE_SCREEN){
-            EditProfileScreen()
+            EditProfileScreen(
+                navController,
+                startActivityForResult,
+                updateOrRequestPermissions = updateOrRequestPermissions
+            )
+        }
+
+        composable(Screens.SINGLE_POST_SCREEN){
+            SinglePostScreen(
+                parentNavController = navController,
+                startActivity = startActivity,
+                feedViewModel = feedViewModel
+            )
         }
 
 

@@ -6,6 +6,7 @@ import com.samarth.memesmagic.data.remote.response.Post
 object Constants {
     const val PARTIALLY_CLICKABLE_TEXT_TAG = "Click"
 
+    const val MEME_GITHUB_API_BASE_URL = "https://meme-api.herokuapp.com"
     const val IMAGE_FLIP_BASE_URL = "https://api.imgflip.com"
     const val MEME_MAKER_BASE_URL = "http://alpha-meme-maker.herokuapp.com"
     const val BASE_URL = "https://memesmagic.herokuapp.com"
@@ -20,6 +21,7 @@ object Constants {
     const val JWT_TOKEN_KEY = "JwtToken"
     const val EMAIL_KEY = "emailKey"
     const val REWARD_ID_KEY = "rewardId"
+    const val YEAR_REWARD_ID = "yearRewardId"
     const val DATA_PREFERENCES_NAME_FOR_TOKEN = "tokens"
 
 
@@ -65,6 +67,7 @@ object Screens{
     const val COMMENT_SCREEN = "comments_screen"
     const val ANOTHER_USER_PROFILE_SCREEN = "another_user_profile"
     const val EDIT_PROFILE_SCREEN = "edit_profile"
+    const val SINGLE_POST_SCREEN = "single_post"
 
     val posts = mutableListOf<String>()
 }

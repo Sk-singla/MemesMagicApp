@@ -60,6 +60,9 @@ fun AnotherUserProfile(
             },
             onFollowUnFollowBtnPressed = { onSuccess ->
                 anotherUserProfileViewModel.followUnfollowToggle(context,onSuccess)
+            },
+            detailView = {
+
             }
         )
 

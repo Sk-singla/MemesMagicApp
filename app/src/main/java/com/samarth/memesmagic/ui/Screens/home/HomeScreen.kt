@@ -21,12 +21,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.CustomBottomNavBar
 import com.samarth.memesmagic.ui.components.CustomTopBar
 
 @ExperimentalFoundationApi
 @Composable
-fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = hiltViewModel(),startActivity:(Intent)->Unit) {
+fun HomeScreen(
+    navController: NavHostController,
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    startActivity: (Intent) -> Unit,
+    feedViewModel:FeedViewModel
+) {
 
 
     val homeNavController = rememberNavController()
@@ -56,7 +62,14 @@ fun HomeScreen(navController: NavHostController,homeViewModel: HomeViewModel = h
         }
     ) {
 
-        HomeNavGraph(modifier = Modifier.fillMaxSize(), homeNavController,navController,scaffoldState,startActivity = startActivity)
+        HomeNavGraph(
+            modifier = Modifier.fillMaxSize(),
+            homeNavController,
+            navController,
+            scaffoldState,
+            startActivity = startActivity,
+            feedViewModel = feedViewModel
+        )
 
     }
     

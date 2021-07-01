@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 fun EditingScreen(
     navController: NavHostController,
     memeTemplateIndex:Int,
+    updateOrRequestPermissions:()->Boolean,
     createViewModel: CreateViewModel = hiltViewModel()
 ) {
 

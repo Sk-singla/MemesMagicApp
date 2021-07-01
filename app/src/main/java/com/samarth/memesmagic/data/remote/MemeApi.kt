@@ -4,6 +4,7 @@ import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.request.CommentRequest
+import com.samarth.memesmagic.data.remote.request.UserInfoRequest
 import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.util.Constants.COMMENTS
 import com.samarth.memesmagic.util.Constants.FEED
@@ -129,10 +130,26 @@ interface MemeApi {
     ):SimpleResponse<Reward>
 
     @Headers("Content-Type: application/json")
+    @GET("$REWARDS/get/year")
+    suspend fun getLastYearReward(
+        @Header("Authorization") token:String,
+    ):SimpleResponse<Reward>
+
+
+
+    @Headers("Content-Type: application/json")
     @GET("$REWARDS/get/user")
     suspend fun getUserRewards(
         @Header("Authorization") token:String
     ):SimpleResponse<List<Reward>>
+
+
+    @Headers("Content-Type: application/json")
+    @POST("$USERS/update")
+    suspend fun updateUserInfo(
+        @Header("Authorization") token:String,
+        @Body userInfoRequest: UserInfoRequest
+    ):SimpleResponse<UserInfo>
 
 
 

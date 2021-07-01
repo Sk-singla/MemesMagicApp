@@ -2,11 +2,13 @@ package com.samarth.memesmagic.di
 
 import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
+import com.samarth.memesmagic.data.remote.MemeGithubApi
 import com.samarth.memesmagic.data.remote.MemeMakerApi
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.repository.MemeRepository
 import com.samarth.memesmagic.util.Constants.BASE_URL
 import com.samarth.memesmagic.util.Constants.IMAGE_FLIP_BASE_URL
+import com.samarth.memesmagic.util.Constants.MEME_GITHUB_API_BASE_URL
 import com.samarth.memesmagic.util.Constants.MEME_MAKER_BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -28,8 +30,9 @@ object AppModule {
     fun provideMemeRepository(
         api:MemeApi,
         imageFlipApi: ImageFlipApi,
-        memeMakerApi: MemeMakerApi
-    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi)
+        memeMakerApi: MemeMakerApi,
+        memeGithubApi: MemeGithubApi,
+    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi,memeGithubApi)
 
 
     @Singleton
@@ -80,6 +83,19 @@ object AppModule {
             .client(client)
             .build()
             .create(MemeMakerApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideMemeGithubApi(
+        client:OkHttpClient
+    ):MemeGithubApi {
+        return Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(MEME_GITHUB_API_BASE_URL)
+            .client(client)
+            .build()
+            .create(MemeGithubApi::class.java)
     }
 
 

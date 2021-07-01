@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import coil.request.ImageRequest
 import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.ui.theme.Green500
@@ -84,7 +85,8 @@ fun PostItem(
 
                 Text(
                     text = post.createdBy.name,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.body1,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 8.dp).clickable { onClick() }
                 )
 
@@ -177,21 +179,30 @@ fun PostItem(
             // Caption ->
 
 
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
-                        append(post.createdBy.name + "   ")
-                    }
-                    post.description?.let { description ->
-                        withStyle(style = SpanStyle(fontSize = 16.sp)) {
-                            append(description)
+            if(post.postResource != PostResource.GITHUB_API) {
+
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        ) {
+                            append(post.createdBy.name + ":  ")
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
+                        post.description?.let { description ->
+                            withStyle(style = SpanStyle(fontSize = 16.sp)) {
+                                append(description)
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+
+            }
 
 
         }

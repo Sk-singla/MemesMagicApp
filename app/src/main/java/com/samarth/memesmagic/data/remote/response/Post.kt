@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.data.remote.response
 
+import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType
 
 data class Post(
@@ -11,5 +12,6 @@ data class Post(
     var comments:MutableList<Comment> = mutableListOf(),
     val tags:List<String>?=null,
     val mediaLink:String,
-    val description:String?=null
+    val description:String?=null,
+    val postResource: PostResource = PostResource.MY_API
 )

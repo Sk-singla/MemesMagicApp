@@ -10,6 +10,7 @@ import com.samarth.memesmagic.util.Constants.DATA_PREFERENCES_NAME_FOR_TOKEN
 import com.samarth.memesmagic.util.Constants.EMAIL_KEY
 import com.samarth.memesmagic.util.Constants.JWT_TOKEN_KEY
 import com.samarth.memesmagic.util.Constants.REWARD_ID_KEY
+import com.samarth.memesmagic.util.Constants.YEAR_REWARD_ID
 import kotlinx.coroutines.flow.first
 
 object TokenHandler {
@@ -26,6 +27,19 @@ object TokenHandler {
         }
     }
 
+    suspend fun logout(context: Context){
+        val jwtTokeKey = stringPreferencesKey(JWT_TOKEN_KEY)
+        val emailKey = stringPreferencesKey(EMAIL_KEY)
+        val monthRewardKey = stringPreferencesKey(REWARD_ID_KEY)
+        val yearRewardKey = stringPreferencesKey(YEAR_REWARD_ID)
+        context.dataStore.edit {
+            it.remove(jwtTokeKey)
+            it.remove(emailKey)
+            it.remove(monthRewardKey)
+            it.remove(yearRewardKey)
+        }
+    }
+
     suspend fun getJwtToken(context: Context):String?{
         val dataStoreKey = stringPreferencesKey(JWT_TOKEN_KEY)
         val preferences = context.dataStore.data.first()
@@ -39,18 +53,34 @@ object TokenHandler {
     }
 
 
-    suspend fun saveRewardId(context: Context,rewardId:String){
+    suspend fun saveMonthRewardId(context: Context, rewardId:String){
         val rewardKey = stringPreferencesKey(REWARD_ID_KEY)
         context.dataStore.edit { tokens->
             tokens[rewardKey] = rewardId
         }
     }
 
-    suspend fun getRewardId(context: Context):String?{
+    suspend fun getMonthRewardId(context: Context):String?{
         val rewardKey = stringPreferencesKey(REWARD_ID_KEY)
         val preferences = context.dataStore.data.first()
         return preferences[rewardKey]
     }
+
+
+    suspend fun saveYearRewardId(context: Context,rewardId:String){
+        val rewardKey = stringPreferencesKey(YEAR_REWARD_ID)
+        context.dataStore.edit { tokens->
+            tokens[rewardKey] = rewardId
+        }
+    }
+
+    suspend fun getYearRewardId(context: Context):String?{
+        val rewardKey = stringPreferencesKey(YEAR_REWARD_ID)
+        val preferences = context.dataStore.data.first()
+        return preferences[rewardKey]
+    }
+
+
 
 
 

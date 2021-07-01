@@ -3,6 +3,7 @@ package com.samarth.memesmagic.ui.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +32,7 @@ import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.ui.theme.Green700
+import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.numberOfFollowersOrFollowings
 import com.samarth.memesmagic.util.numberOfPosts
@@ -48,7 +51,9 @@ fun FullProfileScreen(
     isItAnotherUserProfile: Boolean,
     isFollowing: Boolean,
     onEditScreenPressed: () -> Unit,
-    onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit
+    onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit,
+    detailView : ()->Unit,
+    onLogout: () -> Unit = {}
 ) {
 
 
@@ -85,24 +90,33 @@ fun FullProfileScreen(
                         isItAnotherUserProfile = isItAnotherUserProfile,
                         isFollowing = isFollowing,
                         onEditScreenPressed = onEditScreenPressed,
-                        onFollowUnFollowBtnPressed = onFollowUnFollowBtnPressed
+                        onFollowUnFollowBtnPressed = onFollowUnFollowBtnPressed,
+                        onLogout = onLogout
                     )
 
                     Divider(modifier = Modifier.padding(horizontal = 12.dp))
 
                     posts?.let { postsList ->
                         if (postsList.isEmpty()) {
-                            Text(
-                                text = "No Post to Show!",
-                                style = MaterialTheme.typography.h5,
+
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No Post to Show!",
+                                    style = MaterialTheme.typography.h5,
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         } else {
                             ProfilePostsSection(
                                 posts = postsList,
-                                modifier = Modifier.padding(horizontal = 4.dp)
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                detailView = detailView
                             )
                         }
 
@@ -123,7 +137,8 @@ fun ProfileTopSection(
     isFollowing:Boolean,
     modifier: Modifier = Modifier,
     onEditScreenPressed:()->Unit,
-    onFollowUnFollowBtnPressed: (onSuccess:()->Unit)->Unit
+    onFollowUnFollowBtnPressed: (onSuccess:()->Unit)->Unit,
+    onLogout:()->Unit
 ) {
 
 
@@ -156,7 +171,7 @@ fun ProfileTopSection(
                     .size(80.dp)
                     .clip(CircleShape)
                     .border(
-                        width = 2.dp,
+                        width = 1.dp,
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
                         shape = CircleShape
                     )
@@ -197,29 +212,61 @@ fun ProfileTopSection(
             Text(text = bio,style = MaterialTheme.typography.body2,modifier = Modifier.fillMaxWidth())
         }
 
-        OutlinedButton(onClick = {
-            if(isItAnotherUserProfile) {
-                onFollowUnFollowBtnPressed {
-                    isFollowingToUser = !isFollowingToUser
-                }
-            } else {
-                onEditScreenPressed()
-            }
-        },
+        Row(
             modifier = Modifier
-                .align(CenterHorizontally)
-                .padding(horizontal = 8.dp)
-                .shadow(2.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = MaterialTheme.colors.surface,
-                contentColor = Green700
-            )
-        ) {
-            Text(
-                text = if(isItAnotherUserProfile && isFollowingToUser)
-                    "Unfollow" else if(isItAnotherUserProfile && !isFollowingToUser)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ){
+            OutlinedButton(
+                onClick = {
+                    if (isItAnotherUserProfile) {
+                        onFollowUnFollowBtnPressed {
+                            isFollowingToUser = !isFollowingToUser
+                        }
+                    } else {
+                        onEditScreenPressed()
+                    }
+                },
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .shadow(2.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    contentColor = Green700
+                )
+            ) {
+                Text(
+                    text = if (isItAnotherUserProfile && isFollowingToUser)
+                        "Unfollow" else if (isItAnotherUserProfile && !isFollowingToUser)
                         "Follow" else "Edit Profile"
-            )
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+                    if (isItAnotherUserProfile) {
+
+                    } else {
+                        onLogout()
+                    }
+                },
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .shadow(2.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    contentColor = Green700
+                )
+            ) {
+                Text(
+                    text = if (isItAnotherUserProfile)
+                        "${user.rewards.size} Badges"
+                        else "Logout"
+                )
+            }
+
+
         }
 
 
@@ -230,7 +277,7 @@ fun ProfileTopSection(
 
 @ExperimentalFoundationApi
 @Composable
-fun ProfilePostsSection(posts:List<Post>, modifier: Modifier = Modifier) {
+fun ProfilePostsSection(posts:List<Post>, modifier: Modifier = Modifier,detailView: () -> Unit) {
 
     LazyVerticalGrid(cells = GridCells.Fixed(3),modifier = modifier,contentPadding = PaddingValues(top = 8.dp,bottom = 60.dp)) {
 
@@ -250,7 +297,11 @@ fun ProfilePostsSection(posts:List<Post>, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .padding(1.dp)
                     .fillMaxWidth()
-                    .aspectRatio(1f),
+                    .aspectRatio(1f)
+                    .clickable {
+                        CommentsUtil.post = post
+                        detailView()
+                    },
             )
 
         }

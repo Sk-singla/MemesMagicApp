@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -18,9 +19,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.amplifyframework.core.Amplify
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -32,6 +35,9 @@ import com.samarth.memesmagic.ui.MainNavGraph
 import com.samarth.memesmagic.ui.Screens.RegisterScreen.RegisterScreenViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 
 @ExperimentalFoundationApi
@@ -49,7 +55,13 @@ class MainActivity : ComponentActivity() {
         writePermissionGranted = permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] ?: writePermissionGranted
     }
 
-    private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
+    var imageUri = MutableStateFlow<Uri?>(null)
+
+    val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()){ uri ->
+        imageUri.value = uri
+        Log.d("MyLog","came -> ${uri}")
+    }
+
 
 
     private val startActivityForResult = registerForActivityResult(
@@ -72,9 +84,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MemesMagicTheme {
-                MainNavGraph { intent ->
-                    startActivity(intent)
-                }
+                MainNavGraph(
+                    startActivity = { intent ->
+                        startActivity(intent)
+                    },
+                    startActivityForResult = { str, done ->
+                        imagePicker.launch(str)
+                        Log.d("MyLog","done -> ${imageUri.value}")
+                        lifecycleScope.launchWhenCreated {
+                            imageUri.collect {
+                                if(it != null){
+                                    done(it)
+                                }
+                            }
+                        }
+                    },
+                    updateOrRequestPermissions = {
+                        updateOrRequestPermissions()
+                    }
+                )
             }
         }
 //        configureGSI()
@@ -132,7 +160,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun updateOrRequestPermissions(context: Context){
+    private fun updateOrRequestPermissions():Boolean{
         val hasReadPermission = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -156,6 +184,7 @@ class MainActivity : ComponentActivity() {
         if(permissionsToRequest.isNotEmpty()) {
             permissionsLauncher.launch(permissionsToRequest.toTypedArray())
         }
+        return writePermissionGranted && readPermissionGranted
     }
 
 

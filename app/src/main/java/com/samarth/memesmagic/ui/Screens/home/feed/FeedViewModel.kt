@@ -5,15 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.net.Uri
-import android.os.Environment
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.samarth.memesmagic.BuildConfig
+import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.Reward
@@ -23,8 +20,10 @@ import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
-import com.samarth.memesmagic.util.TokenHandler.getRewardId
-import com.samarth.memesmagic.util.TokenHandler.saveRewardId
+import com.samarth.memesmagic.util.TokenHandler.getMonthRewardId
+import com.samarth.memesmagic.util.TokenHandler.getYearRewardId
+import com.samarth.memesmagic.util.TokenHandler.saveMonthRewardId
+import com.samarth.memesmagic.util.TokenHandler.saveYearRewardId
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,53 +46,7 @@ class FeedViewModel @Inject constructor(
     val rewardWinner = mutableStateOf<UserInfo?>(null)
     val isFollowingToRewardyy = mutableStateOf(false)
 
-    val posts = mutableListOf<Post>(
-
-        Post(
-            "id1",
-            UserInfo("Samarth","asasdf@gmail.com","https://cdn.pixabay.com/photo/2018/08/28/12/41/avatar-3637425_960_720.png"),
-            PostType.IMAGE,
-            System.currentTimeMillis(),
-            description = "This is first Image",
-            mediaLink = "https://www.nasa.gov/sites/default/files/styles/full_width_feature/public/thumbnails/image/latest_1024_0211.jpg"
-        ),
-        Post(
-            "id2",
-            UserInfo("Samarth","asasdf@gmail.com","https://cdn.pixabay.com/photo/2018/08/28/12/41/avatar-3637425_960_720.png"),
-            PostType.IMAGE,
-            System.currentTimeMillis(),
-            description = "This is first Image",
-            mediaLink = "https://miro.medium.com/max/4090/1*lRu8OA8Kjc6luPKMQajYmQ.jpeg"
-        ),
-        Post(
-            "id2",
-            UserInfo("Samarth","asasdf@gmail.com","https://cdn.pixabay.com/photo/2018/08/28/12/41/avatar-3637425_960_720.png"),
-            PostType.IMAGE,
-            System.currentTimeMillis(),
-            description = "This is first Image",
-            mediaLink = "https://www.nasa.gov/sites/default/files/styles/full_width_feature/public/thumbnails/image/latest_1024_0211.jpg"
-        ),
-        Post(
-            "id2",
-            UserInfo("Samarth","asasdf@gmail.com","https://cdn.pixabay.com/photo/2018/08/28/12/41/avatar-3637425_960_720.png"),
-            PostType.IMAGE,
-            System.currentTimeMillis(),
-            description = "This is first Image",
-            mediaLink = "https://miro.medium.com/max/4090/1*lRu8OA8Kjc6luPKMQajYmQ.jpeg"
-        ),
-        Post(
-            "id2",
-            UserInfo("Samarth","asasdf@gmail.com","https://cdn.pixabay.com/photo/2018/08/28/12/41/avatar-3637425_960_720.png"),
-            PostType.IMAGE,
-            System.currentTimeMillis(),
-            description = "This is first Image",
-            likedBy = mutableListOf(UserInfo("adfs","test","")),
-            mediaLink = "https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg"
-        )
-
-
-
-    )
+    val posts = mutableListOf<Post>()
 
     fun isItLastItem(itemNumber:Int):Boolean{
         return itemNumber == posts.size -1
@@ -109,15 +62,17 @@ class FeedViewModel @Inject constructor(
 
     init {
         viewModelScope.launch{
-            val token = getJwtToken(getApplication<Application>().applicationContext)!!
-//            Log.d("Token",token)
-            getFeed(token, getEmail(getApplication<Application>().applicationContext)!!)
+            val token = getJwtToken(getApplication<Application>().applicationContext)
+            if(token != null) {
+                getFeed(token, getEmail(getApplication<Application>().applicationContext)!!)
+                getFeedFromGithub()
+            }
         }
     }
 
     fun getReward(context: Context,newReward:(reward:Reward,isItForMe:Boolean)->Unit) = viewModelScope.launch{
 
-        val prevReward = getRewardId(context)
+        val prevReward = getMonthRewardId(context)
         val getMemerReward = memeRepo.getCurrentMonthReward(getJwtToken(context)!!)
 
         if(getMemerReward is Resource.Success){
@@ -127,7 +82,27 @@ class FeedViewModel @Inject constructor(
                     rewardWinner.value = it.userInfo
                 }
                 isFollowingToRewardy(context)
-                saveRewardId(context,getMemerReward.data.id)
+                saveMonthRewardId(context,getMemerReward.data.id)
+            }
+        }
+    }
+
+    fun getYearReward(context: Context,newReward:(reward:Reward,isItForMe:Boolean)->Unit) = viewModelScope.launch{
+
+        val prevReward = getYearRewardId(context)
+        val getYearReward = memeRepo.getLastYearReward(getJwtToken(context)!!)
+
+        if(getYearReward is Resource.Success){
+            if(prevReward == null || prevReward != getYearReward.data!!.id){
+                newReward(getYearReward.data!!, getEmail(context)!! == getYearReward.data.userEmail)
+                getUser(context,getYearReward.data.userEmail){
+                    rewardWinner.value = it.userInfo
+                }
+                isFollowingToRewardy(context)
+                saveYearRewardId(context,getYearReward.data.id)
+
+
+                getReward(context,newReward)
             }
         }
     }
@@ -169,6 +144,23 @@ class FeedViewModel @Inject constructor(
         postStatus.value = Resource.Empty()
     }
 
+    fun getFeedFromGithub() = viewModelScope.launch {
+        val result = memeRepo.getMemesFromGithubApi()
+        result.data?.memes?.map {
+            Post(
+                id = it.url,
+                createdBy = UserInfo("Meme's Magic Bot","admin@email.com"),
+                postType = PostType.IMAGE,
+                time = System.currentTimeMillis(),
+                mediaLink = it.url,
+                postResource = PostResource.GITHUB_API
+            )
+        }?.let { githubPosts ->
+            posts.addAll(githubPosts)
+            posts.shuffle()
+        }
+    }
+
     fun likePost(post:Post,context: Context,onSuccess:()->Unit) = viewModelScope.launch{
         val result = memeRepo.likePost(getJwtToken(context)!!,post.id)
         if(result is Resource.Success){
@@ -178,6 +170,7 @@ class FeedViewModel @Inject constructor(
     }
 
     fun dislikePost(post:Post,context: Context,onSuccess:()->Unit) = viewModelScope.launch{
+
         val result = memeRepo.dislikePost(getJwtToken(context)!!,post.id)
         if(result is Resource.Success){
             post.likedBy.add(result.data!!)
