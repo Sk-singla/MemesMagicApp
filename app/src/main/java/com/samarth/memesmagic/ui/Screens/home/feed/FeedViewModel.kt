@@ -41,8 +41,7 @@ class FeedViewModel @Inject constructor(
     val memeRepo: MemeRepo
 ):AndroidViewModel(app) {
 
-
-    val postStatus = mutableStateOf<Resource<List<Post>>>(Resource.Empty())
+    val isLoading = mutableStateOf(true)
     val rewardWinner = mutableStateOf<UserInfo?>(null)
     val isFollowingToRewardyy = mutableStateOf(false)
 
@@ -60,15 +59,6 @@ class FeedViewModel @Inject constructor(
         return isLiked.value
     }
 
-    init {
-        viewModelScope.launch{
-            val token = getJwtToken(getApplication<Application>().applicationContext)
-            if(token != null) {
-                getFeed(token, getEmail(getApplication<Application>().applicationContext)!!)
-                getFeedFromGithub()
-            }
-        }
-    }
 
     fun getReward(context: Context,newReward:(reward:Reward,isItForMe:Boolean)->Unit) = viewModelScope.launch{
 
@@ -91,7 +81,7 @@ class FeedViewModel @Inject constructor(
         context: Context,
         newReward: (reward: Reward, isItForMe: Boolean) -> Unit,
         onFail: () -> Unit
-    ) = viewModelScope.launch{
+    ) = viewModelScope.launch {
 
         val prevReward = getYearRewardId(context)
         val getYearReward = memeRepo.getLastYearReward(getJwtToken(context)!!)
@@ -129,24 +119,27 @@ class FeedViewModel @Inject constructor(
     }
 
 
-    private fun getUser(context: Context,email: String,onSuccess: (user:User) -> Unit) = viewModelScope.launch{
+    fun getUser(context: Context,email: String,onFail: (String) -> Unit = {},onSuccess: (user:User) -> Unit) = viewModelScope.launch{
         val result = memeRepo.getUser(getJwtToken(context)!!,email)
         if(result  is Resource.Success){
             onSuccess(result.data!!)
+        } else {
+            onFail(result.message ?: "Error!")
         }
     }
 
-    fun getFeed(token:String,email:String) = viewModelScope.launch{
-        postStatus.value = Resource.Loading()
-//        postStatus.value = memeRepo.getFeed(token)
-        postStatus.value = memeRepo.getPosts(token,email)
 
-        if(postStatus.value is Resource.Success){
-            posts.addAll(postStatus.value.data!!)
+
+    fun getFeed(token:String,onFail: (String) -> Unit) = viewModelScope.launch{
+        isLoading.value = true
+        val result = memeRepo.getFeed(token)
+
+        if(result is Resource.Success){
+            posts.addAll(result.data!!)
+        } else {
+            onFail(result.message ?: "Some Problem Occurred!")
         }
-
-        delay(1500)
-        postStatus.value = Resource.Empty()
+        isLoading.value = false
     }
 
     fun getFeedFromGithub() = viewModelScope.launch {

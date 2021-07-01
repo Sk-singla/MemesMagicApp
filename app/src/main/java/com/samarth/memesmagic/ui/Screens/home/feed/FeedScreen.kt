@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui.Screens.home
 
+import android.app.Application
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.*
@@ -29,6 +30,10 @@ import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
 import com.samarth.memesmagic.util.Screens.EDIT_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.HOME_PROFILE
 import com.samarth.memesmagic.util.Screens.HOME_REWARDS
+import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
+import com.samarth.memesmagic.util.TokenHandler
+import com.samarth.memesmagic.util.TokenHandler.getEmail
+import com.samarth.memesmagic.util.TokenHandler.logout
 import kotlinx.coroutines.launch
 
 @Composable
@@ -53,7 +58,7 @@ fun FeedScreen(
     }
 
 
-    DisposableEffect(key1 = Unit) {
+    LaunchedEffect(key1 = Unit) {
         feedViewModel.getYearReward(context,
             newReward = { reward, isItForMe ->
             if(isItForMe){
@@ -74,7 +79,40 @@ fun FeedScreen(
                 }
             }
         )
-        onDispose {  }
+
+
+        feedViewModel.getFeed(
+            TokenHandler.getJwtToken(context)!!,
+            onFail = {
+                coroutineScope.launch {
+                    scaffoldState.snackbarHostState.showSnackbar(it)
+                }
+            }
+        )
+
+        feedViewModel.getUser(
+            context,
+            getEmail(context)!!,
+            onFail = {
+                 if(!it.contains("timeout")){
+                     coroutineScope.launch {
+                         logout(context)
+                         parentNavController.popBackStack()
+                         parentNavController.navigate(LANDING_SCREEN)
+                     }
+                 } else {
+                     coroutineScope.launch {
+                         scaffoldState.snackbarHostState.showSnackbar("Heroku Dyno is Down. Please Try Again. After 1-2 request it will Awake.")
+                     }
+                 }
+
+            },
+            onSuccess = {
+
+            }
+        )
+
+        feedViewModel.getFeedFromGithub()
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -125,20 +163,10 @@ fun FeedScreen(
         }
 
 
-        when (feedViewModel.postStatus.value) {
+        when {
 
-            is Resource.Error -> {
 
-                Text(
-                    text = feedViewModel.postStatus.value.message!!,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.h5,
-                    textAlign = TextAlign.Center
-                )
-
-            }
-
-            is Resource.Loading -> {
+            feedViewModel.isLoading.value -> {
                 CircularProgressIndicator()
             }
 
