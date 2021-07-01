@@ -70,7 +70,7 @@ fun TemplateSelectionScreen(
                             request = ImageRequest.Builder(LocalContext.current)
                                 .data(templateList[it].url)
                                 .placeholder(R.drawable.blank_image)
-                                .error(R.drawable.blank_image)
+                                .error(R.drawable.ic_error)
                                 .build(),
                         ),
                         contentScale = ContentScale.Crop,

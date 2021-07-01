@@ -69,7 +69,7 @@ fun HomeNavGraph(
         composable(HOME_SEARCH){
             SearchScreen(
                 scaffoldState,
-                navController
+                parentNavHostController
             )
         }
 

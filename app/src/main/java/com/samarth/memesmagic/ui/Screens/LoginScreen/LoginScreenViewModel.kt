@@ -9,6 +9,8 @@ import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
+import com.samarth.memesmagic.util.isItEmail
+import com.samarth.memesmagic.util.validatePassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -21,15 +23,32 @@ class LoginScreenViewModel @Inject constructor(
 
     val email = mutableStateOf("")
     val password = mutableStateOf("")
+    val isLoading = mutableStateOf(false)
 
-    val loginStatus = mutableStateOf<Resource<String>>(Resource.Empty<String>())
 
-    fun loginUser() = viewModelScope.launch{
-        loginStatus.value = Resource.Loading()
-        loginStatus.value = memeRepo.loginUser(LoginRequest(email.value, password.value))
+    fun loginUser(
+        onSuccess:(token:String)->Unit,
+        onFail:(String?)->Unit
+    ) = viewModelScope.launch{
+        isLoading.value = true
 
-        delay(2000)
-        loginStatus.value = Resource.Empty()
+        if(!isItEmail(email.value)){
+            onFail("Please Enter Proper Email Id!")
+            return@launch
+        }
+        if(!validatePassword(password.value)){
+            onFail("Password Length must be greater than 6!")
+            return@launch
+        }
+
+        val result = memeRepo.loginUser(LoginRequest(email.value, password.value))
+        if(result is Resource.Success){
+            onSuccess(result.data!!)
+        } else {
+            onFail(result.message)
+        }
+
+        isLoading.value = false
     }
 
 

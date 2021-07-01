@@ -55,7 +55,7 @@ fun EditingScreen(
         topBar = {
 
             CustomTopBar(
-                title = "Edit",
+                title = "Create",
                 actions = {
                     IconButton(
                         onClick = {
@@ -110,17 +110,13 @@ fun EditingScreen(
                         .fillMaxWidth()
                         .fillMaxHeight(0.65f)
                 ) {
+
                     coroutineScope.launch{
                         createViewModel.initPhotoEditor(
                             context,
                             it,
                             createViewModel.templatesList.value[memeTemplateIndex].url
-                        ){
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(it)
-                            }
-                            navController.popBackStack()
-                        }
+                        )
                     }
                 }
             }
@@ -174,23 +170,25 @@ fun EditingScreen(
 
                         IconButton(
                             onClick = {
-                                createViewModel.saveAsBitmapInExternalStorage(
-                                    context = context,
-                                    onSuccess = {
-                                        coroutineScope.launch {
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "SuccessFully Downloaded!"
-                                            )
+                                if(updateOrRequestPermissions()) {
+                                    createViewModel.saveAsBitmapInExternalStorage(
+                                        context = context,
+                                        onSuccess = {
+                                            coroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "SuccessFully Downloaded!"
+                                                )
+                                            }
+                                        },
+                                        onFail = {
+                                            coroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    it
+                                                )
+                                            }
                                         }
-                                    },
-                                    onFail = {
-                                        coroutineScope.launch {
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                it
-                                            )
-                                        }
-                                    }
-                                )
+                                    )
+                                }
                             },
                             modifier = Modifier.clip(CircleShape).background(Color.Transparent)
                         ) {
@@ -334,13 +332,16 @@ fun EditingScreen(
                     .fillMaxHeight(0.35f)
                     .padding(8.dp)
                     .align(Alignment.BottomCenter),
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Bottom
                 ){
                     Text(text = "Eraser Size", style = MaterialTheme.typography.body1)
                     Slider(
                         value = eraserSize,
                         onValueChange = {
                             createViewModel.setEraserSize(it)
+                        },
+                        onValueChangeFinished = {
+                             createViewModel.photoEditor.brushEraser()
                         },
                         valueRange = 0f..100f,
                         modifier = Modifier.padding(0.dp),
@@ -459,7 +460,7 @@ fun EditingScreen(
                                 .clip(CircleShape)
                                 .background(color = Color.Transparent)
                         ) {
-                            Text(text = emoji,fontSize = 32.sp)
+                            Text(text = emoji,fontSize = 40.sp)
                         }
 
                     }

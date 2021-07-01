@@ -43,6 +43,7 @@ fun RegisterScreen(
 
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -143,9 +144,11 @@ fun RegisterScreen(
                                     passwordTrailingIcon = R.drawable.ic_eye
                                 }
                             },
-                            modifier =Modifier.background(color = Color.Transparent).clip(
-                                CircleShape
-                            )
+                            modifier = Modifier
+                                .background(color = Color.Transparent)
+                                .clip(
+                                    CircleShape
+                                )
                         ){
                             Icon(
                                 painter = painterResource(id = passwordTrailingIcon),
@@ -183,9 +186,11 @@ fun RegisterScreen(
                                     confirmPasswordTrailingIcon = R.drawable.ic_eye
                                 }
                             },
-                            modifier =Modifier.background(color = Color.Transparent).clip(
-                                CircleShape
-                            )
+                            modifier = Modifier
+                                .background(color = Color.Transparent)
+                                .clip(
+                                    CircleShape
+                                )
                         ){
                             Icon(
                                 painter = painterResource(id = confirmPasswordTrailingIcon),
@@ -200,7 +205,25 @@ fun RegisterScreen(
                     text = "Create Account",
                     modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
                 ) {
-                    registerScreenViewModel.registerUser()
+                    registerScreenViewModel.registerUser(
+                        onSuccess = { token ->
+                            scope.launch {
+                                saveJwtToken(context,token,registerScreenViewModel.email.value)
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    "Account Created!"
+                                )
+                            }
+                            navController.popBackStack()
+                            navigateWithPop(navController,HOME_SCREEN)
+                        },
+                        onFail = { errorMsg ->
+                            scope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    errorMsg ?: "Error"
+                                )
+                            }
+                        }
+                    )
                 }
 
 
@@ -215,7 +238,9 @@ fun RegisterScreen(
                     backgroundColor = MaterialTheme.colors.secondaryVariant,
                     textColor = MaterialTheme.colors.onSecondary
                 ) {
-
+                    coroutineScope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
+                    }
                 }
 
 
@@ -235,31 +260,7 @@ fun RegisterScreen(
 
 
 
-            when (registerScreenViewModel.registerStatus.value) {
-                is Resource.Error -> {
-                    scope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            registerScreenViewModel.registerStatus.value.message ?: "Error"
-                        )
-                    }
-                }
-                is Resource.Loading -> {
-                    CircularProgressIndicator()
-                }
-                is Resource.Success -> {
-                    scope.launch {
-                        saveJwtToken(context,registerScreenViewModel.registerStatus.value.data!!,registerScreenViewModel.email.value)
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            "Account Created!"
-                        )
-                    }
-                    navController.popBackStack()
-                    navigateWithPop(navController,HOME_SCREEN)
-                }
-                else -> {
 
-                }
-            }
 
         }
 

@@ -31,6 +31,7 @@ import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.navigateWithPop
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 @Composable
@@ -48,7 +49,7 @@ fun LoginScreen(
     var passwordTrailingIcon:Int by remember {
         mutableStateOf(R.drawable.ic_eye)
     }
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
 
@@ -125,7 +126,9 @@ fun LoginScreen(
                                     passwordTrailingIcon = R.drawable.ic_eye
                                 }
                             },
-                            modifier =Modifier.background(color = Color.Transparent).clip(CircleShape)
+                            modifier = Modifier
+                                .background(color = Color.Transparent)
+                                .clip(CircleShape)
                         ){
                             Icon(
                                 painter = painterResource(id = passwordTrailingIcon),
@@ -148,7 +151,29 @@ fun LoginScreen(
                     text = "Login",
                     modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
                 ) {
-                    loginScreenViewModel.loginUser()
+                    loginScreenViewModel.loginUser(
+                        onSuccess = { token ->
+                            coroutineScope.launch {
+                                TokenHandler.saveJwtToken(
+                                    context,
+                                    token,
+                                    loginScreenViewModel.email.value
+                                )
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    "Login Successful!"
+                                )
+                            }
+                            navController.popBackStack()
+                            navigateWithPop(navController,HOME_SCREEN)
+                        },
+                        onFail = { errorMsg ->
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    errorMsg ?: "Error!!"
+                                )
+                            }
+                        }
+                    )
                 }
 
 
@@ -167,7 +192,9 @@ fun LoginScreen(
                     backgroundColor = MaterialTheme.colors.secondaryVariant,
                     textColor = MaterialTheme.colors.onSecondary
                 ) {
-
+                    coroutineScope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
+                    }
                 }
 
 
@@ -185,42 +212,9 @@ fun LoginScreen(
             }
 
 
-
-
-
-            when (loginScreenViewModel.loginStatus.value) {
-                is Resource.Error -> {
-                    scope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            loginScreenViewModel.loginStatus.value.message ?: "Error!!"
-                        )
-                    }
-                }
-                is Resource.Loading -> {
-                    CircularProgressIndicator()
-                }
-                is Resource.Success -> {
-                    scope.launch {
-                        TokenHandler.saveJwtToken(
-                            context,
-                            loginScreenViewModel.loginStatus.value.data!!,
-                            loginScreenViewModel.email.value
-                        )
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            "Login Successful!"
-                        )
-                    }
-                    navController.popBackStack()
-                    navigateWithPop(navController,HOME_SCREEN)
-                }
-                else -> {
-
-                }
+            if(loginScreenViewModel.isLoading.value){
+                CircularProgressIndicator()
             }
-
-
-
-
 
         }
 

@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -38,77 +40,85 @@ import kotlinx.coroutines.launch
 @Composable
 fun LandingPage(navController: NavController) {
 
-    val scrollState = rememberScrollState()
-    val context = LocalContext.current
+
     val scope = rememberCoroutineScope()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
+    val scaffoldState = rememberScaffoldState()
+
+    Scaffold(
+        scaffoldState = scaffoldState
     ) {
 
-        scope.launch {
-            if (getJwtToken(context) != null) {
-                navigateWithPop(navController,HOME_SCREEN)
-            }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            // App Name
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
+                        append("Meme's")
+                    }
+                    withStyle(style = SpanStyle(color = MaterialTheme.colors.secondary)) {
+                        append(" Magic")
+                    }
+
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+                    .padding(24.dp),
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                fontSize = 34.sp
+            )
+
+            // Rest Illustration
+            Image(
+                painter = painterResource(id = R.drawable.rest_illustration),
+                contentDescription = "Illustration",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+
+
+
+
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp)
+            )
+
+
+
+
+
+            SignUp_Login_Buttons(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                onSignUpWithGoogle = {
+                    scope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
+                    }
+                },
+                onSignUpWithEmail = {
+                    navController.navigate(REGISTER_SCREEN)
+                },
+                onLogin = {
+                    navController.navigate(LOGIN_SCREEN)
+                }
+            )
+
         }
 
-        // App Name
-        Text(
-            text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
-                    append("Meme's")
-                }
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.secondary)) {
-                    append(" Magic")
-                }
-
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally)
-                .padding(24.dp),
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            fontSize = 34.sp
-        )
-
-        // Rest Illustration
-        Image(
-            painter = painterResource(id = R.drawable.rest_illustration),
-            contentDescription = "Illustration",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        )
-
-
-
-
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .padding(32.dp))
-
-
-
-
-
-        SignUp_Login_Buttons(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            onSignUpWithGoogle = {
-
-            },
-            onSignUpWithEmail = {
-                navController.navigate(REGISTER_SCREEN)
-            },
-            onLogin = {
-                navController.navigate(LOGIN_SCREEN)
-            }
-        )
 
     }
+
 
 }
 

@@ -29,7 +29,6 @@ import com.samarth.memesmagic.ui.components.CustomTopBar
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    homeViewModel: HomeViewModel = hiltViewModel(),
     startActivity: (Intent) -> Unit,
     feedViewModel:FeedViewModel
 ) {
@@ -56,9 +55,7 @@ fun HomeScreen(
         },
 
         bottomBar = {
-
             CustomBottomNavBar(navController = homeNavController,tabs = tabs,parentNavController = navController)
-
         }
     ) {
 

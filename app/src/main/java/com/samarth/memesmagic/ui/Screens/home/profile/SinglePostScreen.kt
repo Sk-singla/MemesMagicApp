@@ -70,7 +70,6 @@ fun SinglePostScreen(
                         startActivity
                     ){
                         coroutineScope.launch {
-                            Log.d("MyLog",it)
                             scaffoldState.snackbarHostState.showSnackbar(it)
                         }
                     }

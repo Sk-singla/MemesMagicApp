@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.provider.MediaStore
@@ -13,6 +14,7 @@ import androidx.annotation.ColorInt
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
 import com.samarth.data.models.request.PostRequest
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
@@ -28,6 +30,7 @@ import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ja.burhanrashid52.photoeditor.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -125,17 +128,19 @@ class CreateViewModel  @Inject constructor(
         context: Context,
         photoEditorView: PhotoEditorView,
         imageUrl:String,
-        onFail: (String) -> Unit
     ){
-        Picasso.get().load(imageUrl).into(photoEditorView.source)
+        Glide.with(context)
+            .load(imageUrl)
+            .into(photoEditorView.source)
+
         photoEditor = PhotoEditor
             .Builder(context,photoEditorView)
             .setPinchTextScalable(true)
             .build()
+
         photoEditor.setBrushDrawingMode(false)
         photoEditListeners()
         emojiList.value = getEmojis(context)
-
     }
 
     fun undo(){
@@ -163,11 +168,14 @@ class CreateViewModel  @Inject constructor(
         opacity.value = op
     }
 
-    fun initBrush(){
+    fun initBrush() = viewModelScope.launch{
         photoEditor.setBrushDrawingMode(true)
         brushMode.value = true
         noToolMode.value = false
         brushSize.value = photoEditor.brushSize
+        photoEditor.setBrushDrawingMode(true)
+
+        delay(500)
         photoEditor.brushColor = Color.WHITE
         curBrushColor.value = Color.WHITE
     }
@@ -178,7 +186,7 @@ class CreateViewModel  @Inject constructor(
         noToolMode.value = true
     }
 
-    fun initEraserMode(){
+    fun initEraserMode() = viewModelScope.launch {
         curEraserSize.value = photoEditor.eraserSize
         photoEditor.brushEraser()
         eraserMode.value = true
@@ -294,6 +302,8 @@ class CreateViewModel  @Inject constructor(
 
     fun saveAsBitmapInExternalStorage(context: Context,fileName:String = UUID.randomUUID().toString(),onSuccess: () -> Unit, onFail: (String) -> Unit){
 
+        val tempPhotoEditor = photoEditor
+
         photoEditor.saveAsBitmap(object :OnSaveBitmap{
             override fun onBitmapReady(saveBitmap: Bitmap?) {
                 saveBitmap?.let { bmp->
@@ -311,6 +321,8 @@ class CreateViewModel  @Inject constructor(
                 onFail(e?.message ?: "Failed to create Bitmap!!")
             }
         })
+
+        photoEditor = tempPhotoEditor
 
     }
 

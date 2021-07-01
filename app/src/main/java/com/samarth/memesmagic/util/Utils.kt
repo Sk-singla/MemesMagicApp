@@ -8,6 +8,7 @@ import android.provider.OpenableColumns
 import androidx.navigation.NavController
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.regex.Pattern
 
 fun numberOfPosts(postCount:Int):String {
     return "$postCount"
@@ -46,3 +47,16 @@ fun ContentResolver.getFileName(uri: Uri):String{
     }
     return name
 }
+
+fun isItEmail(email:String):Boolean{
+    val regex =  "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$"
+    return Pattern.compile(regex).matcher(email).matches()
+}
+
+fun validatePassword(password:String):Boolean{
+    return password.length >= 6
+}
+
+
+
+

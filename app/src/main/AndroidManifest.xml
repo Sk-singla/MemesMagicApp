@@ -10,10 +10,10 @@
     <application
         android:name=".MemeApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/memes_magic_logo"
         android:label="@string/app_name"
         android:usesCleartextTraffic="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/memes_magic_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.MemesMagic">
         <activity

@@ -64,12 +64,12 @@ interface MemeRepo {
      *
      * posts  lazy column in profile when click on post item,  single post when screen for feed post
      * 7. feed algo
-     * todo -> 8. Make default fn calls in EFFECTS
-     * todo -> 9. Landing page
-     * todo -> 10. Logo
+     * 8. Make default fn calls in EFFECTS
+     * Landing page
+     * 10. Logo
      * light Mode -> primary colour
      * todo -> user experience
-     * todo -> comment box background not transparent
+     * comment box background not transparent
      * todo -> documentation, repository public
      *
      */

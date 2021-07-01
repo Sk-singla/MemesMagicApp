@@ -42,7 +42,9 @@ fun FeedScreen(
 
     val context = LocalContext.current
     val coroutineScope  = rememberCoroutineScope()
-    var showCongratsDialog by remember{ mutableStateOf(false) }
+    var showCongratsDialog by remember{
+        mutableStateOf(false)
+    }
     var showAdvertiseDialog by remember {
         mutableStateOf(false)
     }
@@ -52,16 +54,26 @@ fun FeedScreen(
 
 
     DisposableEffect(key1 = Unit) {
-
-
-        feedViewModel.getYearReward(context){ reward, isItForMe ->
+        feedViewModel.getYearReward(context,
+            newReward = { reward, isItForMe ->
             if(isItForMe){
                 showCongratsDialog = true
             } else {
                 showAdvertiseDialog = true
             }
             newReward = reward
-        }
+        },
+            onFail = {
+                feedViewModel.getReward(context){ reward, isItForMe ->
+                    if(isItForMe){
+                        showCongratsDialog = true
+                    } else {
+                        showAdvertiseDialog = true
+                    }
+                    newReward = reward
+                }
+            }
+        )
         onDispose {  }
     }
 
@@ -74,6 +86,14 @@ fun FeedScreen(
                 showCongratsDialog,
                 {
                     showCongratsDialog = false
+                    feedViewModel.getReward(context){ reward, isItForMe ->
+                        if(isItForMe){
+                            showCongratsDialog = true
+                        } else {
+                            showAdvertiseDialog = true
+                        }
+                        newReward = reward
+                    }
                 },
                 it,
                 onClick = {

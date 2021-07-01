@@ -87,11 +87,17 @@ fun FullProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
+                    )
+
+                    Divider(modifier = Modifier.padding(horizontal = 12.dp))
+
+                    ProfileScreenButtons(
                         isItAnotherUserProfile = isItAnotherUserProfile,
+                        onFollowUnFollowBtnPressed = onFollowUnFollowBtnPressed,
                         isFollowing = isFollowing,
                         onEditScreenPressed = onEditScreenPressed,
-                        onFollowUnFollowBtnPressed = onFollowUnFollowBtnPressed,
-                        onLogout = onLogout
+                        onLogout = onLogout,
+                        numberOfRewards = it.rewards.size
                     )
 
                     Divider(modifier = Modifier.padding(horizontal = 12.dp))
@@ -133,20 +139,8 @@ fun FullProfileScreen(
 @Composable
 fun ProfileTopSection(
     user: User,
-    isItAnotherUserProfile:Boolean,
-    isFollowing:Boolean,
     modifier: Modifier = Modifier,
-    onEditScreenPressed:()->Unit,
-    onFollowUnFollowBtnPressed: (onSuccess:()->Unit)->Unit,
-    onLogout:()->Unit
 ) {
-
-
-    var isFollowingToUser by remember {
-        mutableStateOf(isFollowing)
-    }
-
-
     Column(modifier = modifier) {
 
         Row(
@@ -212,42 +206,59 @@ fun ProfileTopSection(
             Text(text = bio,style = MaterialTheme.typography.body2,modifier = Modifier.fillMaxWidth())
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
-        ){
-            OutlinedButton(
-                onClick = {
-                    if (isItAnotherUserProfile) {
-                        onFollowUnFollowBtnPressed {
-                            isFollowingToUser = !isFollowingToUser
-                        }
-                    } else {
-                        onEditScreenPressed()
+
+    }
+
+}
+
+@Composable
+fun ProfileScreenButtons(
+    isItAnotherUserProfile: Boolean,
+    onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit,
+    isFollowing: Boolean,
+    onEditScreenPressed: () -> Unit,
+    onLogout: () -> Unit,
+    numberOfRewards:Int
+) {
+
+    var isFollowingToUser by remember {
+        mutableStateOf(isFollowing)
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround
+    ){
+        OutlinedButton(
+            onClick = {
+                if (isItAnotherUserProfile) {
+                    onFollowUnFollowBtnPressed {
+                        isFollowingToUser = !isFollowingToUser
                     }
-                },
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .shadow(2.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    backgroundColor = MaterialTheme.colors.surface,
-                    contentColor = Green700
-                )
-            ) {
-                Text(
-                    text = if (isItAnotherUserProfile && isFollowingToUser)
-                        "Unfollow" else if (isItAnotherUserProfile && !isFollowingToUser)
-                        "Follow" else "Edit Profile"
-                )
-            }
+                } else {
+                    onEditScreenPressed()
+                }
+            },
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .shadow(2.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = Green700
+            )
+        ) {
+            Text(
+                text = if (isItAnotherUserProfile && isFollowingToUser)
+                    "Unfollow" else if (isItAnotherUserProfile && !isFollowingToUser)
+                    "Follow" else "Edit Profile"
+            )
+        }
 
-            OutlinedButton(
+        OutlinedButton(
                 onClick = {
-                    if (isItAnotherUserProfile) {
-
-                    } else {
+                    if(!isItAnotherUserProfile){
                         onLogout()
                     }
                 },
@@ -255,18 +266,16 @@ fun ProfileTopSection(
                     .padding(horizontal = 8.dp)
                     .shadow(2.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    backgroundColor = MaterialTheme.colors.surface,
-                    contentColor = Green700
-                )
-            ) {
-                Text(
-                    text = if (isItAnotherUserProfile)
-                        "${user.rewards.size} Badges"
-                        else "Logout"
-                )
-            }
-
-
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = Green700
+                ),
+            enabled = !isItAnotherUserProfile
+        ) {
+            Text(
+                text = if (isItAnotherUserProfile)
+                    "$numberOfRewards Badges"
+                else "Logout"
+            )
         }
 
 

@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +51,10 @@ fun CommentScreen(
         commentViewModel.post
     }
 
+    val commentsList by remember {
+        commentViewModel.commentsList
+    }
+
     val context = LocalContext.current
 
 
@@ -60,42 +65,6 @@ fun CommentScreen(
         }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-
-
-            Surface(
-                modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.surface).align(
-                    Alignment.BottomCenter)
-            ) {
-
-                CustomTextField(
-                    value = comment,
-                    onValueChange = {
-                        commentViewModel.comment.value = it
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    trailingIcon = {
-                        Text(text = "Post",color = Green700,modifier = Modifier
-                            .padding(4.dp)
-                            .clickable {
-                                // post comment
-                                commentViewModel.addComment(context) {
-                                    commentViewModel.comment.value = ""
-                                    if(post?.comments != null){
-                                        post?.comments?.add(it)
-                                    } else {
-                                        post?.comments = mutableListOf(it)
-                                    }
-                                }
-                            })
-                    }
-                )
-
-            }
-
-
-
 
 
             LazyColumn(
@@ -151,13 +120,57 @@ fun CommentScreen(
                     Divider()
                 }
 
-                items(commentViewModel.commentsList.value) { comment ->
-
+                items(commentsList) { comment ->
                     CommentItem(comment = comment, isCommentLiked = false) { onSuccess ->
                         commentViewModel.likeUnlikeToggle(context, comment, onSuccess)
                     }
-
                 }
+
+                item {
+                    Spacer(modifier = Modifier.padding(64.dp))
+                }
+
+            }
+
+
+
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .align(Alignment.BottomCenter)
+                    .background(color = MaterialTheme.colors.background),
+                contentAlignment = Alignment.Center
+            ) {
+
+
+                CustomTextField(
+                    value = comment,
+                    onValueChange = {
+                        commentViewModel.comment.value = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+//                        .align(Alignment.BottomCenter),
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            commentViewModel.addComment(context) {
+                                commentViewModel.comment.value = ""
+                                if (post?.comments != null) {
+                                    post?.comments?.add(it)
+                                } else {
+                                    post?.comments = mutableListOf(it)
+                                }
+                            }
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_send_24),
+                                contentDescription = "Send Comment"
+                            )
+                        }
+                    }
+                )
 
             }
 

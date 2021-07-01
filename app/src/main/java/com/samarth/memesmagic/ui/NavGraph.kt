@@ -24,6 +24,7 @@ import com.samarth.memesmagic.ui.Screens.home.create.NewPostDetailsScreen
 import com.samarth.memesmagic.ui.Screens.home.create.TemplateSelectionScreen
 import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.Screens.landing_page.LandingPage
+import com.samarth.memesmagic.ui.Screens.landing_page.SplashScreen
 import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
@@ -35,6 +36,7 @@ import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.Screens.LOGIN_SCREEN
 import com.samarth.memesmagic.util.Screens.NEW_POST_DETAILS_AND_UPLOAD
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
+import com.samarth.memesmagic.util.Screens.SPLASH_SCREEN
 
 @ExperimentalFoundationApi
 @Composable
@@ -48,8 +50,12 @@ fun MainNavGraph(
     val feedViewModel:FeedViewModel = hiltViewModel()
     val createViewModel:CreateViewModel = hiltViewModel()
 
-    NavHost(navController = navController, startDestination = LANDING_SCREEN){
+    NavHost(navController = navController, startDestination = SPLASH_SCREEN){
 
+
+        composable(SPLASH_SCREEN){
+            SplashScreen(navController = navController)
+        }
 
         composable(LANDING_SCREEN){
             LandingPage(navController = navController)

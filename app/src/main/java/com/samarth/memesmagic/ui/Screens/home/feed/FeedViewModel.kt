@@ -87,7 +87,11 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun getYearReward(context: Context,newReward:(reward:Reward,isItForMe:Boolean)->Unit) = viewModelScope.launch{
+    fun getYearReward(
+        context: Context,
+        newReward: (reward: Reward, isItForMe: Boolean) -> Unit,
+        onFail: () -> Unit
+    ) = viewModelScope.launch{
 
         val prevReward = getYearRewardId(context)
         val getYearReward = memeRepo.getLastYearReward(getJwtToken(context)!!)
@@ -100,10 +104,11 @@ class FeedViewModel @Inject constructor(
                 }
                 isFollowingToRewardy(context)
                 saveYearRewardId(context,getYearReward.data.id)
-
-
-                getReward(context,newReward)
+            } else {
+                onFail()
             }
+        } else {
+            onFail()
         }
     }
 

@@ -6,10 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
@@ -59,13 +56,14 @@ fun SearchScreen(
                 }
             ),
             trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    modifier = Modifier.clickable{
-                        searchViewModel.searchUser(context)
-                    }
-                )
+                IconButton(onClick = {
+                    searchViewModel.searchUser(context)
+                }){
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                }
             },
             placeholder = "Search People",
             maxLines = 1
@@ -83,7 +81,6 @@ fun SearchScreen(
                 }
             }
             searchViewModel.loadError.value.isNotEmpty() -> {
-
                 coroutineScope.launch {
                     scaffoldState.snackbarHostState.showSnackbar(searchViewModel.loadError.value)
                     searchViewModel.loadError.value = ""

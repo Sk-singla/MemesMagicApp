@@ -12,6 +12,8 @@ import com.google.android.gms.common.api.Scope
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
+import com.samarth.memesmagic.util.isItEmail
+import com.samarth.memesmagic.util.validatePassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -34,8 +36,8 @@ class RegisterScreenViewModel @Inject constructor(
     val password = mutableStateOf("")
     val confirmPassword = mutableStateOf("")
 
-    val registerStatus = mutableStateOf<Resource<String>>(Resource.Empty())
 
+    val isLoading = mutableStateOf(false)
 
     fun clearAllTextFields(){
         name.value = ""
@@ -44,16 +46,32 @@ class RegisterScreenViewModel @Inject constructor(
         confirmPassword.value = ""
     }
 
-    fun registerUser() = viewModelScope.launch{
-        registerStatus.value = Resource.Loading()
+    fun registerUser(onSuccess:(token:String)->Unit,onFail:(String?)->Unit) = viewModelScope.launch{
+        isLoading.value = true
+
+        if(!isItEmail(email.value)){
+            onFail("Please Enter Proper Email Id!")
+            return@launch
+        }
+        if(!validatePassword(password.value)){
+            onFail("Password Length must be greater than 6!")
+            return@launch
+        }
+
         if(isPasswordSameAsConfirmPassword()) {
             val registerRequest = RegisterUserRequest(name.value, email.value, password.value)
-            registerStatus.value = memeRepo.registerUser(registerRequest)
+            val result = memeRepo.registerUser(registerRequest)
+
+            if(result is Resource.Success){
+                onSuccess(result.data!!)
+            } else {
+                onFail(result.message)
+            }
+
         } else {
-            registerStatus.value = Resource.Error("Password don't match with Confirm Password")
+           onFail("Password don't match with Confirm Password")
         }
-        delay(1500)
-        registerStatus.value = Resource.Empty()
+        isLoading.value = false
     }
 
     private fun isPasswordSameAsConfirmPassword():Boolean{

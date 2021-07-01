@@ -54,6 +54,7 @@ object Screens{
     const val REGISTER_SCREEN = "register_screen"
     const val LOGIN_SCREEN = "login_screen"
     const val HOME_SCREEN = "home_screen"
+    const val SPLASH_SCREEN = "splash_screen"
 
     const val HOME_FEED = "$HOME_SCREEN/feed"
     const val HOME_SEARCH = "$HOME_SCREEN/search"

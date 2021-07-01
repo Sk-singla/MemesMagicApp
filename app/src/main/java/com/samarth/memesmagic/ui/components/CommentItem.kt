@@ -37,7 +37,13 @@ fun CommentItem(
         mutableStateOf(isCommentLiked)
     }
 
-    Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp),horizontalArrangement = Arrangement.SpaceBetween) {
+    var likes by remember {
+        mutableStateOf(comment.likedBy.size)
+    }
+
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 16.dp),horizontalArrangement = Arrangement.SpaceBetween) {
 
         Row{
 
@@ -78,7 +84,7 @@ fun CommentItem(
                 )
 
                 Text(
-                    text = "${comment.likedBy.size} likes",
+                    text = "$likes likes",
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onSurface.copy(0.6f)
                 )
@@ -91,6 +97,11 @@ fun CommentItem(
             onClick = {
                 onCommentLikeUnlikePressed{
                     isLiked = !isLiked
+                    if(isLiked){
+                        likes += 1
+                    } else {
+                        likes -= 1
+                    }
                 }
             },
             modifier = Modifier
