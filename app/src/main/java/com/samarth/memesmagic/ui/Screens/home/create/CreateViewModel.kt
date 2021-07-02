@@ -109,19 +109,19 @@ class CreateViewModel  @Inject constructor(
 
 
     val toolsList = listOf(
-            EditTool("Brush", R.drawable.ic_baseline_brush_24) {
-                   initBrush()
-            },
-            EditTool("Eraser", R.drawable.ic_eraser) {
-                     initEraserMode()
-            },
-            EditTool("Text", R.drawable.ic_baseline_text_fields_24) {
-                        initTextMode()
-            },
-            EditTool("Emoji", R.drawable.ic_outline_emoji) {
-                initEmojiMode()
-            }
-        )
+        EditTool("Brush", R.drawable.ic_baseline_brush_24) {
+            initBrush()
+        },
+        EditTool("Eraser", R.drawable.ic_eraser) {
+            initEraserMode()
+        },
+        EditTool("Text", R.drawable.ic_baseline_text_fields_24) {
+            initTextMode()
+        },
+        EditTool("Emoji", R.drawable.ic_outline_emoji) {
+            initEmojiMode()
+        }
+    )
 
 
     fun initPhotoEditor(
@@ -152,9 +152,10 @@ class CreateViewModel  @Inject constructor(
     }
 
 
-    fun setBrushSize(brushSizeVar:Float) {
+    fun setBrushSize(brushSizeVar:Float)  = viewModelScope.launch{
         photoEditor.brushSize = brushSizeVar
         brushSize.value = brushSizeVar
+        delay(500)
         setBrushColor(curBrushColor.value)
     }
 
