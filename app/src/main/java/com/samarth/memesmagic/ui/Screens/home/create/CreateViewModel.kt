@@ -143,11 +143,15 @@ class CreateViewModel  @Inject constructor(
         emojiList.value = getEmojis(context)
     }
 
-    fun undo(){
+    fun undo() = viewModelScope.launch{
+        photoEditor.setBrushDrawingMode(true)
+        delay(500)
         photoEditor.undo()
     }
 
-    fun redo(){
+    fun redo() = viewModelScope.launch{
+        photoEditor.setBrushDrawingMode(true)
+        delay(500)
         photoEditor.redo()
     }
 
@@ -164,9 +168,11 @@ class CreateViewModel  @Inject constructor(
         curBrushColor.value = color
     }
 
-    fun setOpacity(op:Int){
+    fun setOpacity(op:Int) = viewModelScope.launch{
         photoEditor.setOpacity(op)
         opacity.value = op
+        delay(500)
+        setBrushColor(curBrushColor.value)
     }
 
     fun initBrush() = viewModelScope.launch{
@@ -189,14 +195,18 @@ class CreateViewModel  @Inject constructor(
 
     fun initEraserMode() = viewModelScope.launch {
         curEraserSize.value = photoEditor.eraserSize
-        photoEditor.brushEraser()
+        photoEditor.setBrushDrawingMode(false)
         eraserMode.value = true
         noToolMode.value = false
+        delay(500)
+        photoEditor.brushEraser()
     }
 
-    fun setEraserSize(size:Float){
+    fun setEraserSize(size:Float) = viewModelScope.launch{
         photoEditor.setBrushEraserSize(size)
         curEraserSize.value = size
+        photoEditor.setBrushDrawingMode(false)
+        delay(500)
         photoEditor.brushEraser()
     }
 
@@ -252,7 +262,9 @@ class CreateViewModel  @Inject constructor(
         endTextMode()
     }
 
-    fun editText(){
+    fun editText() = viewModelScope.launch{
+        photoEditor.setBrushDrawingMode(true)
+        delay(500)
         if(selectedTextView.value != null) {
             Log.d("MyLog","Curtext value ->  ${curText.value}")
             photoEditor.editText(selectedTextView.value!!, curText.value, curTextColor.value)
