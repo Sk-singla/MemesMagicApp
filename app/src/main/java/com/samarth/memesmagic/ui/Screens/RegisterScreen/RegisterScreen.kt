@@ -259,6 +259,10 @@ fun RegisterScreen(
             }
 
 
+            if(registerScreenViewModel.isLoading.value){
+                CircularProgressIndicator()
+            }
+
 
 
 
