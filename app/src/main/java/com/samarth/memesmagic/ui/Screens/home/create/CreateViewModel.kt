@@ -403,6 +403,7 @@ class CreateViewModel  @Inject constructor(
 
                 viewModelScope.launch {
 
+                    isLoading.value = true
                     val files = context.filesDir.listFiles()
                     val file = files?.find { it.canRead() && it.isFile && it.name == fileName }
                     memeRepo.uploadFileOnAwsS3(
@@ -411,6 +412,9 @@ class CreateViewModel  @Inject constructor(
                         file = file,
                         onSuccess = { awsKey ->
                             viewModelScope.launch {
+
+                                isLoading.value = true
+
                                 val result = memeRepo.uploadPost(
                                     token = getJwtToken(context)!!,
                                     postRequest = PostRequest(
@@ -431,10 +435,12 @@ class CreateViewModel  @Inject constructor(
                                         onFail(result.message ?: "Some Problem Occurred!!")
                                     }
                                 }
+                                isLoading.value = false
                             }
                         },
                         onFail = onFail
                     )
+                    isLoading.value = false
                 }
             },
             onFail = onFail

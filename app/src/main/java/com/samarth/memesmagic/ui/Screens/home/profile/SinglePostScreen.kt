@@ -5,11 +5,14 @@ import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -23,6 +26,7 @@ import com.samarth.memesmagic.util.PostsUtil
 import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.TokenHandler
 import kotlinx.coroutines.launch
+import com.samarth.memesmagic.R
 
 @Composable
 fun SinglePostScreen(
@@ -38,9 +42,31 @@ fun SinglePostScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            CustomTopBar(title = "Post")
+            CustomTopBar(title = "Post",actions = {
+                IconButton(onClick = {
+                    feedViewModel.deletePost(
+                        post = CommentsUtil.post!!,
+                        context,
+                        onSuccess = {
+                            parentNavController.popBackStack()
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar("Post Deleted Successfully!")
+                            }
+                        },
+                        onFail = {
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(it)
+                            }
+                        }
+                    )
+                }) {
+                    Icon(painter = painterResource(id = R.drawable.ic_baseline_delete_24), contentDescription = "Delete Post")
+                }
+            })
         }
     ) {
+
+
 
         if(CommentsUtil.post != null) {
 

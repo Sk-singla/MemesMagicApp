@@ -45,10 +45,10 @@ class FeedViewModel @Inject constructor(
     val rewardWinner = mutableStateOf<UserInfo?>(null)
     val isFollowingToRewardyy = mutableStateOf(false)
 
-    val posts = mutableListOf<Post>()
+    val posts = mutableStateOf(mutableListOf<Post>())
 
     fun isItLastItem(itemNumber:Int):Boolean{
-        return itemNumber == posts.size -1
+        return itemNumber == posts.value.size -1
     }
 
     fun isPostLiked(post:Post,context:Context):Boolean {
@@ -135,7 +135,8 @@ class FeedViewModel @Inject constructor(
         val result = memeRepo.getFeed(token)
 
         if(result is Resource.Success){
-            posts.addAll(result.data!!)
+            posts.value.addAll(result.data!!)
+            posts.value.shuffle()
         } else {
             onFail(result.message ?: "Some Problem Occurred!")
         }
@@ -155,8 +156,7 @@ class FeedViewModel @Inject constructor(
                 postResource = PostResource.GITHUB_API
             )
         }?.let { githubPosts ->
-            posts.addAll(githubPosts)
-            posts.shuffle()
+            posts.value.addAll(githubPosts)
         }
         isLoading.value = false
     }
@@ -219,6 +219,17 @@ class FeedViewModel @Inject constructor(
                 }
             }
         )
+    }
+
+
+    fun deletePost(post: Post,context: Context,onSuccess: () -> Unit,onFail: (String) -> Unit) = viewModelScope.launch {
+        val result = memeRepo.deletePost(getJwtToken(context)!!,post.id)
+
+        if(result is Resource.Success){
+            onSuccess()
+        } else {
+            onFail(result.message ?: "Error!")
+        }
     }
 
 

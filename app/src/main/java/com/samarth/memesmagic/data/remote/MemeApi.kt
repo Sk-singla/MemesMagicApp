@@ -151,6 +151,13 @@ interface MemeApi {
         @Body userInfoRequest: UserInfoRequest
     ):SimpleResponse<UserInfo>
 
+    @Headers("Content-Type: application/json")
+    @DELETE("$POSTS/delete/single/{postId}")
+    suspend fun deletePost(
+        @Header("Authorization") token:String,
+        @Path("postId") postId: String
+    ):SimpleResponse<String>
+
 
 
 

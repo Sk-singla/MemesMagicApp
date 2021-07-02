@@ -83,6 +83,7 @@ fun FeedScreen(
         )
 
 
+        feedViewModel.getFeedFromGithub()
         feedViewModel.getFeed(
             TokenHandler.getJwtToken(context)!!,
             onFail = {
@@ -115,8 +116,6 @@ fun FeedScreen(
 
             }
         )
-
-        feedViewModel.getFeedFromGithub()
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -172,10 +171,10 @@ fun FeedScreen(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
 
-                    itemsIndexed(feedViewModel.posts) { pos, post ->
+                    itemsIndexed(feedViewModel.posts.value) { pos, post ->
 
 
-                        if(pos >= feedViewModel.posts.size - 10){
+                        if(pos >= feedViewModel.posts.value.size - 10){
                             feedViewModel.getFeedFromGithub()
                         }
 

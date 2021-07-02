@@ -54,6 +54,8 @@ interface MemeRepo {
     suspend fun getLastYearReward(token:String):Resource<Reward>
 
     suspend fun getMemesFromGithubApi():Resource<MemeApiGithub>
+
+    suspend fun deletePost(token: String,postId: String):Resource<String>
     /**
      * 1. Share meme on other platforms -> Done
      * 2. send friend request / follow , unfollow

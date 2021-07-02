@@ -58,54 +58,56 @@ fun NewPostDetailsScreen(
     ){
 
 
-        if(createViewModel.isLoading.value){
-            Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
-                CircularProgressIndicator()
-            }
-        }
+        Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
 
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-
-            CustomTextField(
-                value = caption,
-                onValueChange = {
-                    createViewModel.caption.value = it
-                },
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.4f),
-                placeholder = "Caption"
-            )
-
-            CustomButton(
-                text = "Post",
-                icon = R.drawable.ic_upload,
-                modifier = Modifier.padding(16.dp)
+            Column(
+                modifier = Modifier.fillMaxSize(),
             ) {
 
-                createViewModel.uploadPost(
-                    context = context,
-                    onFail = {
-                        coroutineScope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar(
-                                it
-                            )
-                        }
+                CustomTextField(
+                    value = caption,
+                    onValueChange = {
+                        createViewModel.caption.value = it
                     },
-                    onSuccess = {
-                        coroutineScope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar(
-                                "SuccessFully Posted!"
-                            )
-                            navController.popBackStack(HOME_SCREEN,false,true)
-                        }
-                    }
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.4f),
+                    placeholder = "Caption"
                 )
+
+                CustomButton(
+                    text = "Post",
+                    icon = R.drawable.ic_upload,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+
+                    createViewModel.uploadPost(
+                        context = context,
+                        onFail = {
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    it
+                                )
+                            }
+                        },
+                        onSuccess = {
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    "SuccessFully Posted!"
+                                )
+                                navController.popBackStack(HOME_SCREEN, false, true)
+                            }
+                        }
+                    )
+                }
+
             }
+
+            if(createViewModel.isLoading.value){
+                CircularProgressIndicator()
+            }
+
 
         }
 

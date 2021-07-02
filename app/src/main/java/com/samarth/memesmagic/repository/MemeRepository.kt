@@ -364,4 +364,18 @@ class MemeRepository(
             Resource.Error(e.message ?: "Some Problem Occurred!!")
         }
     }
+
+
+    override suspend fun deletePost(token: String, postId: String): Resource<String> {
+        return try {
+            val response = memeApi.deletePost("Bearer $token",postId)
+            if(response.success && response.data!=null){
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: "Some Problem Occurred!!")
+        }
+    }
 }
