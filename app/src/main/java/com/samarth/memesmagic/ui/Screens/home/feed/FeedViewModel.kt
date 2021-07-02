@@ -143,6 +143,7 @@ class FeedViewModel @Inject constructor(
     }
 
     fun getFeedFromGithub() = viewModelScope.launch {
+        isLoading.value = true
         val result = memeRepo.getMemesFromGithubApi()
         result.data?.memes?.map {
             Post(
@@ -157,6 +158,7 @@ class FeedViewModel @Inject constructor(
             posts.addAll(githubPosts)
             posts.shuffle()
         }
+        isLoading.value = false
     }
 
     fun likePost(post:Post,context: Context,onSuccess:()->Unit) = viewModelScope.launch{

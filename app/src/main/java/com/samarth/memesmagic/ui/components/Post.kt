@@ -2,6 +2,7 @@ package com.samarth.memesmagic.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -78,6 +79,11 @@ fun PostItem(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
+                            shape = CircleShape
+                        )
                         .clickable {
                            onClick()
                         },

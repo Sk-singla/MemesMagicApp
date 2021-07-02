@@ -30,7 +30,7 @@ class LoginScreenViewModel @Inject constructor(
         onSuccess:(token:String)->Unit,
         onFail:(String?)->Unit
     ) = viewModelScope.launch{
-        isLoading.value = true
+
 
         if(!isItEmail(email.value)){
             onFail("Please Enter Proper Email Id!")
@@ -40,6 +40,8 @@ class LoginScreenViewModel @Inject constructor(
             onFail("Password Length must be greater than 6!")
             return@launch
         }
+
+        isLoading.value = true
 
         val result = memeRepo.loginUser(LoginRequest(email.value, password.value))
         if(result is Resource.Success){

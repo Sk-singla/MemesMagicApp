@@ -38,7 +38,7 @@ fun SinglePostScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            CustomTopBar(title = "Posts")
+            CustomTopBar(title = "Post")
         }
     ) {
 

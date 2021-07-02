@@ -205,6 +205,7 @@ fun RegisterScreen(
                     text = "Create Account",
                     modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
                 ) {
+
                     registerScreenViewModel.registerUser(
                         onSuccess = { token ->
                             scope.launch {
@@ -212,9 +213,9 @@ fun RegisterScreen(
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     "Account Created!"
                                 )
+                                navController.popBackStack()
+                                navigateWithPop(navController,HOME_SCREEN)
                             }
-                            navController.popBackStack()
-                            navigateWithPop(navController,HOME_SCREEN)
                         },
                         onFail = { errorMsg ->
                             scope.launch {

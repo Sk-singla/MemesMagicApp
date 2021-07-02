@@ -47,7 +47,7 @@ class RegisterScreenViewModel @Inject constructor(
     }
 
     fun registerUser(onSuccess:(token:String)->Unit,onFail:(String?)->Unit) = viewModelScope.launch{
-        isLoading.value = true
+
 
         if(!isItEmail(email.value)){
             onFail("Please Enter Proper Email Id!")
@@ -57,7 +57,7 @@ class RegisterScreenViewModel @Inject constructor(
             onFail("Password Length must be greater than 6!")
             return@launch
         }
-
+        isLoading.value = true
         if(isPasswordSameAsConfirmPassword()) {
             val registerRequest = RegisterUserRequest(name.value, email.value, password.value)
             val result = memeRepo.registerUser(registerRequest)

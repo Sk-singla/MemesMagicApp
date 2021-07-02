@@ -67,7 +67,7 @@ fun UserSearchItem(
                     .size(48.dp)
                     .clip(CircleShape)
                     .border(
-                        width = 2.dp,
+                        width = 1.dp,
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
                         shape = CircleShape
                     ).clickable{

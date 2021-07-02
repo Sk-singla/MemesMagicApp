@@ -120,7 +120,7 @@ fun FullProfileScreen(
                             }
                         } else {
                             ProfilePostsSection(
-                                posts = postsList,
+                                posts = postsList.sortedByDescending { it.time },
                                 modifier = Modifier.padding(horizontal = 4.dp),
                                 detailView = detailView
                             )

@@ -68,7 +68,8 @@ interface MemeRepo {
      * Landing page
      * 10. Logo
      * light Mode -> primary colour
-     * todo -> user experience
+     * todo -> user experience, clone photo editor repo and do something
+     * todo -> delete post,  when delete post decrease post count, check feed algo(returning empty object)
      * comment box background not transparent
      * todo -> documentation, repository public
      *

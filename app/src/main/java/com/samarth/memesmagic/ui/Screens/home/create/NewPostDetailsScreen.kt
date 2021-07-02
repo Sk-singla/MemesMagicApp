@@ -2,6 +2,7 @@ package com.samarth.memesmagic.ui.Screens.home.create
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -56,6 +58,13 @@ fun NewPostDetailsScreen(
     ){
 
 
+        if(createViewModel.isLoading.value){
+            Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
+                CircularProgressIndicator()
+            }
+        }
+
+
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
@@ -66,7 +75,7 @@ fun NewPostDetailsScreen(
                     createViewModel.caption.value = it
                 },
                 modifier = Modifier
-                    .padding(horizontal = 16.dp,vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth()
                     .fillMaxHeight(0.4f),
                 placeholder = "Caption"

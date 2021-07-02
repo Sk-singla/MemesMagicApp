@@ -34,6 +34,7 @@ import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.logout
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,6 +60,7 @@ fun FeedScreen(
 
 
     LaunchedEffect(key1 = Unit) {
+
         feedViewModel.getYearReward(context,
             newReward = { reward, isItForMe ->
             if(isItForMe){
@@ -85,6 +87,7 @@ fun FeedScreen(
             TokenHandler.getJwtToken(context)!!,
             onFail = {
                 coroutineScope.launch {
+                    Log.d("MyLog","Feed ------------> $it")
                     scaffoldState.snackbarHostState.showSnackbar(it)
                 }
             }
@@ -94,6 +97,7 @@ fun FeedScreen(
             context,
             getEmail(context)!!,
             onFail = {
+                Log.d("MyLog","User ------------> $it")
                  if(!it.contains("timeout")){
                      coroutineScope.launch {
                          logout(context)
@@ -163,14 +167,9 @@ fun FeedScreen(
         }
 
 
-        when {
-
-
-            feedViewModel.isLoading.value -> {
+            if(feedViewModel.isLoading.value){
                 CircularProgressIndicator()
-            }
-
-            else -> {
+            } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
 
                     itemsIndexed(feedViewModel.posts) { pos, post ->
@@ -238,8 +237,6 @@ fun FeedScreen(
                     }
                 }
             }
-        }
-
 
     }
 

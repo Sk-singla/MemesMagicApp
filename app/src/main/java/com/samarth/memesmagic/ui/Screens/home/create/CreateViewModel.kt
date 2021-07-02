@@ -258,7 +258,7 @@ class CreateViewModel  @Inject constructor(
         } else {
             Log.d("MyLog","edit null edit null")
         }
-//        endTextMode()
+        endTextMode()
     }
 
     fun endTextMode(){
@@ -392,12 +392,15 @@ class CreateViewModel  @Inject constructor(
 
 
     fun uploadPost(context: Context,onFail:(String)->Unit,onSuccess:()->Unit) {
+        isLoading.value = true
         val fileName = "${UUID.randomUUID().toString()}.jpg"
 
         saveAsBitmapInInternalStorage(
             context,
             fileName=fileName,
             onSuccess = {
+
+
                 viewModelScope.launch {
 
                     val files = context.filesDir.listFiles()
@@ -421,6 +424,7 @@ class CreateViewModel  @Inject constructor(
 
                                 when(result){
                                     is Resource.Success -> {
+                                        caption.value = ""
                                         onSuccess()
                                     }
                                     else -> {
@@ -435,6 +439,8 @@ class CreateViewModel  @Inject constructor(
             },
             onFail = onFail
         )
+
+        isLoading.value = false
     }
 
 

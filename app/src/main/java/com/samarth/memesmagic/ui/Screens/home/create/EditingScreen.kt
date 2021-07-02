@@ -460,7 +460,7 @@ fun EditingScreen(
                                 .clip(CircleShape)
                                 .background(color = Color.Transparent)
                         ) {
-                            Text(text = emoji,fontSize = 40.sp)
+                            Text(text = emoji,fontSize = 32.sp)
                         }
 
                     }

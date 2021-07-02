@@ -30,6 +30,7 @@ import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.navigateWithPop
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.log
 
@@ -162,9 +163,11 @@ fun LoginScreen(
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     "Login Successful!"
                                 )
+
+                                delay(500)
+                                navController.popBackStack()
+                                navigateWithPop(navController,HOME_SCREEN)
                             }
-                            navController.popBackStack()
-                            navigateWithPop(navController,HOME_SCREEN)
                         },
                         onFail = { errorMsg ->
                             coroutineScope.launch {
