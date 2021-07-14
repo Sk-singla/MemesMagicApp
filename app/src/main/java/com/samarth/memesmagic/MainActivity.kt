@@ -1,8 +1,10 @@
 package com.samarth.memesmagic
 
 import android.Manifest
-import android.app.Application
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -12,30 +14,37 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.amplifyframework.core.Amplify
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.gson.Gson
+import com.google.gson.JsonParser
+import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmFollowerAddedMessage
+import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessage
+import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
+import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_SEND_MESSAGE
 import com.samarth.memesmagic.ui.MainNavGraph
-import com.samarth.memesmagic.ui.Screens.RegisterScreen.RegisterScreenViewModel
+import com.samarth.memesmagic.ui.screens.RegisterScreen.RegisterScreenViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
+import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import timber.log.Timber
@@ -44,9 +53,6 @@ import timber.log.Timber
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var mGoogleSignInClient:GoogleSignInClient
-    private val mRegisterScreenViewModel:RegisterScreenViewModel by viewModels()
-
-
 
     private var readPermissionGranted = false
     private var writePermissionGranted = false
@@ -64,6 +70,10 @@ class MainActivity : ComponentActivity() {
 
 
 
+    lateinit var receiver: BroadcastReceiver
+
+
+
     private val startActivityForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
@@ -78,34 +88,93 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "Data is Null", Toast.LENGTH_SHORT).show()
         }
     }
+    
+    private var showAlertBox = mutableStateOf(false)
+    private var followerMessage = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MemesMagicTheme {
-                MainNavGraph(
-                    startActivity = { intent ->
-                        startActivity(intent)
-                    },
-                    startActivityForResult = { str, done ->
-                        imagePicker.launch(str)
-                        Log.d("MyLog","done -> ${imageUri.value}")
-                        lifecycleScope.launchWhenCreated {
-                            imageUri.collect {
-                                if(it != null){
-                                    done(it)
+                Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
+                    MainNavGraph(
+                        startActivity = { intent ->
+                            startActivity(intent)
+                        },
+                        startActivityForResult = { str, done ->
+                            imagePicker.launch(str)
+                            Log.d("MyLog", "done -> ${imageUri.value}")
+                            lifecycleScope.launchWhenCreated {
+                                imageUri.collect {
+                                    if (it != null) {
+                                        done(it)
+                                    }
                                 }
                             }
-                        }
-                    },
-                    updateOrRequestPermissions = {
-                        updateOrRequestPermissions()
+                        },
+                        updateOrRequestPermissions = {
+                            updateOrRequestPermissions()
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    
+                    if(showAlertBox.value) {
+                        AlertDialog(onDismissRequest = {
+                            showAlertBox.value = false
+                        },
+                            buttons = {
+
+                            },
+                            title = {
+                                Text(text = "New Follower!")
+                            },
+                            text = {
+                                Text(text = followerMessage)
+                            }
+
+                        )
                     }
-                )
+                    
+                    
+                }
+            }
+        }
+        
+        receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val strMessage = intent!!.getStringExtra("message")
+                Log.d("fcm message",strMessage ?: "NULL")
+                val messageObject = JsonParser.parseString(strMessage).asJsonObject
+                val type = messageObject.get("type").asString
+                Log.d("fcm type","$type ,$FCM_TYPE_FOLLOWER_ADDED, equal? = ${type == FCM_TYPE_FOLLOWER_ADDED}")
+                val message = when(type){
+                    FCM_TYPE_FOLLOWER_ADDED -> Gson().fromJson(strMessage, FcmFollowerAddedMessage::class.java)
+                    else -> Gson().fromJson(strMessage, FcmMessageData::class.java)
+                }
+                when(message) {
+                    is FcmFollowerAddedMessage -> {
+                        followerMessage = message.message
+                        showAlertBox.value = true
+                    }
+                    else -> {
+                        Toast.makeText(this@MainActivity, "Not fcm follower message", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
 //        configureGSI()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(INTENT_ACTION_SEND_MESSAGE)
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
     }
 
 

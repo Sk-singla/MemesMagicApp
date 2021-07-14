@@ -4,27 +4,27 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavDeepLink
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
-import com.samarth.memesmagic.ui.Screens.AnotherUserProfile
-import com.samarth.memesmagic.ui.Screens.comments.CommentScreen
-import com.samarth.memesmagic.ui.Screens.LoginScreen.LoginScreen
-import com.samarth.memesmagic.ui.Screens.RegisterScreen.RegisterScreen
-import com.samarth.memesmagic.ui.Screens.SinglePostScreen
-import com.samarth.memesmagic.ui.Screens.edit_profile.EditProfileScreen
-import com.samarth.memesmagic.ui.Screens.home.HomeScreen
-import com.samarth.memesmagic.ui.Screens.home.create.CreateViewModel
-import com.samarth.memesmagic.ui.Screens.home.create.EditingScreen
-import com.samarth.memesmagic.ui.Screens.home.create.NewPostDetailsScreen
-import com.samarth.memesmagic.ui.Screens.home.create.TemplateSelectionScreen
-import com.samarth.memesmagic.ui.Screens.home.feed.FeedViewModel
-import com.samarth.memesmagic.ui.Screens.landing_page.LandingPage
-import com.samarth.memesmagic.ui.Screens.landing_page.SplashScreen
+import com.samarth.memesmagic.ui.screens.AnotherUserProfile
+import com.samarth.memesmagic.ui.screens.comments.CommentScreen
+import com.samarth.memesmagic.ui.screens.LoginScreen.LoginScreen
+import com.samarth.memesmagic.ui.screens.RegisterScreen.RegisterScreen
+import com.samarth.memesmagic.ui.screens.SinglePostScreen
+import com.samarth.memesmagic.ui.screens.edit_profile.EditProfileScreen
+import com.samarth.memesmagic.ui.screens.home.HomeScreen
+import com.samarth.memesmagic.ui.screens.home.create.CreateViewModel
+import com.samarth.memesmagic.ui.screens.home.create.EditingScreen
+import com.samarth.memesmagic.ui.screens.home.create.NewPostDetailsScreen
+import com.samarth.memesmagic.ui.screens.home.create.TemplateSelectionScreen
+import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
+import com.samarth.memesmagic.ui.screens.landing_page.LandingPage
+import com.samarth.memesmagic.ui.screens.landing_page.SplashScreen
 import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
@@ -43,14 +43,15 @@ import com.samarth.memesmagic.util.Screens.SPLASH_SCREEN
 fun MainNavGraph(
     startActivity:(Intent)->Unit,
     startActivityForResult:(String,(Uri?)->Unit)->Unit,
-    updateOrRequestPermissions:()->Boolean
+    updateOrRequestPermissions:()->Boolean,
+    modifier: Modifier = Modifier
 ){
 
     val navController = rememberNavController()
     val feedViewModel:FeedViewModel = hiltViewModel()
     val createViewModel:CreateViewModel = hiltViewModel()
 
-    NavHost(navController = navController, startDestination = SPLASH_SCREEN){
+    NavHost(navController = navController, startDestination = SPLASH_SCREEN,modifier =modifier){
 
 
         composable(SPLASH_SCREEN){

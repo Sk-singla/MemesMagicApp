@@ -158,6 +158,16 @@ interface MemeApi {
         @Path("postId") postId: String
     ):SimpleResponse<String>
 
+    @Headers("Content-Type: application/json")
+    @POST("$USERS/fcmToken/{fcmToken}")
+    suspend fun updateFcmToken(
+        @Header("Authorization") token:String,
+        @Path("fcmToken") fcmToken: String
+    ):SimpleResponse<String>
+
+
+
+
 
 
 

@@ -30,6 +30,7 @@ object Constants {
 
     const val BUCKET_OBJECT_URL_PREFIX = "https://memebucket143419-staging.s3.ap-south-1.amazonaws.com/public/"
 
+    const val FCM_TYPE_FOLLOWER_ADDED = "FCM_TYPE_FOLLOWER_ADDED"
 
     /**
      * todo -> create post component
