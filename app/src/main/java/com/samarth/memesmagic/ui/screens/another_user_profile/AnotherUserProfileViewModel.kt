@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samarth.memesmagic.data.remote.response.Post
+import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
@@ -26,6 +27,8 @@ class AnotherUserProfileViewModel @Inject constructor(
     val isLoading = mutableStateOf(false)
     val loadError = mutableStateOf("")
     val isFollowing = mutableStateOf(false)
+    val rewards = mutableStateOf(listOf<Reward>())
+    val isLoadingRewards = mutableStateOf(false)
 
     fun getUser(context: Context,email:String) = viewModelScope.launch {
         isLoading.value = true
@@ -85,6 +88,18 @@ class AnotherUserProfileViewModel @Inject constructor(
         }
     }
 
+
+    fun getRewards(context: Context) = viewModelScope.launch{
+        isLoadingRewards.value = true
+        val result = memeRepo.getMyRewards(getJwtToken(context)!!,user.value!!.userInfo.email)
+        if(result is Resource.Success){
+            rewards.value = result.data!!
+            loadError.value = ""
+        } else{
+            loadError.value = result.message!!
+        }
+        isLoadingRewards.value = false
+    }
 
 
 

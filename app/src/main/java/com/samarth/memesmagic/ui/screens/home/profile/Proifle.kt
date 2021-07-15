@@ -28,6 +28,7 @@ fun ProfileScreen(
     }
 
 
+    // todo: change badges thing
     FullProfileScreen(
         modifier = Modifier.fillMaxSize(),
         user = profileViewModel.user.value,
@@ -43,9 +44,7 @@ fun ProfileScreen(
         onEditScreenPressed = {
             parentNavController.navigate(EDIT_PROFILE_SCREEN)
         },
-        onFollowUnFollowBtnPressed = {
-
-        },
+        onFollowUnFollowBtnPressed = {},
         detailView  = {
             parentNavController.navigate(Screens.SINGLE_POST_SCREEN)
         },
@@ -53,8 +52,8 @@ fun ProfileScreen(
             profileViewModel.logoutUser(context)
             parentNavController.popBackStack()
             parentNavController.navigate(LANDING_SCREEN)
-        }
-
+        },
+        badgesClick = {}
     )
 }
 

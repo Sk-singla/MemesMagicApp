@@ -12,10 +12,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -31,7 +33,9 @@ import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.CommentItem
 import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.CustomTopBar
+import com.samarth.memesmagic.util.Screens
 
+@ExperimentalComposeUiApi
 @Composable
 fun CommentScreen(
     navController: NavController,
@@ -52,6 +56,7 @@ fun CommentScreen(
     }
 
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
 
     Scaffold(
@@ -70,7 +75,8 @@ fun CommentScreen(
                 item {
                     Row(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)) {
+                        .padding(8.dp)
+                    ) {
 
                         Image(
                             painter = rememberCoilPainter(
@@ -117,9 +123,16 @@ fun CommentScreen(
                 }
 
                 items(commentsList) { comment ->
-                    CommentItem(comment = comment, isCommentLiked = false) { onSuccess ->
-                        commentViewModel.likeUnlikeToggle(context, comment, onSuccess)
-                    }
+                    CommentItem(
+                        comment = comment,
+                        isCommentLiked = false,
+                        onCommentLikeUnlikePressed = { onSuccess ->
+                            commentViewModel.likeUnlikeToggle(context, comment, onSuccess)
+                        },
+                        onProfileClick = {
+                            navController.navigate("${Screens.ANOTHER_USER_PROFILE_SCREEN}/${comment.userInfo.email}")
+                        }
+                    )
                 }
 
                 item {
@@ -134,7 +147,7 @@ fun CommentScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp)
                     .align(Alignment.BottomCenter)
                     .background(color = MaterialTheme.colors.background),
                 contentAlignment = Alignment.Center
@@ -151,6 +164,7 @@ fun CommentScreen(
 //                        .align(Alignment.BottomCenter),
                     trailingIcon = {
                         IconButton(onClick = {
+                            keyboardController?.hide()
                             commentViewModel.addComment(context) {
                                 commentViewModel.comment.value = ""
                                 if (post?.comments != null) {

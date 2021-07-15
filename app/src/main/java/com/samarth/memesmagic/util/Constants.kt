@@ -32,16 +32,6 @@ object Constants {
 
     const val FCM_TYPE_FOLLOWER_ADDED = "FCM_TYPE_FOLLOWER_ADDED"
 
-    /**
-     * todo -> create post component
-     * todo -> create home page -> ( topbar, lazycolumn, bottombar )
-     * todo -> logout
-     * todo -> fetch posts from server
-     * todo -> create post
-     * todo -> editing,
-     * todo -> Main stuff -> Memes related!
-     */
-
 
 
 

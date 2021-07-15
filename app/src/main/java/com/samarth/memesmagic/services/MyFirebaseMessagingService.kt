@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.services
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -8,8 +9,10 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import com.google.gson.JsonParser
+import com.samarth.memesmagic.MainActivity
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmFollowerAddedMessage
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessage
+import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
 import com.samarth.memesmagic.notification.NotificationHelper
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
@@ -42,20 +45,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
 
         // todo: when click on notification -> go to main activity and show alert box where written follow back or whatever else!
         // todo: like post with websocket ( or real time ) and notification
-        if(remoteMessage.notification != null) {
-            val title = remoteMessage.notification!!.title
-            val body = remoteMessage.notification!!.body
-            NotificationHelper.displayNotification(
-                this,
-                title ?: "",
-                body ?: "",
-                123,
-                "MEMES_MAGIC_CHANNEL",
-                1
-            )
-        } else {
-            Log.d("fcm notification", "No Notification")
-        }
 
         val strMessage = remoteMessage.data["message"]!!
         passMessageToActivity(strMessage)
@@ -71,6 +60,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
 
     companion object {
         const val INTENT_ACTION_SEND_MESSAGE = "INTENT_ACTION_SEND_MESSAGE"
+        const val INTENT_ACTION_NEW_FOLLOWER = "INTENT_ACTION_NEW_FOLLOWER"
     }
 
 

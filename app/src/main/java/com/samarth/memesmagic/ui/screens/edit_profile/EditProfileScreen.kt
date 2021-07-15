@@ -12,10 +12,12 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -27,6 +29,7 @@ import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.CustomTopBar
 import kotlinx.coroutines.launch
 
+@ExperimentalComposeUiApi
 @Composable
 fun EditProfileScreen(
     navController: NavController,
@@ -35,13 +38,10 @@ fun EditProfileScreen(
     editProfileViewModel: EditProfileViewModel = hiltViewModel()
 ) {
 
-
-    val user by remember {
-        editProfileViewModel.currentUser
-    }
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -97,6 +97,7 @@ fun EditProfileScreen(
                             shape = CircleShape
                         )
                         .clickable {
+                            keyboardController?.hide()
                             if(updateOrRequestPermissions()) {
                                 editProfileViewModel.selectProfilePic(startActivityForResult)
                             } else {
@@ -105,7 +106,6 @@ fun EditProfileScreen(
                                 }
                             }
                         }
-//                    .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.85f)),
                 )
 
 
@@ -135,8 +135,10 @@ fun EditProfileScreen(
 
             CustomButton(
                 text = "Done",
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                enabled = !editProfileViewModel.isLoading.value
             ) {
+                keyboardController?.hide()
                 editProfileViewModel.updateProfile(
                     context = context,
                     onSuccess = {

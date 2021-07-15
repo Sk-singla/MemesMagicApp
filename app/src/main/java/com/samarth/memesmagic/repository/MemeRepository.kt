@@ -1,14 +1,10 @@
 package com.samarth.memesmagic.repository
 
 import android.content.Context
-import android.util.Log
 import com.amplifyframework.core.Amplify
-import com.amplifyframework.core.Consumer
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.StorageException
-import com.amplifyframework.storage.options.StorageListOptions
 import com.amplifyframework.storage.options.StorageUploadFileOptions
-import com.amplifyframework.storage.result.StorageUploadFileResult
 import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.request.RegisterUserRequest
@@ -24,7 +20,6 @@ import com.samarth.memesmagic.data.remote.response.meme_api_github.MemeApiGithub
 import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
 import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
-import com.samarth.memesmagic.util.TokenHandler.saveJwtToken
 import dagger.hilt.android.scopes.ActivityScoped
 import java.io.File
 
@@ -344,9 +339,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun getMyRewards(token: String): Resource<List<Reward>> {
+    override suspend fun getMyRewards(token: String,email: String): Resource<List<Reward>> {
         return try {
-            val response = memeApi.getUserRewards("Bearer $token")
+            val response = memeApi.getRewards("Bearer $token",email)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {

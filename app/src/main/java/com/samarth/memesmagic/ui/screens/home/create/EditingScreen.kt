@@ -176,7 +176,7 @@ fun EditingScreen(
                                         onSuccess = {
                                             coroutineScope.launch {
                                                 scaffoldState.snackbarHostState.showSnackbar(
-                                                    "SuccessFully Downloaded!"
+                                                    "Successfully Saved!"
                                                 )
                                             }
                                         },

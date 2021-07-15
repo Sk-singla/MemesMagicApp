@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens.RegisterScreen
+package com.samarth.memesmagic.ui.screens.register_screen
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf

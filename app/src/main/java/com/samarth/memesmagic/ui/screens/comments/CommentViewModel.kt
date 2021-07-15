@@ -37,6 +37,10 @@ class CommentViewModel @Inject constructor(
 
     fun addComment(context:Context,onSuccess:(Comment)->Unit) = viewModelScope.launch{
 
+        val trimmedComment = comment.value.trim()
+        if(trimmedComment.isEmpty()){
+            return@launch
+        }
         post.value?.let { pt ->
             val result = memeRepo.addComment(
                 getJwtToken(context)!!,

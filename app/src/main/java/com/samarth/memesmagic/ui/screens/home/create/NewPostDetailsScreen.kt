@@ -9,8 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -21,6 +23,7 @@ import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import kotlinx.coroutines.launch
 
+@ExperimentalComposeUiApi
 @Composable
 fun NewPostDetailsScreen(
     navController: NavHostController,
@@ -34,6 +37,7 @@ fun NewPostDetailsScreen(
     val caption by remember {
         createViewModel.caption
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -69,9 +73,11 @@ fun NewPostDetailsScreen(
                 CustomButton(
                     text = "Post",
                     icon = R.drawable.ic_upload,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    enabled = !createViewModel.isLoading.value
                 ) {
 
+                    keyboardController?.hide()
                     createViewModel.uploadPost(
                         context = context,
                         onFail = {

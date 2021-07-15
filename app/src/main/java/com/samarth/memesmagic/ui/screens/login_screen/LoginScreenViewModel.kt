@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens.LoginScreen
+package com.samarth.memesmagic.ui.screens.login_screen
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel

@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -38,6 +39,7 @@ enum class HomeSections(
 }
 
 
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
 fun HomeNavGraph(

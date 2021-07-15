@@ -2,9 +2,11 @@ package com.samarth.memesmagic.util
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
+import android.view.View
 import androidx.navigation.NavController
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,7 +58,5 @@ fun isItEmail(email:String):Boolean{
 fun validatePassword(password:String):Boolean{
     return password.length >= 6
 }
-
-
 
 

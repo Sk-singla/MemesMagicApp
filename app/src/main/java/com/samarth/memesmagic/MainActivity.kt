@@ -10,44 +10,46 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmFollowerAddedMessage
-import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessage
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
+import com.samarth.memesmagic.repository.MemeRepo
+import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_NEW_FOLLOWER
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_SEND_MESSAGE
 import com.samarth.memesmagic.ui.MainNavGraph
-import com.samarth.memesmagic.ui.screens.RegisterScreen.RegisterScreenViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
 import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
+import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
+import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @ExperimentalFoundationApi
 @AndroidEntryPoint
@@ -62,17 +64,10 @@ class MainActivity : ComponentActivity() {
     }
 
     var imageUri = MutableStateFlow<Uri?>(null)
-
     val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()){ uri ->
         imageUri.value = uri
         Log.d("MyLog","came -> ${uri}")
     }
-
-
-
-    lateinit var receiver: BroadcastReceiver
-
-
 
     private val startActivityForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -88,74 +83,67 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "Data is Null", Toast.LENGTH_SHORT).show()
         }
     }
-    
-    private var showAlertBox = mutableStateOf(false)
-    private var followerMessage = ""
+    lateinit var receiver: BroadcastReceiver
+    private lateinit var navController:NavHostController
 
+    @Inject
+    lateinit var memeRepo: MemeRepo
 
+    @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MemesMagicTheme {
-                Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
-                    MainNavGraph(
-                        startActivity = { intent ->
-                            startActivity(intent)
-                        },
-                        startActivityForResult = { str, done ->
-                            imagePicker.launch(str)
-                            Log.d("MyLog", "done -> ${imageUri.value}")
-                            lifecycleScope.launchWhenCreated {
-                                imageUri.collect {
-                                    if (it != null) {
-                                        done(it)
-                                    }
+                navController = rememberNavController()
+                MainNavGraph(
+                    startActivity = { intent ->
+                        startActivity(intent)
+                    },
+                    startActivityForResult = { str, done ->
+                        imagePicker.launch(str)
+                        lifecycleScope.launchWhenCreated {
+                            imageUri.collect {
+                                if (it != null) {
+                                    done(it)
                                 }
                             }
-                        },
-                        updateOrRequestPermissions = {
-                            updateOrRequestPermissions()
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    
-                    if(showAlertBox.value) {
-                        AlertDialog(onDismissRequest = {
-                            showAlertBox.value = false
-                        },
-                            buttons = {
-
-                            },
-                            title = {
-                                Text(text = "New Follower!")
-                            },
-                            text = {
-                                Text(text = followerMessage)
-                            }
-
-                        )
-                    }
-                    
-                    
-                }
+                        }
+                    },
+                    updateOrRequestPermissions = {
+                        updateOrRequestStoragePermissions()
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    navController = navController
+                )
             }
         }
-        
+
+        notificationIntentWork(intent)
+
+
         receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val strMessage = intent!!.getStringExtra("message")
-                Log.d("fcm message",strMessage ?: "NULL")
                 val messageObject = JsonParser.parseString(strMessage).asJsonObject
-                val type = messageObject.get("type").asString
-                Log.d("fcm type","$type ,$FCM_TYPE_FOLLOWER_ADDED, equal? = ${type == FCM_TYPE_FOLLOWER_ADDED}")
-                val message = when(type){
+                val message = when(messageObject.get("type").asString){
                     FCM_TYPE_FOLLOWER_ADDED -> Gson().fromJson(strMessage, FcmFollowerAddedMessage::class.java)
                     else -> Gson().fromJson(strMessage, FcmMessageData::class.java)
                 }
                 when(message) {
                     is FcmFollowerAddedMessage -> {
-                        followerMessage = message.message
-                        showAlertBox.value = true
+                        Snackbar.make(
+                            this@MainActivity,
+                            View(this@MainActivity),
+                            message.message,
+                            Snackbar.LENGTH_LONG
+                        ).setAction(R.string.follow_back) {
+                            lifecycleScope.launch {
+                                memeRepo.followUser(
+                                    getJwtToken(this@MainActivity)!!,
+                                    message.followerInfo.email
+                                )
+                            }
+                        }.show()
                     }
                     else -> {
                         Toast.makeText(this@MainActivity, "Not fcm follower message", Toast.LENGTH_SHORT).show()
@@ -164,6 +152,24 @@ class MainActivity : ComponentActivity() {
             }
         }
 //        configureGSI()
+    }
+
+    private fun notificationIntentWork(intent: Intent?) {
+        Log.d("fcm Intent",intent?.getStringExtra("intentOfIntent") ?: "intent is null")
+        Log.d("fcm any Intent",intent?.extras?.get("intentOfIntent")?.toString() ?: "NULL")
+        when(intent?.getStringExtra("intentOfIntent")) {
+            INTENT_ACTION_NEW_FOLLOWER -> {
+                Timber.d("Intent reached!")
+                navController.navigate(
+                    "$ANOTHER_USER_PROFILE_SCREEN/${intent.getStringExtra("followerEmail") ?: ""}"
+                )
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        notificationIntentWork(intent)
     }
 
     override fun onResume() {
@@ -229,7 +235,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun updateOrRequestPermissions():Boolean{
+    private fun updateOrRequestStoragePermissions():Boolean{
         val hasReadPermission = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.READ_EXTERNAL_STORAGE

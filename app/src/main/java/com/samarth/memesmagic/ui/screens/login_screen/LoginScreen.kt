@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens.LoginScreen
+package com.samarth.memesmagic.ui.screens.login_screen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -10,11 +10,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -28,10 +30,10 @@ import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.navigateWithPop
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+@ExperimentalComposeUiApi
 @Composable
 fun LoginScreen(
     navController: NavController,
@@ -49,7 +51,7 @@ fun LoginScreen(
     }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -147,8 +149,10 @@ fun LoginScreen(
 
                 CustomButton(
                     text = "Login",
-                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
+                    enabled = !loginScreenViewModel.isLoading.value
                 ) {
+                    keyboardController?.hide()
                     loginScreenViewModel.loginUser(
                         onSuccess = { token ->
                             coroutineScope.launch {
@@ -157,13 +161,11 @@ fun LoginScreen(
                                     token,
                                     loginScreenViewModel.email.value
                                 )
+                                navController.popBackStack()
+                                navigateWithPop(navController,HOME_SCREEN)
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     "Login Successful!"
                                 )
-
-                                delay(500)
-                                navController.popBackStack()
-                                navigateWithPop(navController,HOME_SCREEN)
                             }
                         },
                         onFail = { errorMsg ->
@@ -192,6 +194,7 @@ fun LoginScreen(
                     backgroundColor = MaterialTheme.colors.secondaryVariant,
                     textColor = MaterialTheme.colors.onSecondary
                 ) {
+                    keyboardController?.hide()
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
                     }

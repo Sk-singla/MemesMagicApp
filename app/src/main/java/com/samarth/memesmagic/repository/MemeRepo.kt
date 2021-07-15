@@ -50,7 +50,7 @@ interface MemeRepo {
     suspend fun dislikeComment(token: String,postId: String,commentId:String):Resource<UserInfo>
 
     suspend fun getCurrentMonthReward(token: String):Resource<Reward>
-    suspend fun getMyRewards(token: String):Resource<List<Reward>>
+    suspend fun getMyRewards(token: String,email: String):Resource<List<Reward>>
     suspend fun getLastYearReward(token:String):Resource<Reward>
 
     suspend fun getMemesFromGithubApi():Resource<MemeApiGithub>
@@ -73,9 +73,7 @@ interface MemeRepo {
      * 10. Logo
      * light Mode -> primary colour
      * todo -> user experience, clone photo editor repo and do something
-     * todo -> delete post,  when delete post decrease post count, check feed algo(returning empty object)
      * comment box background not transparent
-     * todo -> documentation, repository public
      *
      */
 

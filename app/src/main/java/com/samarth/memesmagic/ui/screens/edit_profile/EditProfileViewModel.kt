@@ -96,7 +96,6 @@ class EditProfileViewModel @Inject constructor(
                 onFail(it)
             }
         )
-        isLoading.value = false
     }
 
 

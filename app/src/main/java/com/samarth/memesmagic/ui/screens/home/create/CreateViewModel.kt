@@ -221,7 +221,7 @@ class CreateViewModel  @Inject constructor(
     }
 
 
-    fun photoEditListeners(){
+    private fun photoEditListeners(){
         photoEditor.setOnPhotoEditorListener(object :OnPhotoEditorListener{
             override fun onEditTextChangeListener(rootView: View?, text: String?, colorCode: Int) {
                 initTextMode()
@@ -230,21 +230,10 @@ class CreateViewModel  @Inject constructor(
                 selectedTextView.value = rootView
             }
 
-            override fun onAddViewListener(viewType: ViewType?, numberOfAddedViews: Int) {
-
-            }
-
-            override fun onRemoveViewListener(viewType: ViewType?, numberOfAddedViews: Int) {
-
-            }
-
-            override fun onStartViewChangeListener(viewType: ViewType?) {
-
-            }
-
-            override fun onStopViewChangeListener(viewType: ViewType?) {
-
-            }
+            override fun onAddViewListener(viewType: ViewType?, numberOfAddedViews: Int) = Unit
+            override fun onRemoveViewListener(viewType: ViewType?, numberOfAddedViews: Int) = Unit
+            override fun onStartViewChangeListener(viewType: ViewType?) = Unit
+            override fun onStopViewChangeListener(viewType: ViewType?) = Unit
         })
     }
 
@@ -380,7 +369,7 @@ class CreateViewModel  @Inject constructor(
     }
 
     fun saveAsBitmapInInternalStorage(context: Context,fileName:String = UUID.randomUUID().toString(),onSuccess: () -> Unit, onFail: (String) -> Unit){
-
+        isLoading.value = true
         photoEditor.saveAsBitmap(object :OnSaveBitmap{
             override fun onBitmapReady(saveBitmap: Bitmap?) {
                 saveBitmap?.let { bmp->
@@ -402,14 +391,12 @@ class CreateViewModel  @Inject constructor(
 
     fun uploadPost(context: Context,onFail:(String)->Unit,onSuccess:()->Unit) {
         isLoading.value = true
-        val fileName = "${UUID.randomUUID().toString()}.jpg"
+        val fileName = "${UUID.randomUUID()}.jpg"
 
         saveAsBitmapInInternalStorage(
             context,
             fileName=fileName,
             onSuccess = {
-
-
                 viewModelScope.launch {
 
                     isLoading.value = true

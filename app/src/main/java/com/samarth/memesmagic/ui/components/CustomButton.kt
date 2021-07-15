@@ -25,6 +25,7 @@ fun CustomButton(
     textColor:Color = MaterialTheme.colors.secondaryVariant,
     textStyle: TextStyle = MaterialTheme.typography.h6,
     backgroundColor:Color = MaterialTheme.colors.surface,
+    enabled: Boolean = true,
     @DrawableRes icon:Int? = null,
     onclick:()->Unit
 ){
@@ -35,6 +36,7 @@ fun CustomButton(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(10.dp)
             ),
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(backgroundColor = backgroundColor),
         shape = RoundedCornerShape(10.dp)
     ) {

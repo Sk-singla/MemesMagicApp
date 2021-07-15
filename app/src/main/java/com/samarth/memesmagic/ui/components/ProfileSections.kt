@@ -16,8 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -33,10 +31,8 @@ import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.ui.theme.Green700
 import com.samarth.memesmagic.util.CommentsUtil
-import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.numberOfFollowersOrFollowings
 import com.samarth.memesmagic.util.numberOfPosts
-import kotlinx.coroutines.launch
 
 
 @ExperimentalFoundationApi
@@ -53,6 +49,7 @@ fun FullProfileScreen(
     onEditScreenPressed: () -> Unit,
     onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit,
     detailView : ()->Unit,
+    badgesClick: ()-> Unit,
     onLogout: () -> Unit = {}
 ) {
 
@@ -97,6 +94,7 @@ fun FullProfileScreen(
                         isFollowing = isFollowing,
                         onEditScreenPressed = onEditScreenPressed,
                         onLogout = onLogout,
+                        badgesClick = badgesClick,
                         numberOfRewards = it.rewards.size
                     )
 
@@ -114,14 +112,14 @@ fun FullProfileScreen(
                                     text = "No Post to Show!",
                                     style = MaterialTheme.typography.h5,
                                     modifier = Modifier
-                                        .fillMaxWidth(),
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
                                     textAlign = TextAlign.Center
                                 )
                             }
                         } else {
                             ProfilePostsSection(
                                 posts = postsList.sortedByDescending { it.time },
-                                modifier = Modifier.padding(horizontal = 4.dp),
                                 detailView = detailView
                             )
                         }
@@ -218,6 +216,7 @@ fun ProfileScreenButtons(
     isFollowing: Boolean,
     onEditScreenPressed: () -> Unit,
     onLogout: () -> Unit,
+    badgesClick: () -> Unit,
     numberOfRewards:Int
 ) {
 
@@ -252,13 +251,15 @@ fun ProfileScreenButtons(
             Text(
                 text = if (isItAnotherUserProfile && isFollowingToUser)
                     "Unfollow" else if (isItAnotherUserProfile && !isFollowingToUser)
-                    "Follow" else "Edit Profile"
+                    " Follow " else "Edit Profile"
             )
         }
 
         OutlinedButton(
                 onClick = {
-                    if(!isItAnotherUserProfile){
+                    if(isItAnotherUserProfile){
+                        badgesClick()
+                    } else {
                         onLogout()
                     }
                 },
@@ -268,13 +269,12 @@ fun ProfileScreenButtons(
                 colors = ButtonDefaults.outlinedButtonColors(
                 backgroundColor = MaterialTheme.colors.surface,
                 contentColor = Green700
-                ),
-            enabled = !isItAnotherUserProfile
+                )
         ) {
             Text(
                 text = if (isItAnotherUserProfile)
-                    "$numberOfRewards Badges"
-                else "Logout"
+                    "$numberOfRewards Badge${if(numberOfRewards>1) "s" else ""}"
+                else "   Logout   "
             )
         }
 
@@ -286,9 +286,9 @@ fun ProfileScreenButtons(
 
 @ExperimentalFoundationApi
 @Composable
-fun ProfilePostsSection(posts:List<Post>, modifier: Modifier = Modifier,detailView: () -> Unit) {
+fun ProfilePostsSection(posts:List<Post>,detailView: () -> Unit) {
 
-    LazyVerticalGrid(cells = GridCells.Fixed(3),modifier = modifier,contentPadding = PaddingValues(top = 8.dp,bottom = 60.dp)) {
+    LazyVerticalGrid(cells = GridCells.Fixed(3),contentPadding = PaddingValues(top = 8.dp,bottom = 60.dp,start = 16.dp,end = 16.dp)) {
 
         items(posts){ post ->
 

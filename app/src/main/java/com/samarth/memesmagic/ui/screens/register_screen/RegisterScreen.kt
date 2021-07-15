@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens.RegisterScreen
+package com.samarth.memesmagic.ui.screens.register_screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,10 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,6 +35,7 @@ import com.samarth.memesmagic.util.TokenHandler.saveJwtToken
 import com.samarth.memesmagic.util.navigateWithPop
 import kotlinx.coroutines.launch
 
+@ExperimentalComposeUiApi
 @Composable
 fun RegisterScreen(
     navController: NavController,
@@ -42,6 +45,7 @@ fun RegisterScreen(
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -201,18 +205,19 @@ fun RegisterScreen(
 
                 CustomButton(
                     text = "Create Account",
-                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
+                    enabled = !registerScreenViewModel.isLoading.value
                 ) {
-
+                    keyboardController?.hide()
                     registerScreenViewModel.registerUser(
                         onSuccess = { token ->
                             scope.launch {
                                 saveJwtToken(context,token,registerScreenViewModel.email.value)
+                                navController.popBackStack()
+                                navigateWithPop(navController,HOME_SCREEN)
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     "Account Created!"
                                 )
-                                navController.popBackStack()
-                                navigateWithPop(navController,HOME_SCREEN)
                             }
                         },
                         onFail = { errorMsg ->
@@ -237,6 +242,7 @@ fun RegisterScreen(
                     backgroundColor = MaterialTheme.colors.secondaryVariant,
                     textColor = MaterialTheme.colors.onSecondary
                 ) {
+                    keyboardController?.hide()
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
                     }

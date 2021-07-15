@@ -103,7 +103,7 @@ fun UserSearchItem(
                 contentColor = Green700
             )
         ) {
-            Text(text = if(isFollowingToUser) "Unfollow" else "Follow")
+            Text(text = if(isFollowingToUser) "Unfollow" else " Follow ")
         }
 
 

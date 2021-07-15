@@ -138,9 +138,10 @@ interface MemeApi {
 
 
     @Headers("Content-Type: application/json")
-    @GET("$REWARDS/get/user")
-    suspend fun getUserRewards(
-        @Header("Authorization") token:String
+    @GET("$REWARDS/get/user/{email}")
+    suspend fun getRewards(
+        @Header("Authorization") token:String,
+        @Path("email") email: String
     ):SimpleResponse<List<Reward>>
 
 

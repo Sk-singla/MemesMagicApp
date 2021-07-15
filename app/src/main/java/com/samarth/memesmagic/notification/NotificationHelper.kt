@@ -16,19 +16,10 @@ object NotificationHelper {
         context: Context,
         title: String,
         body: String,
-        NOTIFICATION_PENDING_INTENT_REQUEST_CODE: Int,
+        pendingIntent: PendingIntent,
         CHANNEL_ID: String,
         NOTIFICATION_ID: Int
     ) {
-
-
-        val intent = Intent(context,MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            NOTIFICATION_PENDING_INTENT_REQUEST_CODE,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
         val notificationBuilder = NotificationCompat.Builder(
             context,
             CHANNEL_ID

@@ -2,11 +2,11 @@ package com.samarth.memesmagic.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -30,7 +30,8 @@ import com.samarth.memesmagic.ui.theme.Green500
 fun CommentItem(
     comment: Comment,
     isCommentLiked:Boolean,
-    onCommentLikeUnlikePressed:(onSuccess:()->Unit)->Unit
+    onCommentLikeUnlikePressed:(onSuccess:()->Unit)->Unit,
+    onProfileClick: ()->Unit
 ) {
 
     var isLiked by remember {
@@ -61,7 +62,10 @@ fun CommentItem(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .size(32.dp)
-                    .clip(CircleShape),
+                    .clip(CircleShape)
+                    .clickable {
+                           onProfileClick()
+                    },
             )
 
             Column {

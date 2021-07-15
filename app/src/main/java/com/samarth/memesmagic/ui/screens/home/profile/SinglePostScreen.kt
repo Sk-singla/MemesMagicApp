@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens
+package com.samarth.memesmagic.ui.screens.home.profile
 
 import android.content.Intent
 import androidx.compose.material.Icon
@@ -23,6 +23,7 @@ import com.samarth.memesmagic.R
 fun SinglePostScreen(
     parentNavController:NavController,
     startActivity:(Intent)->Unit,
+    isMyPost: Boolean = false,
     feedViewModel:FeedViewModel = hiltViewModel()
 ) {
 
@@ -34,24 +35,31 @@ fun SinglePostScreen(
         scaffoldState = scaffoldState,
         topBar = {
             CustomTopBar(title = "Post",actions = {
-                IconButton(onClick = {
-                    feedViewModel.deletePost(
-                        post = CommentsUtil.post!!,
-                        context,
-                        onSuccess = {
-                            parentNavController.popBackStack()
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar("Post Deleted Successfully!")
-                            }
-                        },
-                        onFail = {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(it)
-                            }
+                if(isMyPost) {
+                    IconButton(
+                        onClick = {
+                            feedViewModel.deletePost(
+                                post = CommentsUtil.post!!,
+                                context,
+                                onSuccess = {
+                                    parentNavController.popBackStack()
+                                    coroutineScope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar("Post Deleted Successfully!")
+                                    }
+                                },
+                                onFail = {
+                                    coroutineScope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar(it)
+                                    }
+                                }
+                            )
                         }
-                    )
-                }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_baseline_delete_24), contentDescription = "Delete Post")
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_delete_24),
+                            contentDescription = "Delete Post"
+                        )
+                    }
                 }
             })
         }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -16,6 +17,7 @@ import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.CustomBottomNavBar
 import com.samarth.memesmagic.ui.components.CustomTopBar
 
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
 fun HomeScreen(

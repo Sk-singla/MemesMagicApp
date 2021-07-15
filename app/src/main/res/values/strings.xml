@@ -6,12 +6,7 @@
     <string name="home_create">Create</string>
     <string name="home_rewards">Reward</string>
     <string name="home_profile">Profile</string>
-
-
-
-
-
-
+    <string name="follow_back">Follow Back</string>
 
 
     <string-array name="photo_editor_emoji">
