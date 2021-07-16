@@ -13,7 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
-import com.samarth.data.models.request.PostRequest
+import com.samarth.memesmagic.data.remote.request.PostRequest
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.models.PostType
@@ -426,23 +426,21 @@ class CreateViewModel  @Inject constructor(
                                     is Resource.Success -> {
                                         caption.value = ""
                                         onSuccess()
+                                        isLoading.value = false
                                     }
                                     else -> {
                                         onFail(result.message ?: "Some Problem Occurred!!")
+                                        isLoading.value = false
                                     }
                                 }
-                                isLoading.value = false
                             }
                         },
                         onFail = onFail
                     )
-                    isLoading.value = false
                 }
             },
             onFail = onFail
         )
-
-        isLoading.value = false
     }
 
 

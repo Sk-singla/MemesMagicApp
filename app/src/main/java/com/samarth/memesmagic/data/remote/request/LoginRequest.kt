@@ -1,4 +1,4 @@
-package com.samarth.data.models.request
+package com.samarth.memesmagic.data.remote.request
 
 data class LoginRequest(
     val email:String,

@@ -18,10 +18,12 @@ import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
+import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import com.samarth.memesmagic.util.TokenHandler.getMonthRewardId
 import com.samarth.memesmagic.util.TokenHandler.getYearRewardId
+import com.samarth.memesmagic.util.TokenHandler.saveFcmToken
 import com.samarth.memesmagic.util.TokenHandler.saveMonthRewardId
 import com.samarth.memesmagic.util.TokenHandler.saveYearRewardId
 import com.squareup.picasso.Picasso
@@ -43,6 +45,7 @@ class FeedViewModel @Inject constructor(
     val isLoading = mutableStateOf(true)
     val rewardWinner = mutableStateOf<UserInfo?>(null)
     val isFollowingToRewardyy = mutableStateOf(false)
+    val firstTimeOpenedFeedScreen = mutableStateOf(true)
 
     val posts = mutableStateOf(mutableListOf<Post>())
 
@@ -59,8 +62,13 @@ class FeedViewModel @Inject constructor(
     }
 
     fun updateFcmToken(token: String,context: Context,onSuccess: () -> Unit,onFail: (String) -> Unit) = viewModelScope.launch {
+        val oldToken = TokenHandler.getFcmToken(context)
+        if(oldToken!= null && oldToken == token){
+            return@launch
+        }
         val result = memeRepo.updateFcmToken(getJwtToken(context)!!,token)
         if(result is Resource.Success){
+            saveFcmToken(context,token)
             onSuccess()
         } else {
             onFail(result.message!!)
@@ -231,13 +239,14 @@ class FeedViewModel @Inject constructor(
 
 
     fun deletePost(post: Post,context: Context,onSuccess: () -> Unit,onFail: (String) -> Unit) = viewModelScope.launch {
+        isLoading.value = true
         val result = memeRepo.deletePost(getJwtToken(context)!!,post.id)
-
         if(result is Resource.Success){
             onSuccess()
         } else {
             onFail(result.message ?: "Error!")
         }
+        isLoading.value = false
     }
 
 

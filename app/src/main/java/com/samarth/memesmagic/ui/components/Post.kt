@@ -70,7 +70,7 @@ fun PostItem(
                         request = ImageRequest.Builder(LocalContext.current)
                             .data(post.createdBy.profilePic ?: R.drawable.ic_person)
                             .placeholder(R.drawable.ic_person)
-                            .error(R.drawable.ic_person)
+                            .error(R.drawable.ic_error)
                             .build(),
                         fadeIn = true,
                     ),
@@ -108,8 +108,8 @@ fun PostItem(
                         painter = rememberCoilPainter(
                             request = ImageRequest.Builder(LocalContext.current)
                                 .data(post.mediaLink)
-                                .placeholder(R.drawable.ic_image)
-                                .error(R.drawable.ic_image)
+                                .placeholder(R.drawable.blank_image)
+                                .error(R.drawable.ic_error)
                                 .build(),
                             fadeIn = true,
                         ),

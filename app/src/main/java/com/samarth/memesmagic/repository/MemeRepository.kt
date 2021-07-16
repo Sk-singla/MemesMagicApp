@@ -5,9 +5,9 @@ import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.StorageException
 import com.amplifyframework.storage.options.StorageUploadFileOptions
-import com.samarth.data.models.request.LoginRequest
-import com.samarth.data.models.request.PostRequest
-import com.samarth.data.models.request.RegisterUserRequest
+import com.samarth.memesmagic.data.remote.request.LoginRequest
+import com.samarth.memesmagic.data.remote.request.PostRequest
+import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
 import com.samarth.memesmagic.data.remote.MemeGithubApi
@@ -17,7 +17,9 @@ import com.samarth.memesmagic.data.remote.request.CommentRequest
 import com.samarth.memesmagic.data.remote.request.UserInfoRequest
 import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.data.remote.response.meme_api_github.MemeApiGithub
+import com.samarth.memesmagic.util.Constants.BEARER
 import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
+import com.samarth.memesmagic.util.Constants.NETWORK_UNKNOWN_PROBLEM
 import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
 import dagger.hilt.android.scopes.ActivityScoped
@@ -41,7 +43,7 @@ class MemeRepository(
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -55,102 +57,102 @@ class MemeRepository(
                 Resource.Error(response.message)
             }
         }catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!")
+            Resource.Error(e.message ?:NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
 
     override suspend fun findUsers(token: String, searchKeyWord: String): Resource<List<UserInfo>> {
         return try{
-            val response = memeApi.findUsers("Bearer $token",searchKeyWord)
+            val response = memeApi.findUsers("$BEARER $token",searchKeyWord)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun followUser(token: String, email: String): Resource<UserInfo> {
         return try {
-            val response = memeApi.followUser("Bearer $token",email)
+            val response = memeApi.followUser("$BEARER $token",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun unFollowUser(token: String, email: String): Resource<UserInfo> {
         return try {
-            val response = memeApi.unFollowUser("Bearer $token",email)
+            val response = memeApi.unFollowUser("$BEARER $token",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun getFeed(token:String):Resource<List<Post>> {
 
         return try{
-            val response = memeApi.getFeed("Bearer $token")
+            val response = memeApi.getFeed("$BEARER $token")
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Error!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
 
     }
 
     override suspend fun likePost(token: String,postId:String):Resource<UserInfo>{
         return try{
-            val response = memeApi.likePost("Bearer $token",postId = postId)
+            val response = memeApi.likePost("$BEARER $token",postId = postId)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Error!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun dislikePost(token: String,postId:String):Resource<UserInfo>{
         return try{
-            val response = memeApi.likePost("Bearer $token",postId = postId)
+            val response = memeApi.likePost("$BEARER $token",postId = postId)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Error!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
 
     override suspend fun getUser(token: String,email: String): Resource<User> {
         return try{
-            val response = memeApi.getUser("Bearer $token",email)
+            val response = memeApi.getUser("$BEARER $token",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Error!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -159,27 +161,27 @@ class MemeRepository(
         userInfoRequest: UserInfoRequest
     ): Resource<UserInfo> {
         return try{
-            val response = memeApi.updateUserInfo("Bearer $token",userInfoRequest)
+            val response = memeApi.updateUserInfo("$BEARER $token",userInfoRequest)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Error!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun getPosts(token: String, email: String): Resource<List<Post>> {
         return try {
-            val response = memeApi.getPosts("Bearer $token",email)
+            val response = memeApi.getPosts("$BEARER $token",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Error!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -202,7 +204,7 @@ class MemeRepository(
                 Resource.Success(memeMakerResponse!!.data.map { MemeTemplate(url=it.image,id = "${it.ID}") })
             }
         }catch (e:Exception){
-            Resource.Error(e.message ?: "Error!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -236,11 +238,11 @@ class MemeRepository(
                     onSuccess(it.key)
                 },
                 {
-                    onFail(it.message ?: "Some Problem Occurred!!")
+                    onFail(it.message ?: NETWORK_UNKNOWN_PROBLEM)
                 }
             )
         } catch (error: StorageException) {
-            onFail(error.message ?: "Some Problem Occurred!")
+            onFail(error.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -250,14 +252,14 @@ class MemeRepository(
         postRequest: PostRequest
     ):Resource<String>{
         return try {
-            val response = memeApi.uploadPost("Bearer $token",postRequest)
+            val response = memeApi.uploadPost("$BEARER $token",postRequest)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?:NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -268,14 +270,14 @@ class MemeRepository(
         commentRequest: CommentRequest
     ): Resource<Comment> {
         return try {
-            val response = memeApi.uploadComment("Bearer $token",postId,commentRequest)
+            val response = memeApi.uploadComment("$BEARER $token",postId,commentRequest)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -285,14 +287,14 @@ class MemeRepository(
         commentId: String
     ): Resource<UserInfo> {
         return try {
-            val response = memeApi.likeComment("Bearer $token",postId,commentId)
+            val response = memeApi.likeComment("$BEARER $token",postId,commentId)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?:NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -302,53 +304,53 @@ class MemeRepository(
         commentId: String
     ): Resource<UserInfo> {
         return try {
-            val response = memeApi.dislikeComment("Bearer $token",postId,commentId)
+            val response = memeApi.dislikeComment("$BEARER $token",postId,commentId)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun getCurrentMonthReward(token: String): Resource<Reward> {
         return try {
-            val response = memeApi.getCurrentMonthReward("Bearer $token")
+            val response = memeApi.getCurrentMonthReward("$BEARER $token")
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun getLastYearReward(token: String): Resource<Reward> {
         return try {
-            val response = memeApi.getLastYearReward("Bearer $token")
+            val response = memeApi.getLastYearReward("$BEARER $token")
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun getMyRewards(token: String,email: String): Resource<List<Reward>> {
         return try {
-            val response = memeApi.getRewards("Bearer $token",email)
+            val response = memeApi.getRewards("$BEARER $token",email)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
@@ -356,34 +358,34 @@ class MemeRepository(
         return try {
             Resource.Success(memeGithubApi.getMemes())
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
 
     override suspend fun deletePost(token: String, postId: String): Resource<String> {
         return try {
-            val response = memeApi.deletePost("Bearer $token",postId)
+            val response = memeApi.deletePost("$BEARER $token",postId)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 
     override suspend fun updateFcmToken(token: String, fcmToken: String): Resource<String> {
         return try {
-            val response = memeApi.updateFcmToken("Bearer $token",fcmToken)
+            val response = memeApi.updateFcmToken("$BEARER $token",fcmToken)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message)
             }
         } catch (e:Exception){
-            Resource.Error(e.message ?: "Some Problem Occurred!!")
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
         }
     }
 }

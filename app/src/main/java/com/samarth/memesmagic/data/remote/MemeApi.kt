@@ -1,8 +1,8 @@
 package com.samarth.memesmagic.data.remote
 
-import com.samarth.data.models.request.LoginRequest
-import com.samarth.data.models.request.PostRequest
-import com.samarth.data.models.request.RegisterUserRequest
+import com.samarth.memesmagic.data.remote.request.LoginRequest
+import com.samarth.memesmagic.data.remote.request.PostRequest
+import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.request.CommentRequest
 import com.samarth.memesmagic.data.remote.request.UserInfoRequest
 import com.samarth.memesmagic.data.remote.response.*
@@ -28,6 +28,7 @@ interface MemeApi {
         @Body loginRequest: LoginRequest
     ): SimpleResponse<String>
 
+    // todo: make widget which will show a random meme each time (with refresh button)
 
     @Headers("Content-Type: application/json")
     @GET(FEED)

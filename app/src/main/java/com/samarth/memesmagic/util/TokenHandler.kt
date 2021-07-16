@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.samarth.memesmagic.util.Constants.DATA_PREFERENCES_NAME_FOR_TOKEN
 import com.samarth.memesmagic.util.Constants.EMAIL_KEY
+import com.samarth.memesmagic.util.Constants.FCM_TOKEN_KEY
 import com.samarth.memesmagic.util.Constants.JWT_TOKEN_KEY
 import com.samarth.memesmagic.util.Constants.REWARD_ID_KEY
 import com.samarth.memesmagic.util.Constants.YEAR_REWARD_ID
@@ -26,6 +27,12 @@ object TokenHandler {
             tokens[emailKey] = email
         }
     }
+    suspend fun saveFcmToken(context:Context, fcmToken:String){
+        val fcmTokeKey = stringPreferencesKey(FCM_TOKEN_KEY)
+        context.dataStore.edit { tokens->
+            tokens[fcmTokeKey] = fcmToken
+        }
+    }
 
     suspend fun logout(context: Context){
         val jwtTokeKey = stringPreferencesKey(JWT_TOKEN_KEY)
@@ -42,6 +49,11 @@ object TokenHandler {
 
     suspend fun getJwtToken(context: Context):String?{
         val dataStoreKey = stringPreferencesKey(JWT_TOKEN_KEY)
+        val preferences = context.dataStore.data.first()
+        return preferences[dataStoreKey]
+    }
+    suspend fun getFcmToken(context: Context):String?{
+        val dataStoreKey = stringPreferencesKey(FCM_TOKEN_KEY)
         val preferences = context.dataStore.data.first()
         return preferences[dataStoreKey]
     }

@@ -134,6 +134,7 @@ fun MainNavGraph(
         }
 
         composable(Screens.SINGLE_POST_SCREEN){
+
             SinglePostScreen(
                 parentNavController = navController,
                 startActivity = startActivity,

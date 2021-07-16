@@ -3,7 +3,7 @@ package com.samarth.memesmagic.ui.screens.login_screen
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.samarth.data.models.request.LoginRequest
+import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.isItEmail

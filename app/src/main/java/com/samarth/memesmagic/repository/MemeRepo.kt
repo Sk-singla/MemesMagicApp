@@ -1,9 +1,9 @@
 package com.samarth.memesmagic.repository
 
 import android.content.Context
-import com.samarth.data.models.request.LoginRequest
-import com.samarth.data.models.request.PostRequest
-import com.samarth.data.models.request.RegisterUserRequest
+import com.samarth.memesmagic.data.remote.request.LoginRequest
+import com.samarth.memesmagic.data.remote.request.PostRequest
+import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.request.CommentRequest
 import com.samarth.memesmagic.data.remote.request.UserInfoRequest
@@ -15,7 +15,7 @@ import java.io.File
 interface MemeRepo {
 
     suspend fun registerUser(
-        userRegisterRequest:RegisterUserRequest
+        userRegisterRequest: RegisterUserRequest
     ):Resource<String>
 
     suspend fun loginUser(

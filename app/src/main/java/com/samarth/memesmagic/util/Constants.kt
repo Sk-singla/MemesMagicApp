@@ -19,6 +19,7 @@ object Constants {
     const val REWARDS = "$API_VERSION/rewards"
 
     const val JWT_TOKEN_KEY = "JwtToken"
+    const val FCM_TOKEN_KEY = "FcmToken"
     const val EMAIL_KEY = "emailKey"
     const val REWARD_ID_KEY = "rewardId"
     const val YEAR_REWARD_ID = "yearRewardId"
@@ -32,6 +33,8 @@ object Constants {
 
     const val FCM_TYPE_FOLLOWER_ADDED = "FCM_TYPE_FOLLOWER_ADDED"
 
+    const val BEARER = "Bearer"
+    const val NETWORK_UNKNOWN_PROBLEM = "Some Problem Occurred!"
 
 
 

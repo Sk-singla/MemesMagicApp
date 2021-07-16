@@ -61,14 +61,14 @@ fun FeedScreen(
                 token,
                 context,
                 onSuccess = {
-                    coroutineScope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar("Fcm Token Updated!")
-                    }
+//                    coroutineScope.launch {
+//                        scaffoldState.snackbarHostState.showSnackbar("Fcm Token Updated!")
+//                    }
                 },
-                onFail = { errorMsg ->
-                    coroutineScope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar("Fcm: "+errorMsg)
-                    }
+                onFail = { _ ->
+//                    coroutineScope.launch {
+//                        scaffoldState.snackbarHostState.showSnackbar("Fcm: $errorMsg")
+//                    }
                 }
             )
         }
@@ -95,16 +95,19 @@ fun FeedScreen(
         )
 
 
-        feedViewModel.getFeedFromGithub()
-        feedViewModel.getFeed(
-            TokenHandler.getJwtToken(context)!!,
-            onFail = {
-                coroutineScope.launch {
-                    Log.d("MyLog","Feed ------------> $it")
-                    scaffoldState.snackbarHostState.showSnackbar(it)
+        if(feedViewModel.firstTimeOpenedFeedScreen.value) {
+            feedViewModel.getFeedFromGithub()
+            feedViewModel.getFeed(
+                TokenHandler.getJwtToken(context)!!,
+                onFail = {
+                    coroutineScope.launch {
+                        Log.d("MyLog", "Feed ------------> $it")
+                        scaffoldState.snackbarHostState.showSnackbar(it)
+                    }
                 }
-            }
-        )
+            )
+            feedViewModel.firstTimeOpenedFeedScreen.value = false
+        }
 
         feedViewModel.getUser(
             context,
@@ -124,9 +127,7 @@ fun FeedScreen(
                  }
 
             },
-            onSuccess = {
-
-            }
+            onSuccess = {}
         )
     }
 

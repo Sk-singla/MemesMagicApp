@@ -16,7 +16,10 @@ import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
 import com.samarth.memesmagic.notification.NotificationHelper
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
+import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
+import com.samarth.memesmagic.util.TokenHandler.saveFcmToken
+import com.samarth.memesmagic.util.TokenHandler.saveJwtToken
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -31,10 +34,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
 
     override fun onNewToken(token: String) {
         runBlocking {
-            memeRepo.updateFcmToken(
+
+            val result = memeRepo.updateFcmToken(
                 getJwtToken(this@MyFirebaseMessagingService) ?: "",
                 token
             )
+            if(result is Resource.Success){
+                saveFcmToken(this@MyFirebaseMessagingService,token)
+            }
         }
     }
 

@@ -89,10 +89,13 @@ fun NewPostDetailsScreen(
                         },
                         onSuccess = {
                             coroutineScope.launch {
+                                navController.popBackStack(HOME_SCREEN,
+                                    inclusive = false,
+                                    saveState = true
+                                )
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     "SuccessFully Posted!"
                                 )
-                                navController.popBackStack(HOME_SCREEN, false, true)
                             }
                         }
                     )
