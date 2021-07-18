@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.data.remote.models.PostResource
@@ -37,9 +38,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
-    app:Application,
     val memeRepo: MemeRepo
-):AndroidViewModel(app) {
+):ViewModel() {
 
     val isLoading = mutableStateOf(true)
     val rewardWinner = mutableStateOf<UserInfo?>(null)
@@ -193,23 +193,23 @@ class FeedViewModel @Inject constructor(
     }
 
 
-    fun shareImage(url:String,startActivity:(Intent)->Unit,onFail:(String)->Unit) {
+    fun shareImage(context: Context,url:String,startActivity:(Intent)->Unit,onFail:(String)->Unit) {
         val fileName = "${System.currentTimeMillis()}.jpg"
         Picasso.get().load(url).into(
             object : Target {
                 override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
                     try{
                         bitmap?.let { bmp ->
-                            getApplication<Application>().applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE).use { stream ->
+                            context.openFileOutput(fileName, Context.MODE_PRIVATE).use { stream ->
                                 if (!bmp.compress(Bitmap.CompressFormat.JPEG, 95, stream)) {
                                     throw IOException("Couldn't Save Bitmap!")
                                 } else{
 
 
                                     val imageUri = FileProvider.getUriForFile(
-                                        getApplication<Application>().applicationContext,
+                                        context,
                                         BuildConfig.APPLICATION_ID + ".provider",
-                                        File(getApplication<Application>().applicationContext.filesDir,fileName)
+                                        File(context.filesDir,fileName)
                                     )
                                     val intent = Intent(Intent.ACTION_SEND)
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

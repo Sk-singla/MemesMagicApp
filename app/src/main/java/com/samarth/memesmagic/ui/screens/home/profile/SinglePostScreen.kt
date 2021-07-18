@@ -100,6 +100,7 @@ fun SinglePostScreen(
                     },
                     onShareIconPressed = {
                         feedViewModel.shareImage(
+                            context,
                             it.mediaLink,
                             startActivity
                         ) {

@@ -213,6 +213,7 @@ fun FeedScreen(
                                 },
                                 onShareIconPressed = {
                                     feedViewModel.shareImage(
+                                        context,
                                         it.mediaLink,
                                         startActivity
                                     ){
