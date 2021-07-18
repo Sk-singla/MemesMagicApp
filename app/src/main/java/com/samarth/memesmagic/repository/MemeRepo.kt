@@ -50,7 +50,7 @@ interface MemeRepo {
     suspend fun dislikeComment(postId: String,commentId:String):Resource<UserInfo>
 
     suspend fun getCurrentMonthReward():Resource<Reward>
-    suspend fun getMyRewards(email: String):Resource<List<Reward>>
+    suspend fun getRewards(email: String):Resource<List<Reward>>
     suspend fun getLastYearReward():Resource<Reward>
 
     suspend fun getMemesFromGithubApi():Resource<MemeApiGithub>

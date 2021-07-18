@@ -11,7 +11,6 @@ import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getEmail
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -89,7 +88,7 @@ class AnotherUserProfileViewModel @Inject constructor(
 
     fun getRewards() = viewModelScope.launch{
         isLoadingRewards.value = true
-        val result = memeRepo.getMyRewards(user.value!!.userInfo.email)
+        val result = memeRepo.getRewards(user.value!!.userInfo.email)
         if(result is Resource.Success){
             rewards.value = result.data!!
             loadError.value = ""

@@ -139,7 +139,6 @@ class MainActivity : ComponentActivity() {
                         ).setAction(R.string.follow_back) {
                             lifecycleScope.launch {
                                 memeRepo.followUser(
-                                    getJwtToken(this@MainActivity)!!,
                                     message.followerInfo.email
                                 )
                             }

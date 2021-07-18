@@ -341,7 +341,7 @@ class MemeRepository(
         }
     }
 
-    override suspend fun getMyRewards(email: String): Resource<List<Reward>> {
+    override suspend fun getRewards(email: String): Resource<List<Reward>> {
         return try {
             val response = memeApi.getRewards("$BEARER ${ getJwtToken(context) }",email)
             if(response.success && response.data!=null){

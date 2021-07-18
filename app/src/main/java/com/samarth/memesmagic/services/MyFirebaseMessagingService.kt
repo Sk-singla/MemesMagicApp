@@ -36,7 +36,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
         runBlocking {
 
             val result = memeRepo.updateFcmToken(
-                getJwtToken(this@MyFirebaseMessagingService) ?: "",
                 token
             )
             if(result is Resource.Success){

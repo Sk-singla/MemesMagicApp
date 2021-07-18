@@ -8,7 +8,6 @@ import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getEmail
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +23,7 @@ class RewardViewModel @Inject constructor(
 
     fun getRewards(context: Context) = viewModelScope.launch{
         isLoading.value = true
-        val result = memeRepo.getMyRewards( getEmail(context)!!)
+        val result = memeRepo.getRewards( getEmail(context)!!)
         if(result is Resource.Success){
             rewards.value = result.data!!
             loadError.value = ""
