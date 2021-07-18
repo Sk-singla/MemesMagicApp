@@ -22,7 +22,12 @@ import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
 import com.samarth.memesmagic.util.Constants.NETWORK_UNKNOWN_PROBLEM
 import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
+import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.scopes.ActivityScoped
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 
@@ -31,7 +36,8 @@ class MemeRepository(
     val memeApi: MemeApi,
     val imageFlipApi: ImageFlipApi,
     val memeMakerApi: MemeMakerApi,
-    val memeGithubApi: MemeGithubApi
+    val memeGithubApi: MemeGithubApi,
+    val context: Context
 ): MemeRepo{
 
     override suspend fun registerUser(userRegisterRequest: RegisterUserRequest): Resource<String> {
@@ -62,9 +68,9 @@ class MemeRepository(
     }
 
 
-    override suspend fun findUsers(token: String, searchKeyWord: String): Resource<List<UserInfo>> {
+    override suspend fun findUsers(searchKeyWord: String): Resource<List<UserInfo>> {
         return try{
-            val response = memeApi.findUsers("$BEARER $token",searchKeyWord)
+            val response = memeApi.findUsers("$BEARER ${ getJwtToken(context) }",searchKeyWord)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else {
@@ -75,9 +81,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun followUser(token: String, email: String): Resource<UserInfo> {
+    override suspend fun followUser(email: String): Resource<UserInfo> {
         return try {
-            val response = memeApi.followUser("$BEARER $token",email)
+            val response = memeApi.followUser("$BEARER ${ getJwtToken(context) }",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else {
@@ -88,9 +94,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun unFollowUser(token: String, email: String): Resource<UserInfo> {
+    override suspend fun unFollowUser(email: String): Resource<UserInfo> {
         return try {
-            val response = memeApi.unFollowUser("$BEARER $token",email)
+            val response = memeApi.unFollowUser("$BEARER ${ getJwtToken(context) }",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else {
@@ -101,10 +107,10 @@ class MemeRepository(
         }
     }
 
-    override suspend fun getFeed(token:String):Resource<List<Post>> {
+    override suspend fun getFeed():Resource<List<Post>> {
 
         return try{
-            val response = memeApi.getFeed("$BEARER $token")
+            val response = memeApi.getFeed("$BEARER ${ getJwtToken(context) }")
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
@@ -116,9 +122,9 @@ class MemeRepository(
 
     }
 
-    override suspend fun likePost(token: String,postId:String):Resource<UserInfo>{
+    override suspend fun likePost(postId:String):Resource<UserInfo>{
         return try{
-            val response = memeApi.likePost("$BEARER $token",postId = postId)
+            val response = memeApi.likePost("$BEARER ${ getJwtToken(context) }",postId = postId)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
@@ -129,9 +135,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun dislikePost(token: String,postId:String):Resource<UserInfo>{
+    override suspend fun dislikePost(postId:String):Resource<UserInfo>{
         return try{
-            val response = memeApi.likePost("$BEARER $token",postId = postId)
+            val response = memeApi.likePost("$BEARER ${ getJwtToken(context) }",postId = postId)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
@@ -143,9 +149,9 @@ class MemeRepository(
     }
 
 
-    override suspend fun getUser(token: String,email: String): Resource<User> {
+    override suspend fun getUser(email: String): Resource<User> {
         return try{
-            val response = memeApi.getUser("$BEARER $token",email)
+            val response = memeApi.getUser("$BEARER ${ getJwtToken(context) }",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
@@ -157,11 +163,10 @@ class MemeRepository(
     }
 
     override suspend fun updateUserInfo(
-        token: String,
         userInfoRequest: UserInfoRequest
     ): Resource<UserInfo> {
         return try{
-            val response = memeApi.updateUserInfo("$BEARER $token",userInfoRequest)
+            val response = memeApi.updateUserInfo("$BEARER ${ getJwtToken(context) }",userInfoRequest)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
@@ -172,9 +177,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun getPosts(token: String, email: String): Resource<List<Post>> {
+    override suspend fun getPosts(email: String): Resource<List<Post>> {
         return try {
-            val response = memeApi.getPosts("$BEARER $token",email)
+            val response = memeApi.getPosts("$BEARER ${ getJwtToken(context) }",email)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             } else{
@@ -210,7 +215,6 @@ class MemeRepository(
 
 
     override suspend fun uploadFileOnAwsS3(
-        context: Context,
         fileName: String,
         file:File?,
         onSuccess: (String) -> Unit,
@@ -248,11 +252,10 @@ class MemeRepository(
 
 
     override suspend fun uploadPost(
-        token:String,
         postRequest: PostRequest
     ):Resource<String>{
         return try {
-            val response = memeApi.uploadPost("$BEARER $token",postRequest)
+            val response = memeApi.uploadPost("$BEARER ${ getJwtToken(context) }",postRequest)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -265,12 +268,11 @@ class MemeRepository(
 
 
     override suspend fun addComment(
-        token: String,
         postId: String,
         commentRequest: CommentRequest
     ): Resource<Comment> {
         return try {
-            val response = memeApi.uploadComment("$BEARER $token",postId,commentRequest)
+            val response = memeApi.uploadComment("$BEARER ${ getJwtToken(context) }",postId,commentRequest)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -282,12 +284,11 @@ class MemeRepository(
     }
 
     override suspend fun likeComment(
-        token: String,
         postId: String,
         commentId: String
     ): Resource<UserInfo> {
         return try {
-            val response = memeApi.likeComment("$BEARER $token",postId,commentId)
+            val response = memeApi.likeComment("$BEARER ${ getJwtToken(context) }",postId,commentId)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -299,12 +300,11 @@ class MemeRepository(
     }
 
     override suspend fun dislikeComment(
-        token: String,
         postId: String,
         commentId: String
     ): Resource<UserInfo> {
         return try {
-            val response = memeApi.dislikeComment("$BEARER $token",postId,commentId)
+            val response = memeApi.dislikeComment("$BEARER ${ getJwtToken(context) }",postId,commentId)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -315,9 +315,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun getCurrentMonthReward(token: String): Resource<Reward> {
+    override suspend fun getCurrentMonthReward(): Resource<Reward> {
         return try {
-            val response = memeApi.getCurrentMonthReward("$BEARER $token")
+            val response = memeApi.getCurrentMonthReward("$BEARER ${ getJwtToken(context) }")
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -328,9 +328,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun getLastYearReward(token: String): Resource<Reward> {
+    override suspend fun getLastYearReward(): Resource<Reward> {
         return try {
-            val response = memeApi.getLastYearReward("$BEARER $token")
+            val response = memeApi.getLastYearReward("$BEARER ${ getJwtToken(context) }")
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -341,9 +341,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun getMyRewards(token: String,email: String): Resource<List<Reward>> {
+    override suspend fun getMyRewards(email: String): Resource<List<Reward>> {
         return try {
-            val response = memeApi.getRewards("$BEARER $token",email)
+            val response = memeApi.getRewards("$BEARER ${ getJwtToken(context) }",email)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -363,9 +363,9 @@ class MemeRepository(
     }
 
 
-    override suspend fun deletePost(token: String, postId: String): Resource<String> {
+    override suspend fun deletePost(postId: String): Resource<String> {
         return try {
-            val response = memeApi.deletePost("$BEARER $token",postId)
+            val response = memeApi.deletePost("$BEARER ${ getJwtToken(context) }",postId)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {
@@ -376,9 +376,9 @@ class MemeRepository(
         }
     }
 
-    override suspend fun updateFcmToken(token: String, fcmToken: String): Resource<String> {
+    override suspend fun updateFcmToken(fcmToken: String): Resource<String> {
         return try {
-            val response = memeApi.updateFcmToken("$BEARER $token",fcmToken)
+            val response = memeApi.updateFcmToken("$BEARER ${ getJwtToken(context) }",fcmToken)
             if(response.success && response.data!=null){
                 Resource.Success(response.data)
             } else {

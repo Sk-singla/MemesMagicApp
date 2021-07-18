@@ -20,7 +20,6 @@ import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.TokenHandler.getEmail
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import com.samarth.memesmagic.util.TokenHandler.getMonthRewardId
 import com.samarth.memesmagic.util.TokenHandler.getYearRewardId
 import com.samarth.memesmagic.util.TokenHandler.saveFcmToken
@@ -66,7 +65,7 @@ class FeedViewModel @Inject constructor(
         if(oldToken!= null && oldToken == token){
             return@launch
         }
-        val result = memeRepo.updateFcmToken(getJwtToken(context)!!,token)
+        val result = memeRepo.updateFcmToken(token)
         if(result is Resource.Success){
             saveFcmToken(context,token)
             onSuccess()
@@ -79,12 +78,12 @@ class FeedViewModel @Inject constructor(
     fun getReward(context: Context,newReward:(reward:Reward,isItForMe:Boolean)->Unit) = viewModelScope.launch{
 
         val prevReward = getMonthRewardId(context)
-        val getMemerReward = memeRepo.getCurrentMonthReward(getJwtToken(context)!!)
+        val getMemerReward = memeRepo.getCurrentMonthReward()
 
         if(getMemerReward is Resource.Success){
             if(prevReward == null || prevReward != getMemerReward.data!!.id){
                 newReward(getMemerReward.data!!, getEmail(context)!! == getMemerReward.data.userEmail)
-                getUser(context,getMemerReward.data.userEmail){
+                getUser(getMemerReward.data.userEmail){
                     rewardWinner.value = it.userInfo
                 }
                 isFollowingToRewardy(context)
@@ -100,12 +99,12 @@ class FeedViewModel @Inject constructor(
     ) = viewModelScope.launch {
 
         val prevReward = getYearRewardId(context)
-        val getYearReward = memeRepo.getLastYearReward(getJwtToken(context)!!)
+        val getYearReward = memeRepo.getLastYearReward()
 
         if(getYearReward is Resource.Success){
             if(prevReward == null || prevReward != getYearReward.data!!.id){
                 newReward(getYearReward.data!!, getEmail(context)!! == getYearReward.data.userEmail)
-                getUser(context,getYearReward.data.userEmail){
+                getUser(getYearReward.data.userEmail){
                     rewardWinner.value = it.userInfo
                 }
                 isFollowingToRewardy(context)
@@ -118,16 +117,15 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun followUser(context: Context) = viewModelScope.launch{
+    fun followUser() = viewModelScope.launch{
         memeRepo.followUser(
-            getJwtToken(context)!!,
             rewardWinner.value!!.email
         )
 
     }
 
     private fun isFollowingToRewardy(context: Context) = viewModelScope.launch{
-        getUser(context,getEmail(context)!!){
+        getUser(getEmail(context)!!){
             rewardWinner.value?.email?.let { rewardyEmail ->
                 isFollowingToRewardyy.value = it.followings.map{it.email}.contains(rewardyEmail)
             }
@@ -135,8 +133,8 @@ class FeedViewModel @Inject constructor(
     }
 
 
-    fun getUser(context: Context,email: String,onFail: (String) -> Unit = {},onSuccess: (user:User) -> Unit) = viewModelScope.launch{
-        val result = memeRepo.getUser(getJwtToken(context)!!,email)
+    fun getUser(email: String,onFail: (String) -> Unit = {},onSuccess: (user:User) -> Unit) = viewModelScope.launch{
+        val result = memeRepo.getUser(email)
         if(result  is Resource.Success){
             onSuccess(result.data!!)
         } else {
@@ -146,9 +144,9 @@ class FeedViewModel @Inject constructor(
 
 
 
-    fun getFeed(token:String,onFail: (String) -> Unit) = viewModelScope.launch{
+    fun getFeed(onFail: (String) -> Unit) = viewModelScope.launch{
         isLoading.value = true
-        val result = memeRepo.getFeed(token)
+        val result = memeRepo.getFeed()
 
         if(result is Resource.Success){
             posts.value.addAll(result.data!!)
@@ -177,17 +175,17 @@ class FeedViewModel @Inject constructor(
         isLoading.value = false
     }
 
-    fun likePost(post:Post,context: Context,onSuccess:()->Unit) = viewModelScope.launch{
-        val result = memeRepo.likePost(getJwtToken(context)!!,post.id)
+    fun likePost(post:Post,onSuccess:()->Unit) = viewModelScope.launch{
+        val result = memeRepo.likePost(post.id)
         if(result is Resource.Success){
             post.likedBy.add(result.data!!)
             onSuccess()
         }
     }
 
-    fun dislikePost(post:Post,context: Context,onSuccess:()->Unit) = viewModelScope.launch{
+    fun dislikePost(post:Post,onSuccess:()->Unit) = viewModelScope.launch{
 
-        val result = memeRepo.dislikePost(getJwtToken(context)!!,post.id)
+        val result = memeRepo.dislikePost(post.id)
         if(result is Resource.Success){
             post.likedBy.add(result.data!!)
             onSuccess()
@@ -195,7 +193,7 @@ class FeedViewModel @Inject constructor(
     }
 
 
-    fun shareImage(url:String,context: Context,startActivity:(Intent)->Unit,onFail:(String)->Unit) {
+    fun shareImage(url:String,startActivity:(Intent)->Unit,onFail:(String)->Unit) {
         val fileName = "${System.currentTimeMillis()}.jpg"
         Picasso.get().load(url).into(
             object : Target {
@@ -238,9 +236,9 @@ class FeedViewModel @Inject constructor(
     }
 
 
-    fun deletePost(post: Post,context: Context,onSuccess: () -> Unit,onFail: (String) -> Unit) = viewModelScope.launch {
+    fun deletePost(post: Post,onSuccess: () -> Unit,onFail: (String) -> Unit) = viewModelScope.launch {
         isLoading.value = true
-        val result = memeRepo.deletePost(getJwtToken(context)!!,post.id)
+        val result = memeRepo.deletePost(post.id)
         if(result is Resource.Success){
             onSuccess()
         } else {

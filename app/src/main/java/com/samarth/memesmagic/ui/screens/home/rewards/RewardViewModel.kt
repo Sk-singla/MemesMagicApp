@@ -24,7 +24,7 @@ class RewardViewModel @Inject constructor(
 
     fun getRewards(context: Context) = viewModelScope.launch{
         isLoading.value = true
-        val result = memeRepo.getMyRewards(getJwtToken(context)!!, getEmail(context)!!)
+        val result = memeRepo.getMyRewards( getEmail(context)!!)
         if(result is Resource.Success){
             rewards.value = result.data!!
             loadError.value = ""

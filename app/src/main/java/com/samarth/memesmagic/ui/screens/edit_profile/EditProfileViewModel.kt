@@ -39,7 +39,7 @@ class EditProfileViewModel @Inject constructor(
     fun getUser(context: Context) = viewModelScope.launch{
 
         val email  = getEmail(context)!!
-        val result = memeRepo.getUser(getJwtToken(context)!!,email)
+        val result = memeRepo.getUser(email)
         if(result is Resource.Success){
             currentUser.value = result.data!!
             userName.value = result.data.userInfo.name
@@ -58,7 +58,7 @@ class EditProfileViewModel @Inject constructor(
     fun updateProfile(context: Context,onSuccess: () -> Unit,onFail:(String)->Unit){
         isLoading.value = true
         if(profilePic.value == null){
-            updateUserInfo(context,"",onSuccess,onFail)
+            updateUserInfo("",onSuccess,onFail)
         } else {
 
 
@@ -72,7 +72,7 @@ class EditProfileViewModel @Inject constructor(
                 )
                 val outputStream = FileOutputStream(file)
                 inputStream.copyTo(outputStream)
-                uploadImageToAwsAndUpdaterUserInfo(context,file,onSuccess,onFail)
+                uploadImageToAwsAndUpdaterUserInfo(file,onSuccess,onFail)
 
             }catch (e:Exception){
                 onFail(e.message ?: "IO exception")
@@ -83,14 +83,13 @@ class EditProfileViewModel @Inject constructor(
 
 
 
-    private fun uploadImageToAwsAndUpdaterUserInfo(context: Context, imageFile:File, onSuccess: () -> Unit, onFail:(String)->Unit) = viewModelScope.launch {
+    private fun uploadImageToAwsAndUpdaterUserInfo(imageFile:File, onSuccess: () -> Unit, onFail:(String)->Unit) = viewModelScope.launch {
         isLoading.value = true
         memeRepo.uploadFileOnAwsS3(
-            context,
             fileName = imageFile.name,
             file = imageFile,
             onSuccess = {
-                updateUserInfo(context,"$BUCKET_OBJECT_URL_PREFIX$it",onSuccess,onFail)
+                updateUserInfo("$BUCKET_OBJECT_URL_PREFIX$it",onSuccess,onFail)
             },
             onFail = {
                 onFail(it)
@@ -99,14 +98,14 @@ class EditProfileViewModel @Inject constructor(
     }
 
 
-    private fun updateUserInfo(context: Context, profilePicUrl:String,onSuccess:()->Unit, onFail: (String) -> Unit) = viewModelScope.launch{
+    private fun updateUserInfo( profilePicUrl:String,onSuccess:()->Unit, onFail: (String) -> Unit) = viewModelScope.launch{
         isLoading.value = true
         val userInfoRequest = UserInfoRequest(
             userName.value,
             profilePicUrl,
             bio.value
         )
-        val result = memeRepo.updateUserInfo(getJwtToken(context)!!,userInfoRequest)
+        val result = memeRepo.updateUserInfo(userInfoRequest)
         if(result is Resource.Success){
             onSuccess()
         } else {

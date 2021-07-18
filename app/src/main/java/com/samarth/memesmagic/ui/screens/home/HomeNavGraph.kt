@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.ui.screens.home.feed.FeedScreen
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.screens.home.profile.ProfileScreen
 import com.samarth.memesmagic.ui.screens.home.rewards.RewardScreen

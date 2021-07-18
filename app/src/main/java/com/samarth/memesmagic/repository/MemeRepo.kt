@@ -23,41 +23,41 @@ interface MemeRepo {
     ):Resource<String>
 
 
-    suspend fun getFeed(token:String):Resource<List<Post>>
+    suspend fun getFeed():Resource<List<Post>>
 
-    suspend fun getUser(token: String,email:String):Resource<User>
-    suspend fun updateUserInfo(token: String,userInfoRequest: UserInfoRequest):Resource<UserInfo>
+    suspend fun getUser(email:String):Resource<User>
+    suspend fun updateUserInfo(userInfoRequest: UserInfoRequest):Resource<UserInfo>
 
-    suspend fun getPosts(token: String,email:String):Resource<List<Post>>
+    suspend fun getPosts(email:String):Resource<List<Post>>
 
     suspend fun getMemeTemplates(memeMakerPageNumber:Int):Resource<List<MemeTemplate>>
 
-    suspend fun uploadFileOnAwsS3(context: Context, fileName:String,file:File?, onSuccess:(String)->Unit, onFail:(String)->Unit)
+    suspend fun uploadFileOnAwsS3(fileName:String,file:File?, onSuccess:(String)->Unit, onFail:(String)->Unit)
 
-    suspend fun uploadPost(token:String,postRequest: PostRequest):Resource<String>
+    suspend fun uploadPost(postRequest: PostRequest):Resource<String>
 
-    suspend fun likePost(token: String,postId:String):Resource<UserInfo>
-    suspend fun dislikePost(token: String,postId:String):Resource<UserInfo>
+    suspend fun likePost(postId:String):Resource<UserInfo>
+    suspend fun dislikePost(postId:String):Resource<UserInfo>
 
-    suspend fun findUsers(token:String, searchKeyWord:String):Resource<List<UserInfo>>
+    suspend fun findUsers( searchKeyWord:String):Resource<List<UserInfo>>
 
-    suspend fun followUser(token: String,email: String):Resource<UserInfo>
-    suspend fun unFollowUser(token: String,email: String):Resource<UserInfo>
+    suspend fun followUser(email: String):Resource<UserInfo>
+    suspend fun unFollowUser(email: String):Resource<UserInfo>
 
 
-    suspend fun addComment(token: String, postId: String, commentRequest: CommentRequest):Resource<Comment>
-    suspend fun likeComment(token: String,postId: String,commentId:String):Resource<UserInfo>
-    suspend fun dislikeComment(token: String,postId: String,commentId:String):Resource<UserInfo>
+    suspend fun addComment( postId: String, commentRequest: CommentRequest):Resource<Comment>
+    suspend fun likeComment(postId: String,commentId:String):Resource<UserInfo>
+    suspend fun dislikeComment(postId: String,commentId:String):Resource<UserInfo>
 
-    suspend fun getCurrentMonthReward(token: String):Resource<Reward>
-    suspend fun getMyRewards(token: String,email: String):Resource<List<Reward>>
-    suspend fun getLastYearReward(token:String):Resource<Reward>
+    suspend fun getCurrentMonthReward():Resource<Reward>
+    suspend fun getMyRewards(email: String):Resource<List<Reward>>
+    suspend fun getLastYearReward():Resource<Reward>
 
     suspend fun getMemesFromGithubApi():Resource<MemeApiGithub>
 
-    suspend fun deletePost(token: String,postId: String):Resource<String>
+    suspend fun deletePost(postId: String):Resource<String>
 
-    suspend fun updateFcmToken(token: String,fcmToken:String): Resource<String>
+    suspend fun updateFcmToken(fcmToken:String): Resource<String>
     /**
      * 1. Share meme on other platforms -> Done
      * 2. send friend request / follow , unfollow

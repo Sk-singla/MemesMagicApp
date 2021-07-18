@@ -43,7 +43,7 @@ fun AnotherUserProfile(
 
         DisposableEffect(key1 = Unit) {
             anotherUserProfileViewModel.getUser(context,userEmail)
-            anotherUserProfileViewModel.getPosts(context,userEmail)
+            anotherUserProfileViewModel.getPosts(userEmail)
             onDispose {  }
         }
 
@@ -58,7 +58,7 @@ fun AnotherUserProfile(
                 loadError = anotherUserProfileViewModel.loadError.value,
                 onRetry = {
                     anotherUserProfileViewModel.getUser(context, userEmail)
-                    anotherUserProfileViewModel.getPosts(context, userEmail)
+                    anotherUserProfileViewModel.getPosts(userEmail)
                 },
                 isItAnotherUserProfile = true,
                 isFollowing = anotherUserProfileViewModel.isFollowing.value,
@@ -72,7 +72,7 @@ fun AnotherUserProfile(
                     navController.navigate(SINGLE_POST_SCREEN)
                 },
                 badgesClick = {
-                    anotherUserProfileViewModel.getRewards(context)
+                    anotherUserProfileViewModel.getRewards()
                     isBadgesVisible = true
                 }
             )

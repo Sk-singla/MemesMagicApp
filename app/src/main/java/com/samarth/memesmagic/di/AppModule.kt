@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.di
 
+import android.content.Context
 import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
 import com.samarth.memesmagic.data.remote.MemeGithubApi
@@ -13,6 +14,7 @@ import com.samarth.memesmagic.util.Constants.MEME_MAKER_BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -32,7 +34,8 @@ object AppModule {
         imageFlipApi: ImageFlipApi,
         memeMakerApi: MemeMakerApi,
         memeGithubApi: MemeGithubApi,
-    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi,memeGithubApi)
+        @ApplicationContext context: Context
+    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi,memeGithubApi,context)
 
 
     @Singleton

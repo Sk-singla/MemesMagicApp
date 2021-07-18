@@ -34,7 +34,6 @@ fun SearchScreen(
     val searchKeyword by remember {
         searchViewModel.searchKeyWord
     }
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -55,14 +54,14 @@ fun SearchScreen(
             keyboardActions = KeyboardActions(
                 onSearch = {
                     keyboardController?.hide()
-                    searchViewModel.searchUser(context)
+                    searchViewModel.searchUser()
                 }
             ),
             trailingIcon = {
                 IconButton(
                     onClick = {
                         keyboardController?.hide()
-                        searchViewModel.searchUser(context)
+                        searchViewModel.searchUser()
                     },
                     enabled = !searchViewModel.isLoading.value
                 ){
@@ -108,7 +107,7 @@ fun SearchScreen(
                             userInfo = userInfo,
                             following = searchViewModel.isFollowingToUser(userInfo),
                             onFollowUnFollowBtnPressed = { onSuccess ->
-                                    searchViewModel.followUnfollowToggle(userInfo, context, onSuccess)
+                                    searchViewModel.followUnfollowToggle(userInfo, onSuccess)
 //                                onSuccess()
                             },
                             modifier = Modifier

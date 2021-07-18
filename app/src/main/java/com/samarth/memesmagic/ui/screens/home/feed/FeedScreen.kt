@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens.home
+package com.samarth.memesmagic.ui.screens.home.feed
 
 import android.content.Intent
 import android.util.Log
@@ -16,17 +16,14 @@ import androidx.navigation.NavController
 import com.google.firebase.messaging.FirebaseMessaging
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.response.Reward
-import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.AdvertiseDialogBox
 import com.samarth.memesmagic.ui.components.CongratsDialogBox
 import com.samarth.memesmagic.ui.components.PostItem
 import com.samarth.memesmagic.util.CommentsUtil
-import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
 import com.samarth.memesmagic.util.Screens.HOME_REWARDS
 import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
-import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.logout
 import kotlinx.coroutines.launch
@@ -98,7 +95,6 @@ fun FeedScreen(
         if(feedViewModel.firstTimeOpenedFeedScreen.value) {
             feedViewModel.getFeedFromGithub()
             feedViewModel.getFeed(
-                TokenHandler.getJwtToken(context)!!,
                 onFail = {
                     coroutineScope.launch {
                         Log.d("MyLog", "Feed ------------> $it")
@@ -110,7 +106,6 @@ fun FeedScreen(
         }
 
         feedViewModel.getUser(
-            context,
             getEmail(context)!!,
             onFail = {
                 Log.d("MyLog","User ------------> $it")
@@ -165,11 +160,11 @@ fun FeedScreen(
                     reward = it,
                     rewardWinnerInfo =rewardWinnerInfo,
                     onClick = {
-                          parentNavController.navigate("${Screens.ANOTHER_USER_PROFILE_SCREEN}/${rewardWinnerInfo.email}")
+                          parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${rewardWinnerInfo.email}")
                     },
                     isFollowingToUser = feedViewModel.isFollowingToRewardyy.value,
                     onFollowBtnPressed = {
-                        feedViewModel.followUser(context)
+                        feedViewModel.followUser()
                         showAdvertiseDialog = false
                     }
                 )
@@ -206,9 +201,9 @@ fun FeedScreen(
                                         onSuccess()
                                     } else {
                                         if (isPostLiked) {
-                                            feedViewModel.dislikePost(post, context, onSuccess)
+                                            feedViewModel.dislikePost(post, onSuccess)
                                         } else {
-                                            feedViewModel.likePost(post, context, onSuccess)
+                                            feedViewModel.likePost(post, onSuccess)
                                         }
                                     }
                                 },
@@ -219,7 +214,6 @@ fun FeedScreen(
                                 onShareIconPressed = {
                                     feedViewModel.shareImage(
                                         it.mediaLink,
-                                        context,
                                         startActivity
                                     ){
                                         coroutineScope.launch {

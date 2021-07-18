@@ -33,7 +33,7 @@ class SearchViewModel @Inject constructor(
     var curUser:User? = null
     init {
         viewModelScope.launch {
-            val resultUser  = memeRepo.getUser(getJwtToken(getApplication<Application>().applicationContext)!!,
+            val resultUser  = memeRepo.getUser(
                 getEmail(getApplication<Application>().applicationContext)!!)
             if(resultUser is Resource.Success){
                 curUser = resultUser.data
@@ -41,9 +41,9 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun searchUser(context: Context) = viewModelScope.launch{
+    fun searchUser() = viewModelScope.launch{
         isLoading.value = true
-        val result = memeRepo.findUsers(getJwtToken(context)!!,searchKeyWord.value)
+        val result = memeRepo.findUsers(searchKeyWord.value)
         if(result is Resource.Success){
             usersList.value = result.data ?: emptyList()
             if(usersList.value.isEmpty()){
@@ -63,16 +63,14 @@ class SearchViewModel @Inject constructor(
     }
 
 
-    fun followUnfollowToggle(userInfo: UserInfo,context: Context,onSuccess:()->Unit) = viewModelScope.launch{
+    fun followUnfollowToggle(userInfo: UserInfo,onSuccess:()->Unit) = viewModelScope.launch{
         val isFollowing = isFollowingToUser(userInfo)
         val result = if(isFollowing){
             memeRepo.unFollowUser(
-                getJwtToken(context)!!,
                 userInfo.email
             )
         } else {
             memeRepo.followUser(
-                getJwtToken(context)!!,
                 userInfo.email
             )
         }

@@ -32,7 +32,7 @@ class AnotherUserProfileViewModel @Inject constructor(
 
     fun getUser(context: Context,email:String) = viewModelScope.launch {
         isLoading.value = true
-        val result = memeRepo.getUser(getJwtToken(context)!!, email)
+        val result = memeRepo.getUser(email)
         if (result is Resource.Success) {
             user.value = result.data!!
             loadError.value = ""
@@ -51,9 +51,9 @@ class AnotherUserProfileViewModel @Inject constructor(
     }
 
 
-    fun getPosts(context: Context,email:String) = viewModelScope.launch {
+    fun getPosts(email:String) = viewModelScope.launch {
         isLoading.value = true
-        val result = memeRepo.getPosts(getJwtToken(context)!!,email)
+        val result = memeRepo.getPosts(email)
         if (result is Resource.Success) {
             posts.value = result.data!!
             loadError.value = ""
@@ -69,12 +69,10 @@ class AnotherUserProfileViewModel @Inject constructor(
     fun followUnfollowToggle(context: Context, onSuccess:()->Unit) = viewModelScope.launch{
         val result = if(isFollowing.value){
             memeRepo.unFollowUser(
-                getJwtToken(context)!!,
                 user.value!!.userInfo.email
             )
         } else {
             memeRepo.followUser(
-                getJwtToken(context)!!,
                 user.value!!.userInfo.email
             )
         }
@@ -89,9 +87,9 @@ class AnotherUserProfileViewModel @Inject constructor(
     }
 
 
-    fun getRewards(context: Context) = viewModelScope.launch{
+    fun getRewards() = viewModelScope.launch{
         isLoadingRewards.value = true
-        val result = memeRepo.getMyRewards(getJwtToken(context)!!,user.value!!.userInfo.email)
+        val result = memeRepo.getMyRewards(user.value!!.userInfo.email)
         if(result is Resource.Success){
             rewards.value = result.data!!
             loadError.value = ""

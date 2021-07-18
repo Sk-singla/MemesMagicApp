@@ -48,7 +48,6 @@ fun SinglePostScreen(
                         onClick = {
                             feedViewModel.deletePost(
                                 post = CommentsUtil.post!!,
-                                context,
                                 onSuccess = {
                                     parentNavController.popBackStack()
                                     coroutineScope.launch {
@@ -89,9 +88,9 @@ fun SinglePostScreen(
                             onSuccess()
                         } else {
                             if (isPostLiked) {
-                                feedViewModel.dislikePost(post, context, onSuccess)
+                                feedViewModel.dislikePost(post, onSuccess)
                             } else {
-                                feedViewModel.likePost(post, context, onSuccess)
+                                feedViewModel.likePost(post, onSuccess)
                             }
                         }
                     },
@@ -102,7 +101,6 @@ fun SinglePostScreen(
                     onShareIconPressed = {
                         feedViewModel.shareImage(
                             it.mediaLink,
-                            context,
                             startActivity
                         ) {
                             coroutineScope.launch {

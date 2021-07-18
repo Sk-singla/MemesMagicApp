@@ -30,7 +30,7 @@ class ProfileViewModel @Inject constructor(
 
     fun getUser(context: Context) = viewModelScope.launch {
         isLoading.value = true
-        val result = memeRepo.getUser(getJwtToken(context)!!, getEmail(context)!!)
+        val result = memeRepo.getUser( getEmail(context)!!)
         if (result is Resource.Success) {
             user.value = result.data!!
             loadError.value = ""
@@ -43,7 +43,7 @@ class ProfileViewModel @Inject constructor(
 
     fun getPosts(context: Context) = viewModelScope.launch {
         isLoading.value = true
-        val result = memeRepo.getPosts(getJwtToken(context)!!, getEmail(context)!!)
+        val result = memeRepo.getPosts( getEmail(context)!!)
         if (result is Resource.Success) {
             posts.value = result.data!!
             loadError.value = ""

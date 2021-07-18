@@ -403,7 +403,6 @@ class CreateViewModel  @Inject constructor(
                     val files = context.filesDir.listFiles()
                     val file = files?.find { it.canRead() && it.isFile && it.name == fileName }
                     memeRepo.uploadFileOnAwsS3(
-                        context = context,
                         fileName = fileName,
                         file = file,
                         onSuccess = { awsKey ->
@@ -412,7 +411,6 @@ class CreateViewModel  @Inject constructor(
                                 isLoading.value = true
 
                                 val result = memeRepo.uploadPost(
-                                    token = getJwtToken(context)!!,
                                     postRequest = PostRequest(
                                         PostType.IMAGE,
                                         System.currentTimeMillis(),

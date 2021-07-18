@@ -127,7 +127,7 @@ fun CommentScreen(
                         comment = comment,
                         isCommentLiked = false,
                         onCommentLikeUnlikePressed = { onSuccess ->
-                            commentViewModel.likeUnlikeToggle(context, comment, onSuccess)
+                            commentViewModel.likeUnlikeToggle(comment, onSuccess)
                         },
                         onProfileClick = {
                             navController.navigate("${Screens.ANOTHER_USER_PROFILE_SCREEN}/${comment.userInfo.email}")
@@ -165,7 +165,7 @@ fun CommentScreen(
                     trailingIcon = {
                         IconButton(onClick = {
                             keyboardController?.hide()
-                            commentViewModel.addComment(context) {
+                            commentViewModel.addComment {
                                 commentViewModel.comment.value = ""
                                 if (post?.comments != null) {
                                     post?.comments?.add(it)

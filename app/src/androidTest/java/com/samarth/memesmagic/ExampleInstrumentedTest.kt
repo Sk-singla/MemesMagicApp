@@ -1,24 +1,44 @@
 package com.samarth.memesmagic
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.navigation.compose.rememberNavController
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.samarth.memesmagic.ui.screens.landing_page.SplashScreen
 
 import org.junit.Test
 import org.junit.runner.RunWith
 
 import org.junit.Assert.*
+import org.junit.Rule
 
 /**
  * Instrumented test, which will execute on an Android device.
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
+@ExperimentalFoundationApi
 @RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
+class SplashScreenTest {
+
+    @get: Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+
     @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.samarth.memesmagic", appContext.packageName)
+    fun splash_screen_logo_exists() {
+        composeTestRule.setContent {
+            SplashScreen(
+                navController = rememberNavController(),
+                testing = true
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription(
+            "Logo"
+        ).assertExists()
     }
+
 }

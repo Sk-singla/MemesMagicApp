@@ -35,7 +35,7 @@ class CommentViewModel @Inject constructor(
         }
     }
 
-    fun addComment(context:Context,onSuccess:(Comment)->Unit) = viewModelScope.launch{
+    fun addComment(onSuccess:(Comment)->Unit) = viewModelScope.launch{
 
         val trimmedComment = comment.value.trim()
         if(trimmedComment.isEmpty()){
@@ -43,7 +43,6 @@ class CommentViewModel @Inject constructor(
         }
         post.value?.let { pt ->
             val result = memeRepo.addComment(
-                getJwtToken(context)!!,
                 pt.id,
                 CommentRequest(text = comment.value, time = System.currentTimeMillis())
             )
@@ -61,19 +60,17 @@ class CommentViewModel @Inject constructor(
         return comment.likedBy.map { it.email }.contains(userEmail)
     }
 
-    fun likeUnlikeToggle(context: Context,comment:Comment,onSuccess: () -> Unit) = viewModelScope.launch{
+    fun likeUnlikeToggle(comment:Comment,onSuccess: () -> Unit) = viewModelScope.launch{
         post.value?.let { pt ->
 
             val isLiked = isCommentLiked(comment)
             val result = if(!isLiked) {
                 memeRepo.likeComment(
-                    getJwtToken(context)!!,
                     pt.id,
                     comment.id
                 )
             }else {
                 memeRepo.dislikeComment(
-                    getJwtToken(context)!!,
                     pt.id,
                     comment.id
                 )
