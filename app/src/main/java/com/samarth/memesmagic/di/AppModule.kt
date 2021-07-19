@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.di
 
 import android.content.Context
+import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.data.remote.ImageFlipApi
 import com.samarth.memesmagic.data.remote.MemeApi
 import com.samarth.memesmagic.data.remote.MemeGithubApi
@@ -16,6 +17,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -36,6 +39,20 @@ object AppModule {
         memeGithubApi: MemeGithubApi,
         @ApplicationContext context: Context
     ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi,memeGithubApi,context)
+
+
+    @Singleton
+    @Provides
+    fun provideDispatcherProvider(): DispatcherProvider {
+        return object : DispatcherProvider {
+            override val main: CoroutineDispatcher
+                get() = Dispatchers.Main
+            override val io: CoroutineDispatcher
+                get() = Dispatchers.IO
+            override val default: CoroutineDispatcher
+                get() = Dispatchers.Default
+        }
+    }
 
 
     @Singleton

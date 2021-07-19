@@ -65,5 +65,8 @@ object Screens{
     const val SINGLE_POST_SCREEN = "single_post"
 
     val posts = mutableListOf<String>()
+
+    const val MAX_PASSWORD_LENGTH = 12
+    const val MIN_PASSWORD_LENGTH = 6
 }
 

@@ -8,6 +8,8 @@ import android.os.Build
 import android.provider.OpenableColumns
 import android.view.View
 import androidx.navigation.NavController
+import com.samarth.memesmagic.util.Screens.MAX_PASSWORD_LENGTH
+import com.samarth.memesmagic.util.Screens.MIN_PASSWORD_LENGTH
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Pattern
@@ -56,7 +58,7 @@ fun isItEmail(email:String):Boolean{
 }
 
 fun validatePassword(password:String):Boolean{
-    return password.length >= 6
+    return password.length in MIN_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH
 }
 
 
