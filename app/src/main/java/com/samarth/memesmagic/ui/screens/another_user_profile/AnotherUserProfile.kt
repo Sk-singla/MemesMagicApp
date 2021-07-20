@@ -17,6 +17,8 @@ import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.ui.components.FullProfileScreen
 import com.samarth.memesmagic.ui.components.RewardsDialogBox
 import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
+import com.samarth.memesmagic.util.TokenHandler.getEmail
+import kotlinx.coroutines.launch
 
 @ExperimentalFoundationApi
 @Composable
@@ -32,6 +34,8 @@ fun AnotherUserProfile(
     var isBadgesVisible by remember {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -39,12 +43,9 @@ fun AnotherUserProfile(
         }
     ) {
 
-        val context = LocalContext.current
-
-        DisposableEffect(key1 = Unit) {
-            anotherUserProfileViewModel.getUser(context,userEmail)
+        LaunchedEffect(key1 = Unit) {
+            anotherUserProfileViewModel.getUser(getEmail(context)!!,userEmail)
             anotherUserProfileViewModel.getPosts(userEmail)
-            onDispose {  }
         }
 
 
@@ -57,16 +58,21 @@ fun AnotherUserProfile(
                 isLoading = anotherUserProfileViewModel.isLoading.value,
                 loadError = anotherUserProfileViewModel.loadError.value,
                 onRetry = {
-                    anotherUserProfileViewModel.getUser(context, userEmail)
-                    anotherUserProfileViewModel.getPosts(userEmail)
+                      coroutineScope.launch {
+                          anotherUserProfileViewModel.getUser(getEmail(context)!!, userEmail)
+                          anotherUserProfileViewModel.getPosts(userEmail)
+                      }
                 },
                 isItAnotherUserProfile = true,
                 isFollowing = anotherUserProfileViewModel.isFollowing.value,
-                onEditScreenPressed = {
-
-                },
+                onEditScreenPressed = {},
                 onFollowUnFollowBtnPressed = { onSuccess ->
-                    anotherUserProfileViewModel.followUnfollowToggle(context, onSuccess)
+                    coroutineScope.launch {
+                        anotherUserProfileViewModel.followUnfollowToggle(
+                            getEmail(context)!!,
+                            onSuccess
+                        )
+                    }
                 },
                 detailView = {
                     navController.navigate(SINGLE_POST_SCREEN)
@@ -84,7 +90,9 @@ fun AnotherUserProfile(
                         isBadgesVisible = false
                     },
                     isLoading = anotherUserProfileViewModel.isLoadingRewards.value,
-                    modifier = Modifier.fillMaxWidth().fillMaxHeight(0.4f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.4f)
                 )
             }
 

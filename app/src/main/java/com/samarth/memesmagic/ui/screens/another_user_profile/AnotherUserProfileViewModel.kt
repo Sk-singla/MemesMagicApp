@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.data.remote.response.User
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AnotherUserProfileViewModel @Inject constructor(
-    val memeRepo: MemeRepo
+    val memeRepo: MemeRepo,
+    val dispatcher: DispatcherProvider
 ):ViewModel() {
 
 
@@ -29,13 +31,13 @@ class AnotherUserProfileViewModel @Inject constructor(
     val rewards = mutableStateOf(listOf<Reward>())
     val isLoadingRewards = mutableStateOf(false)
 
-    fun getUser(context: Context,email:String) = viewModelScope.launch {
+    fun getUser(curUserEmail: String,email:String) = viewModelScope.launch(dispatcher.io){
         isLoading.value = true
         val result = memeRepo.getUser(email)
         if (result is Resource.Success) {
             user.value = result.data!!
             loadError.value = ""
-            isFollowing(context)
+            isFollowing(curUserEmail)
         } else {
             loadError.value = result.message ?: "Some Problem Occurred!!"
         }
@@ -43,14 +45,14 @@ class AnotherUserProfileViewModel @Inject constructor(
     }
 
 
-    private fun isFollowing(context: Context) = viewModelScope.launch{
+    private fun isFollowing(curUserEmail:String) = viewModelScope.launch(dispatcher.io){
         user.value?.let { otherUser ->
-            isFollowing.value = otherUser.followers.map { it.email }.contains(getEmail(context)!!)
+            isFollowing.value = otherUser.followers.map { it.email }.contains(curUserEmail)
         }
     }
 
 
-    fun getPosts(email:String) = viewModelScope.launch {
+    fun getPosts(email:String) = viewModelScope.launch(dispatcher.io) {
         isLoading.value = true
         val result = memeRepo.getPosts(email)
         if (result is Resource.Success) {
@@ -65,7 +67,7 @@ class AnotherUserProfileViewModel @Inject constructor(
 
 
 
-    fun followUnfollowToggle(context: Context, onSuccess:()->Unit) = viewModelScope.launch{
+    fun followUnfollowToggle(curUserEmail: String, onSuccess:()->Unit) = viewModelScope.launch(dispatcher.io){
         val result = if(isFollowing.value){
             memeRepo.unFollowUser(
                 user.value!!.userInfo.email
@@ -76,23 +78,24 @@ class AnotherUserProfileViewModel @Inject constructor(
             )
         }
         if(result is Resource.Success){
-            onSuccess()
             if(isFollowing.value){
-                user.value?.followers?.remove(user.value?.followers?.find { it.email == getEmail(context)!! })
+                user.value?.followers?.remove(user.value?.followers?.find { it.email == curUserEmail })
             } else {
-                user.value?.followers?.add(UserInfo("", getEmail(context)!!))
+                user.value?.followers?.add(UserInfo("", curUserEmail))
+                isFollowing.value = true
             }
+            onSuccess()
         }
     }
 
 
-    fun getRewards() = viewModelScope.launch{
+    fun getRewards() = viewModelScope.launch(dispatcher.io){
         isLoadingRewards.value = true
         val result = memeRepo.getRewards(user.value!!.userInfo.email)
         if(result is Resource.Success){
             rewards.value = result.data!!
             loadError.value = ""
-        } else{
+        } else {
             loadError.value = result.message!!
         }
         isLoadingRewards.value = false

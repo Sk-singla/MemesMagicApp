@@ -55,9 +55,6 @@ class LoginScreenViewModel @Inject constructor(
         isLoading.value = false
     }
 
-
-
-
     fun clearAllTextFields(){
         email.value = ""
         password.value = ""

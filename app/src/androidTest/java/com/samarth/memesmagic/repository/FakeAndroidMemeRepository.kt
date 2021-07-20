@@ -1,5 +1,11 @@
 package com.samarth.memesmagic.repository
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.samarth.memesmagic.data.remote.models.MemeBadgeType
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
 import com.samarth.memesmagic.data.remote.request.*
@@ -7,13 +13,16 @@ import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.data.remote.response.meme_api_github.Meme
 import com.samarth.memesmagic.data.remote.response.meme_api_github.MemeApiGithub
 import com.samarth.memesmagic.util.Resource
+import com.samarth.memesmagic.utils.FAKE_EMAIL
+import com.samarth.memesmagic.utils.FAKE_NAME
+import com.samarth.memesmagic.utils.FAKE_PASSWORD
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import java.io.File
 import java.util.*
 
-const val FAKE_NAME = "SAMARTH"
-const val FAKE_EMAIL = "adsf@gmail.com"
-const val FAKE_PASSWORD = "password"
-class FakeMemeRepository: MemeRepo {
+@ExperimentalCoroutinesApi
+class FakeAndroidMemeRepository(): MemeRepo {
 
     private var curUser: User = User(
         UserInfo(
@@ -23,8 +32,26 @@ class FakeMemeRepository: MemeRepo {
         FAKE_PASSWORD,
         id = UUID.randomUUID().toString()
     )
+
+//    private val Context.testDataStore: DataStore<Preferences> by preferencesDataStore(name = "tokens")
+//    private suspend fun saveEmail(context: Context,email:String) {
+//        val emailKey = stringPreferencesKey("emailKey")
+//        context.testDataStore.edit { tokens->
+//            tokens[emailKey] = email
+//        }
+//    }
+//
+//    init {
+////        runBlockingTest {
+////            saveEmail(context, FAKE_EMAIL)
+////        }
+//    }
+
+
     private val users = mutableListOf<User>(curUser)
     private val posts = mutableListOf<Post>()
+
+
 
     override suspend fun registerUser(userRegisterRequest: RegisterUserRequest): Resource<String> {
         if(users.find { it.userInfo.email == userRegisterRequest.email } != null){

@@ -4,6 +4,7 @@ package com.samarth.memesmagic.ui.screens.register_screen
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterScreenViewModel @Inject constructor(
-    val memeRepo: MemeRepo
+    val memeRepo: MemeRepo,
+    val dispatcher: DispatcherProvider
 ):ViewModel() {
 
 
@@ -36,9 +38,16 @@ class RegisterScreenViewModel @Inject constructor(
         confirmPassword.value = ""
     }
 
-    fun registerUser(onSuccess:(token:String)->Unit,onFail:(String?)->Unit) = viewModelScope.launch{
+    fun registerUser(onSuccess:(token:String)->Unit,onFail:(String?)->Unit) = viewModelScope.launch(dispatcher.io){
+        name.value = name.value.trim()
+        email.value = email.value.trim()
+        password.value = password.value.trim()
+        confirmPassword.value = confirmPassword.value.trim()
 
-
+        if(name.value.isEmpty() or email.value.isEmpty() or password.value.isEmpty() or confirmPassword.value.isEmpty()){
+            onFail("Some Fields are empty!!")
+            return@launch
+        }
         if(!isItEmail(email.value)){
             onFail("Please Enter Proper Email Id!")
             return@launch
