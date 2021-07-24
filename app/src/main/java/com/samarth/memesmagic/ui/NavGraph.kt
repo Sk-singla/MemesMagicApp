@@ -2,17 +2,21 @@ package com.samarth.memesmagic.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
+import com.samarth.memesmagic.ui.animations.BasicAnimation
 import com.samarth.memesmagic.ui.screens.another_user_profile.AnotherUserProfile
 import com.samarth.memesmagic.ui.screens.comments.CommentScreen
 import com.samarth.memesmagic.ui.screens.login_screen.LoginScreen
@@ -27,6 +31,7 @@ import com.samarth.memesmagic.ui.screens.home.create.TemplateSelectionScreen
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.screens.landing_page.LandingPage
 import com.samarth.memesmagic.ui.screens.landing_page.SplashScreen
+import com.samarth.memesmagic.util.Constants.BASE_URL
 import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
@@ -40,6 +45,7 @@ import com.samarth.memesmagic.util.Screens.NEW_POST_DETAILS_AND_UPLOAD
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import com.samarth.memesmagic.util.Screens.SPLASH_SCREEN
 
+@ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
@@ -56,15 +62,33 @@ fun MainNavGraph(
     NavHost(navController = navController, startDestination = SPLASH_SCREEN,modifier =modifier){
 
 
-        composable(SPLASH_SCREEN){
+        composable(
+            SPLASH_SCREEN,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = BASE_URL
+                }
+            )
+        ){
             SplashScreen(navController = navController)
         }
 
         composable(LANDING_SCREEN){
-            LandingPage(navController = navController)
+            BasicAnimation(
+                isVisible = navController.currentDestination?.route == LANDING_SCREEN
+            ){
+                LandingPage(navController = navController)
+            }
         }
 
-        composable(REGISTER_SCREEN){
+        composable(
+            REGISTER_SCREEN,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "$BASE_URL/register"
+                }
+            )
+        ){
             RegisterScreen(navController = navController)
         }
 

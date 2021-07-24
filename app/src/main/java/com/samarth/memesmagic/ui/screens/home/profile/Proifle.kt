@@ -28,7 +28,7 @@ fun ProfileScreen(
     }
 
 
-    // todo: change badges thing
+    // todo: change badges things ( show it in profile ) and on rewards tab add notifications tab
     FullProfileScreen(
         modifier = Modifier.fillMaxSize(),
         user = profileViewModel.user.value,

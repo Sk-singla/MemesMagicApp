@@ -19,6 +19,7 @@ import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.ui.components.AdvertiseDialogBox
 import com.samarth.memesmagic.ui.components.CongratsDialogBox
 import com.samarth.memesmagic.ui.components.PostItem
+import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
@@ -34,7 +35,8 @@ fun FeedScreen(
     feedViewModel: FeedViewModel = hiltViewModel(),
     startActivity:(Intent)->Unit,
     currentNavController:NavController,
-    parentNavController: NavController
+    parentNavController: NavController,
+    chatViewModel: ChatViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
@@ -51,6 +53,8 @@ fun FeedScreen(
 
 
     LaunchedEffect(key1 = Unit) {
+
+        chatViewModel.oberserve(context)
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             val token = task.result ?: ""
@@ -225,6 +229,8 @@ fun FeedScreen(
                                 },
                                 onClick = {
                                     if(post.postResource == PostResource.GITHUB_API) {
+
+                                        chatViewModel.sendMessage()
                                         coroutineScope.launch {
                                             scaffoldState.snackbarHostState.showSnackbar("It is a Bot!")
                                         }

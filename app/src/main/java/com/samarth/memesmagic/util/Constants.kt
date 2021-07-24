@@ -6,12 +6,17 @@ import com.samarth.memesmagic.data.remote.response.Post
 object Constants {
     const val PARTIALLY_CLICKABLE_TEXT_TAG = "Click"
 
+    private const val API_VERSION = "/v1"
     const val MEME_GITHUB_API_BASE_URL = "https://meme-api.herokuapp.com"
     const val IMAGE_FLIP_BASE_URL = "https://api.imgflip.com"
     const val MEME_MAKER_BASE_URL = "http://alpha-meme-maker.herokuapp.com"
-    const val BASE_URL = "https://memesmagic.herokuapp.com"
+    const val BASE_URL_DEPLOYMENT = "https://memesmagic.herokuapp.com"
+    const val BASE_URL_LOCAL = "http://192.168.43.33:8081"
+    const val BASE_URL = BASE_URL_LOCAL                  //  <-------- change this
+    const val BASE_URL_WS = "$BASE_URL$API_VERSION/ws"
+    const val RECONNECT_INTERVAL = 3000L
 
-    private const val API_VERSION = "/v1"
+
     const val USERS = "$API_VERSION/user"
     const val POSTS = "$API_VERSION/posts"
     const val FEED = "$API_VERSION/feed"
@@ -35,6 +40,11 @@ object Constants {
 
     const val BEARER = "Bearer"
     const val NETWORK_UNKNOWN_PROBLEM = "Some Problem Occurred!"
+
+
+    const val TYPE_LIKE_POST = "TYPE_LIKE_POST"
+    const val TYPE_JOIN_SERVER_HANDSHAKE = "TYPE_JOIN_SERVER_HANDSHAKE"
+    const val TYPE_PRIVATE_CHAT_MESSAGE = "TYPE_PRIVATE_CHAT_MESSAGE"
 
 
 

@@ -2,10 +2,7 @@ package com.samarth.memesmagic.di
 
 import android.content.Context
 import com.plcoding.doodlekong.util.DispatcherProvider
-import com.samarth.memesmagic.data.remote.ImageFlipApi
-import com.samarth.memesmagic.data.remote.MemeApi
-import com.samarth.memesmagic.data.remote.MemeGithubApi
-import com.samarth.memesmagic.data.remote.MemeMakerApi
+import com.samarth.memesmagic.data.remote.*
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.repository.MemeRepository
 import com.samarth.memesmagic.util.Constants.BASE_URL
@@ -19,12 +16,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+@ExperimentalCoroutinesApi
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
