@@ -46,7 +46,7 @@ class FeedViewModel @Inject constructor(
     val isFollowingToRewardyy = mutableStateOf(false)
     val firstTimeOpenedFeedScreen = mutableStateOf(true)
 
-    val posts = mutableStateOf(mutableListOf<Post>())
+    val posts = mutableStateOf(listOf<Post>())
 
     fun isItLastItem(itemNumber:Int):Boolean{
         return itemNumber == posts.value.size -1
@@ -149,8 +149,7 @@ class FeedViewModel @Inject constructor(
         val result = memeRepo.getFeed()
 
         if(result is Resource.Success){
-            posts.value.addAll(result.data!!)
-            posts.value.shuffle()
+            posts.value += result.data!!.shuffled()
         } else {
             onFail(result.message ?: "Some Problem Occurred!")
         }
@@ -170,7 +169,7 @@ class FeedViewModel @Inject constructor(
                 postResource = PostResource.GITHUB_API
             )
         }?.let { githubPosts ->
-            posts.value.addAll(githubPosts)
+            posts.value += githubPosts
         }
         isLoading.value = false
     }

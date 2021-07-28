@@ -50,7 +50,8 @@ fun FullProfileScreen(
     onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit,
     detailView : ()->Unit,
     badgesClick: ()-> Unit,
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    messageUser: () -> Unit = {}
 ) {
 
 
@@ -95,7 +96,8 @@ fun FullProfileScreen(
                         onEditScreenPressed = onEditScreenPressed,
                         onLogout = onLogout,
                         badgesClick = badgesClick,
-                        numberOfRewards = it.rewards.size
+                        numberOfRewards = it.rewards.size,
+                        messageUser = messageUser
                     )
 
                     Divider(modifier = Modifier.padding(horizontal = 12.dp))
@@ -217,7 +219,8 @@ fun ProfileScreenButtons(
     onEditScreenPressed: () -> Unit,
     onLogout: () -> Unit,
     badgesClick: () -> Unit,
-    numberOfRewards:Int
+    numberOfRewards:Int,
+    messageUser: ()->Unit
 ) {
 
     var isFollowingToUser by remember {
@@ -254,6 +257,26 @@ fun ProfileScreenButtons(
                     " Follow " else "Edit Profile"
             )
         }
+
+        if(isItAnotherUserProfile){
+            OutlinedButton(
+                onClick = {
+                      messageUser()
+                },
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .shadow(2.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    contentColor = Green700
+                )
+            ) {
+                Text(
+                    text = "Message"
+                )
+            }
+        }
+
 
         OutlinedButton(
                 onClick = {

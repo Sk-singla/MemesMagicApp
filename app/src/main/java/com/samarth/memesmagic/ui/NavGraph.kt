@@ -18,6 +18,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import com.samarth.memesmagic.ui.animations.BasicAnimation
 import com.samarth.memesmagic.ui.screens.another_user_profile.AnotherUserProfile
+import com.samarth.memesmagic.ui.screens.chat.ChatRoomsListScreen
+import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
+import com.samarth.memesmagic.ui.screens.chat.FindUserForChat
+import com.samarth.memesmagic.ui.screens.chat.PrivateChatRoomScreen
 import com.samarth.memesmagic.ui.screens.comments.CommentScreen
 import com.samarth.memesmagic.ui.screens.login_screen.LoginScreen
 import com.samarth.memesmagic.ui.screens.register_screen.RegisterScreen
@@ -34,9 +38,12 @@ import com.samarth.memesmagic.ui.screens.landing_page.SplashScreen
 import com.samarth.memesmagic.util.Constants.BASE_URL
 import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
+import com.samarth.memesmagic.util.Screens.CHAT_ROOMS_LIST_SCREEN
+import com.samarth.memesmagic.util.Screens.CHAT_ROOM_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
 import com.samarth.memesmagic.util.Screens.EDIT_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.EDIT_SCREEN
+import com.samarth.memesmagic.util.Screens.FIND_ANOTHER_USER_FOR_CHAT
 import com.samarth.memesmagic.util.Screens.HOME_CREATE
 import com.samarth.memesmagic.util.Screens.HOME_SCREEN
 import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
@@ -58,6 +65,7 @@ fun MainNavGraph(
 ){
     val feedViewModel:FeedViewModel = hiltViewModel()
     val createViewModel:CreateViewModel = hiltViewModel()
+    val chatViewModel:ChatViewModel = hiltViewModel()
 
     NavHost(navController = navController, startDestination = SPLASH_SCREEN,modifier =modifier){
 
@@ -165,6 +173,19 @@ fun MainNavGraph(
                 feedViewModel = feedViewModel
             )
         }
+
+        composable(CHAT_ROOMS_LIST_SCREEN){
+            ChatRoomsListScreen(navController = navController, chatViewModel = chatViewModel)
+        }
+        composable(CHAT_ROOM_SCREEN){
+            PrivateChatRoomScreen(navController = navController, chatViewModel = chatViewModel)
+        }
+        
+        composable(FIND_ANOTHER_USER_FOR_CHAT) {
+            FindUserForChat(navController = navController)
+        }
+
+
 
 
 

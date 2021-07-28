@@ -1,7 +1,10 @@
 package com.samarth.memesmagic.di
 
 import android.content.Context
+import androidx.room.Room
 import com.plcoding.doodlekong.util.DispatcherProvider
+import com.samarth.memesmagic.data.local.dao.MemeDao
+import com.samarth.memesmagic.data.local.database.MemeDatabase
 import com.samarth.memesmagic.data.remote.*
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.repository.MemeRepository
@@ -118,5 +121,15 @@ object AppModule {
     }
 
 
-
+    @Singleton
+    @Provides
+    fun provideMemeDao(
+        @ApplicationContext context: Context
+    ): MemeDao {
+        return Room.databaseBuilder(
+            context,
+            MemeDatabase::class.java,
+            "Meme_db"
+        ).build().memeDao()
+    }
 }

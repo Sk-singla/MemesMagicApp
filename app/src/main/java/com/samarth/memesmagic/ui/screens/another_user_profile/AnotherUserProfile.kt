@@ -12,10 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.ui.screens.another_user_profile.AnotherUserProfileViewModel
 import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.ui.components.FullProfileScreen
 import com.samarth.memesmagic.ui.components.RewardsDialogBox
+import com.samarth.memesmagic.util.ChatUtils
+import com.samarth.memesmagic.util.Screens
+import com.samarth.memesmagic.util.Screens.CHAT_ROOM_SCREEN
 import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import kotlinx.coroutines.launch
@@ -80,6 +84,14 @@ fun AnotherUserProfile(
                 badgesClick = {
                     anotherUserProfileViewModel.getRewards()
                     isBadgesVisible = true
+                },
+                messageUser = {
+                    ChatUtils.currentChatRoom = PrivateChatRoom(
+                        userEmail = anotherUserProfileViewModel.user.value?.userInfo?.email ?: "",
+                        name = anotherUserProfileViewModel.user.value?.userInfo?.name ?: "",
+                        profilePic = anotherUserProfileViewModel.user.value?.userInfo?.profilePic,
+                    )
+                    navController.navigate(CHAT_ROOM_SCREEN)
                 }
             )
 

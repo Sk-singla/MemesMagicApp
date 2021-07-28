@@ -116,7 +116,8 @@ fun PostItem(
                         contentScale = ContentScale.FillWidth,
                         contentDescription = "Post",
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
                     )
 
                 }

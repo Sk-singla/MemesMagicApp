@@ -140,6 +140,13 @@ dependencies {
     // Gson
     implementation 'com.google.code.gson:gson:2.8.7'
 
+    // Room
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:2.3.0"
+    kapt "androidx.room:room-compiler:$room_version"
+
+
+
     // Amazon s3
 
     implementation 'com.amplifyframework:aws-storage-s3:1.20.0'

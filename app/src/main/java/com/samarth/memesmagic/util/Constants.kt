@@ -48,6 +48,10 @@ object Constants {
 
 
 
+    const val CHAT_MESSAGES_LIMIT = 100
+
+
+
 
 
 }
@@ -73,6 +77,10 @@ object Screens{
     const val ANOTHER_USER_PROFILE_SCREEN = "another_user_profile"
     const val EDIT_PROFILE_SCREEN = "edit_profile"
     const val SINGLE_POST_SCREEN = "single_post"
+
+    const val CHAT_ROOMS_LIST_SCREEN = "CHAT_ROOMS_LIST_SCREEN"
+    const val CHAT_ROOM_SCREEN = "CHAT_ROOM_SCREEN"
+    const val FIND_ANOTHER_USER_FOR_CHAT = "FIND_ANOTHER_USER_FOR_CHAT"
 
     val posts = mutableListOf<String>()
 

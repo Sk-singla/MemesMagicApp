@@ -42,6 +42,12 @@ fun getDate(time:Long,isMonth:Boolean = true):String{
     return stf.format(date)
 }
 
+fun getChatMessageTime(time: Long): String{
+    val date = Date(time)
+    val stf = SimpleDateFormat("hh:mm aaa")
+    return stf.format(date)
+}
+
 fun ContentResolver.getFileName(uri: Uri):String{
     var name = ""
     val cursor = query(uri,null,null,null,null)

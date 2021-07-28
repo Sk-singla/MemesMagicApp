@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -16,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.CustomBottomNavBar
 import com.samarth.memesmagic.ui.components.CustomTopBar
+import com.samarth.memesmagic.R
+import com.samarth.memesmagic.util.Screens
 
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -42,6 +45,13 @@ fun HomeScreen(
                     }
                     withStyle(style = SpanStyle(color = MaterialTheme.colors.secondary)) {
                         append(" Magic")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate(Screens.CHAT_ROOMS_LIST_SCREEN)
+                    }) {
+                        Icon(painter = painterResource(id = R.drawable.ic_chat), contentDescription = "Chat")
                     }
                 }
             )

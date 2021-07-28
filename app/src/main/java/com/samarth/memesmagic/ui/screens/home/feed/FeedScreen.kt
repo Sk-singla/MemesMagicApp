@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,7 +55,6 @@ fun FeedScreen(
 
     LaunchedEffect(key1 = Unit) {
 
-        chatViewModel.oberserve(context)
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             val token = task.result ?: ""
@@ -178,78 +178,82 @@ fun FeedScreen(
         }
 
 
-            if(feedViewModel.isLoading.value){
-                CircularProgressIndicator()
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+        val scrollState = rememberLazyListState()
 
-                    itemsIndexed(feedViewModel.posts.value) { pos, post ->
+        if(feedViewModel.isLoading.value){
+            CircularProgressIndicator()
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = scrollState
+        ) {
+
+            itemsIndexed(feedViewModel.posts.value) { pos, post ->
 
 
-                        if(pos >= feedViewModel.posts.value.size - 10){
-                            feedViewModel.getFeedFromGithub()
-                        }
+                if(pos >= feedViewModel.posts.value.size - 10){
+                    feedViewModel.getFeedFromGithub()
+                }
 
 
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
-                            PostItem(
-                                post = post,
-                                isLiked = feedViewModel.isPostLiked(post, context),
-                                onLikeIconPressed = { post,isPostLiked, onSuccess  ->
+                    PostItem(
+                        post = post,
+                        isLiked = feedViewModel.isPostLiked(post, context),
+                        onLikeIconPressed = { post,isPostLiked, onSuccess  ->
 
-                                    if(post.postResource == PostResource.GITHUB_API){
-                                        onSuccess()
-                                    } else {
-                                        if (isPostLiked) {
-                                            feedViewModel.dislikePost(post, onSuccess)
-                                        } else {
-                                            feedViewModel.likePost(post, onSuccess)
-                                        }
-                                    }
-                                },
-                                onCommentIconPressed = {
-                                    CommentsUtil.post = it
-                                    parentNavController.navigate(COMMENT_SCREEN)
-                                },
-                                onShareIconPressed = {
-                                    feedViewModel.shareImage(
-                                        context,
-                                        it.mediaLink,
-                                        startActivity
-                                    ){
-                                        coroutineScope.launch {
-                                            Log.d("MyLog",it)
-                                            scaffoldState.snackbarHostState.showSnackbar(it)
-                                        }
-                                    }
-                                },
-                                onClick = {
-                                    if(post.postResource == PostResource.GITHUB_API) {
-
-                                        chatViewModel.sendMessage()
-                                        coroutineScope.launch {
-                                            scaffoldState.snackbarHostState.showSnackbar("It is a Bot!")
-                                        }
-                                    }
-                                    else {
-                                        parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${post.createdBy.email}")
-                                    }
-                                }
-                            )
-
-                            if (!feedViewModel.isItLastItem(pos)) {
-                                Divider()
+                            if(post.postResource == PostResource.GITHUB_API){
+                                onSuccess()
                             } else {
-                                Spacer(modifier = Modifier.padding(24.dp))
+                                if (isPostLiked) {
+                                    feedViewModel.dislikePost(post, onSuccess)
+                                } else {
+                                    feedViewModel.likePost(post, onSuccess)
+                                }
+                            }
+                        },
+                        onCommentIconPressed = {
+                            CommentsUtil.post = it
+                            parentNavController.navigate(COMMENT_SCREEN)
+                        },
+                        onShareIconPressed = {
+                            feedViewModel.shareImage(
+                                context,
+                                it.mediaLink,
+                                startActivity
+                            ){
+                                coroutineScope.launch {
+                                    Log.d("MyLog",it)
+                                    scaffoldState.snackbarHostState.showSnackbar(it)
+                                }
+                            }
+                        },
+                        onClick = {
+                            if(post.postResource == PostResource.GITHUB_API) {
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar("It is a Bot!")
+                                }
+                            }
+                            else {
+                                parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${post.createdBy.email}")
                             }
                         }
+                    )
+
+                    if (!feedViewModel.isItLastItem(pos)) {
+                        Divider()
+                    } else {
+                        Spacer(modifier = Modifier.padding(24.dp))
                     }
                 }
             }
+        }
+
 
     }
 
