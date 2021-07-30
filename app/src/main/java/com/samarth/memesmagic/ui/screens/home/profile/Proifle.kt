@@ -1,7 +1,9 @@
 package com.samarth.memesmagic.ui.screens.home.profile
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
@@ -10,13 +12,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.samarth.memesmagic.ui.components.FullProfileScreen
 import com.samarth.memesmagic.util.Screens
+import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.EDIT_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
 fun ProfileScreen(
     parentNavController: NavController,
+    parentScaffoldState: ScaffoldState,
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -53,7 +58,16 @@ fun ProfileScreen(
             parentNavController.popBackStack()
             parentNavController.navigate(LANDING_SCREEN)
         },
-        badgesClick = {}
+        followUser = { email, onSuccess, onFail->
+            profileViewModel.followUser(email,onSuccess,onFail)
+        },
+        unFollowUser = { email, onSuccess, onFail->
+            profileViewModel.unFollowUser(email,onSuccess,onFail)
+        },
+        scaffoldState = parentScaffoldState,
+        navigateToAnotherUserProfile = { email ->
+            parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/$email")
+        }
     )
 }
 

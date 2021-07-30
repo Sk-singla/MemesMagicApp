@@ -36,8 +36,7 @@ fun FeedScreen(
     feedViewModel: FeedViewModel = hiltViewModel(),
     startActivity:(Intent)->Unit,
     currentNavController:NavController,
-    parentNavController: NavController,
-    chatViewModel: ChatViewModel = hiltViewModel()
+    parentNavController: NavController
 ) {
 
     val context = LocalContext.current

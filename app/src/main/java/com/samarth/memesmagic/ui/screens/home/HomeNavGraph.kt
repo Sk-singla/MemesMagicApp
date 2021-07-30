@@ -3,6 +3,7 @@ package com.samarth.memesmagic.ui.screens.home
 import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
@@ -16,7 +17,7 @@ import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.screens.home.feed.FeedScreen
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.screens.home.profile.ProfileScreen
-import com.samarth.memesmagic.ui.screens.home.rewards.RewardScreen
+import com.samarth.memesmagic.ui.screens.home.notifications.RewardScreen
 import com.samarth.memesmagic.ui.screens.home.search.SearchScreen
 import com.samarth.memesmagic.util.Screens.HOME_CREATE
 import com.samarth.memesmagic.util.Screens.HOME_FEED
@@ -40,6 +41,7 @@ enum class HomeSections(
 }
 
 
+@ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
@@ -77,7 +79,10 @@ fun HomeNavGraph(
         }
 
         composable(HOME_PROFILE){
-            ProfileScreen(parentNavHostController)
+            ProfileScreen(
+                parentNavHostController,
+                scaffoldState
+            )
         }
 
 

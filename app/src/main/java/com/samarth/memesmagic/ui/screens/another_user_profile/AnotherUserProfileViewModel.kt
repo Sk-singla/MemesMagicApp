@@ -1,6 +1,5 @@
 package com.samarth.memesmagic.ui.screens.another_user_profile
 
-import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +10,6 @@ import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
-import com.samarth.memesmagic.util.TokenHandler.getEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,6 +22,7 @@ class AnotherUserProfileViewModel @Inject constructor(
 
 
     val user = mutableStateOf<User?>(null)
+    val curUser = mutableStateOf<User?>(null)
     val posts = mutableStateOf<List<Post>>(listOf())
     val isLoading = mutableStateOf(false)
     val loadError = mutableStateOf("")
@@ -31,13 +30,15 @@ class AnotherUserProfileViewModel @Inject constructor(
     val rewards = mutableStateOf(listOf<Reward>())
     val isLoadingRewards = mutableStateOf(false)
 
-    fun getUser(curUserEmail: String,email:String) = viewModelScope.launch(dispatcher.io){
+    fun getUser(
+        email:String,
+        onSuccess: (user:User) -> Unit
+    ) = viewModelScope.launch(dispatcher.io){
         isLoading.value = true
         val result = memeRepo.getUser(email)
         if (result is Resource.Success) {
-            user.value = result.data!!
             loadError.value = ""
-            isFollowing(curUserEmail)
+            onSuccess(result.data!!)
         } else {
             loadError.value = result.message ?: "Some Problem Occurred!!"
         }
@@ -45,7 +46,7 @@ class AnotherUserProfileViewModel @Inject constructor(
     }
 
 
-    private fun isFollowing(curUserEmail:String) = viewModelScope.launch(dispatcher.io){
+    fun isFollowing(curUserEmail:String) = viewModelScope.launch(dispatcher.io){
         user.value?.let { otherUser ->
             isFollowing.value = otherUser.followers.map { it.email }.contains(curUserEmail)
         }
@@ -65,7 +66,31 @@ class AnotherUserProfileViewModel @Inject constructor(
     }
 
 
+    fun followUser(
+        emailOfUserToFollow:String,
+        onSuccess: (UserInfo) -> Unit,
+        onFail: (String) -> Unit
+    ) = viewModelScope.launch {
+        val result = memeRepo.followUser(emailOfUserToFollow)
+        if(result is Resource.Success){
+            onSuccess(result.data!!)
+        } else {
+            onFail(result.message ?: "Error!!")
+        }
+    }
 
+    fun unFollowUser(
+        emailOfUserToUnFollow:String,
+        onSuccess: () -> Unit,
+        onFail: (String) -> Unit
+    ) = viewModelScope.launch {
+        val result = memeRepo.unFollowUser(emailOfUserToUnFollow)
+        if (result is Resource.Success) {
+            onSuccess()
+        } else {
+            onFail(result.message ?: "Error!!")
+        }
+    }
 
     fun followUnfollowToggle(curUserEmail: String, onSuccess:()->Unit) = viewModelScope.launch(dispatcher.io){
         val result = if(isFollowing.value){

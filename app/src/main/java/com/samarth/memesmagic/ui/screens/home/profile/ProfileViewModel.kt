@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
+import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler
@@ -56,6 +57,33 @@ class ProfileViewModel @Inject constructor(
 
     fun logoutUser(context: Context) = viewModelScope.launch {
         TokenHandler.logout(context)
+    }
+
+
+    fun followUser(
+        emailOfUserToFollow:String,
+        onSuccess: (UserInfo) -> Unit,
+        onFail: (String) -> Unit
+    ) = viewModelScope.launch {
+        val result = memeRepo.followUser(emailOfUserToFollow)
+        if(result is Resource.Success){
+            onSuccess(result.data!!)
+        } else {
+            onFail(result.message ?: "Error!!")
+        }
+    }
+
+    fun unFollowUser(
+        emailOfUserToUnFollow:String,
+        onSuccess: () -> Unit,
+        onFail: (String) -> Unit
+    ) = viewModelScope.launch {
+        val result = memeRepo.unFollowUser(emailOfUserToUnFollow)
+        if (result is Resource.Success) {
+            onSuccess()
+        } else {
+            onFail(result.message ?: "Error!!")
+        }
     }
 
 

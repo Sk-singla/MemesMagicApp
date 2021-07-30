@@ -1,25 +1,15 @@
 package com.samarth.memesmagic.services
 
-import android.app.PendingIntent
 import android.content.Intent
-import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.JsonParser
-import com.samarth.memesmagic.MainActivity
-import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmFollowerAddedMessage
-import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessage
-import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
-import com.samarth.memesmagic.notification.NotificationHelper
+import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.repository.MemeRepo
-import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
 import com.samarth.memesmagic.util.Resource
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import com.samarth.memesmagic.util.TokenHandler.saveFcmToken
-import com.samarth.memesmagic.util.TokenHandler.saveJwtToken
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -30,6 +20,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
 
     @Inject
     lateinit var memeRepo: MemeRepo
+
+    @Inject
+    lateinit var memeDao:MemeDao
 
 
     override fun onNewToken(token: String) {
@@ -44,6 +37,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
         }
     }
 
+    @ExperimentalAnimationApi
     @ExperimentalFoundationApi
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
@@ -54,6 +48,24 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
 
         val strMessage = remoteMessage.data["message"]!!
         passMessageToActivity(strMessage)
+
+//        if(remoteMessage.notification != null){
+//
+//            val pi = PendingIntent.getBroadcast(
+//                this,
+//                12,
+//                Intent("NewFollower"),
+//                PendingIntent.FLAG_UPDATE_CURRENT
+//            )
+//            NotificationHelper.displayNotification(
+//                this,
+//                title = remoteMessage.notification!!.title ?: "",
+//                body = remoteMessage.notification!!.body ?: "",
+//                pendingIntent = pi,
+//                "MEME_CHANNEL",
+//                1
+//            )
+//        }
     }
 
     private fun passMessageToActivity(message: String) {

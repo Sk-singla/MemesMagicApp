@@ -1,4 +1,4 @@
-package com.samarth.memesmagic
+package com.samarth.memesmagic.ui
 
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -16,12 +16,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavHostController
@@ -35,16 +39,17 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.JsonParser
+import com.samarth.memesmagic.BuildConfig
+import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmFollowerAddedMessage
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_NEW_FOLLOWER
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_SEND_MESSAGE
-import com.samarth.memesmagic.ui.MainNavGraph
+import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
 import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -55,7 +60,7 @@ import javax.inject.Inject
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), LifecycleObserver {
     private lateinit var mGoogleSignInClient:GoogleSignInClient
 
     private var readPermissionGranted = false
@@ -90,6 +95,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var memeRepo: MemeRepo
+    private val chatViewModel:ChatViewModel by viewModels()
 
     @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,7 +121,8 @@ class MainActivity : ComponentActivity() {
                         updateOrRequestStoragePermissions()
                     },
                     modifier = Modifier.fillMaxSize(),
-                    navController = navController
+                    navController = navController,
+                    chatViewModel = chatViewModel
                 )
             }
         }
@@ -152,10 +159,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        chatViewModel.listenToConnectionEvent()
+        chatViewModel.observeWebSocketBaseModelEvents()
+        chatViewModel.observeConnectionEvents()
 //        configureGSI()
     }
 
     private fun notificationIntentWork(intent: Intent?) {
+
+        Log.d("fcm_intent",intent?.action ?: "NULL")
         Log.d("fcm Intent",intent?.getStringExtra("intentOfIntent") ?: "intent is null")
         Log.d("fcm any Intent",intent?.extras?.get("intentOfIntent")?.toString() ?: "NULL")
         when(intent?.getStringExtra("intentOfIntent")) {
@@ -177,6 +190,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         val filter = IntentFilter(INTENT_ACTION_SEND_MESSAGE)
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver,filter)
+
     }
 
     override fun onPause() {
@@ -184,8 +198,10 @@ class MainActivity : ComponentActivity() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
     }
 
-
-
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    private fun onAppInBackground(){
+        chatViewModel.disconnect()
+    }
 
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {

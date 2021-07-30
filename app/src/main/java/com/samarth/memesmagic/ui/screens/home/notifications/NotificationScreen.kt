@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens.home.rewards
+package com.samarth.memesmagic.ui.screens.home.notifications
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +22,7 @@ import com.samarth.memesmagic.ui.components.RewardItem
 
 @Composable
 fun RewardScreen(
-    rewardsViewModel: RewardViewModel = hiltViewModel()
+    rewardsViewModel: NotificationViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current

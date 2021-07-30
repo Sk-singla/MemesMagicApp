@@ -3,11 +3,12 @@ package com.samarth.memesmagic.data.remote.ws
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.samarth.data.models.webosocket_models.JoinServerHandshake
-import com.samarth.memesmagic.data.remote.ws.models.BaseModel
-import com.samarth.memesmagic.data.remote.ws.models.LikePost
-import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
+import com.samarth.memesmagic.data.remote.ws.models.*
+import com.samarth.memesmagic.util.Constants.TYPE_DISCONNECT_REQUEST
 import com.samarth.memesmagic.util.Constants.TYPE_JOIN_SERVER_HANDSHAKE
 import com.samarth.memesmagic.util.Constants.TYPE_LIKE_POST
+import com.samarth.memesmagic.util.Constants.TYPE_MESSAGE_RECEIVED
+import com.samarth.memesmagic.util.Constants.TYPE_MESSAGE_SEEN
 import com.samarth.memesmagic.util.Constants.TYPE_PRIVATE_CHAT_MESSAGE
 import com.tinder.scarlet.Message
 import com.tinder.scarlet.MessageAdapter
@@ -30,6 +31,9 @@ class CustomGsonMessageAdapter<T> private constructor(
             TYPE_LIKE_POST -> LikePost::class.java
             TYPE_PRIVATE_CHAT_MESSAGE -> PrivateChatMessage::class.java
             TYPE_JOIN_SERVER_HANDSHAKE -> JoinServerHandshake::class.java
+            TYPE_DISCONNECT_REQUEST -> DisconnectRequest::class.java
+            TYPE_MESSAGE_RECEIVED -> MessageReceived::class.java
+            TYPE_MESSAGE_SEEN -> MessageSeen::class.java
             else -> BaseModel::class.java
         }
         val obj = gson.fromJson(stringValue,type)
@@ -42,6 +46,9 @@ class CustomGsonMessageAdapter<T> private constructor(
             TYPE_LIKE_POST -> convertedData as LikePost
             TYPE_PRIVATE_CHAT_MESSAGE -> convertedData as PrivateChatMessage
             TYPE_JOIN_SERVER_HANDSHAKE -> convertedData as JoinServerHandshake
+            TYPE_DISCONNECT_REQUEST -> convertedData as DisconnectRequest
+            TYPE_MESSAGE_SEEN -> convertedData as MessageSeen
+            TYPE_MESSAGE_RECEIVED -> convertedData as MessageReceived
             else -> convertedData
         }
 

@@ -1,20 +1,21 @@
 package com.samarth.memesmagic.ui.screens.chat
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.vector.DefaultTintColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,6 +66,20 @@ fun PrivateChatRoomScreen(
 
                     val isReceived = privateChatMessage.to == chatViewModel.currentUserEmail
                     val isFirst = index == chatViewModel.currentChatRoomMessages.value.size -1 || chatViewModel.currentChatRoomMessages.value[index+1].from != chatViewModel.currentChatRoomMessages.value[index].from
+
+                    if(isReceived && !privateChatMessage.received){
+                        chatViewModel.messageReceived(
+                            msgId = privateChatMessage.id,
+                            messageSender = privateChatMessage.from
+                        )
+                    }
+
+                    if(isReceived && !privateChatMessage.seen){
+                        chatViewModel.messageSeen(
+                            msgId = privateChatMessage.id,
+                            messageSender = privateChatMessage.from
+                        )
+                    }
                     PrivateChatMessageItem(
                         privateChatMessage = privateChatMessage,
                         isReceived = isReceived,
@@ -93,7 +108,7 @@ fun PrivateChatRoomScreen(
                         },
                         trailingIcon = {
                             IconButton(onClick = {
-                                chatViewModel.sendMessage()
+                                chatViewModel.sendChatMessage()
                             }) {
                                 Icon(painter = painterResource(
                                     id = R.drawable.ic_baseline_send_24),
@@ -153,13 +168,13 @@ fun PrivateChatMessageItem(
 
                     Text(
                         text = privateChatMessage.message,
-                        color = Color.Black,
+                        color = MaterialTheme.colors.onSurface,
                         fontSize = 16.sp
                     )
 
                     Text(
                         text = getChatMessageTime(privateChatMessage.timeStamp),
-                        color = Color.Gray,
+                        color = MaterialTheme.colors.onSurface.copy(0.65f),
                         fontSize = 8.sp
                     )
 
@@ -190,15 +205,32 @@ fun PrivateChatMessageItem(
                 ) {
                     Text(
                         text = privateChatMessage.message,
-                        color = Color.Black,
+                        color = MaterialTheme.colors.onSurface,
                         fontSize = 16.sp
                     )
 
-                    Text(
-                        text = getChatMessageTime(privateChatMessage.timeStamp),
-                        color = Color.Gray,
-                        fontSize = 8.sp
-                    )
+                    Row(
+                        modifier = Modifier.height(12.dp)
+                    ){
+                        Text(
+                            text = getChatMessageTime(privateChatMessage.timeStamp),
+                            color = MaterialTheme.colors.onSurface.copy(0.65f),
+                            fontSize = 8.sp
+                        )
+                        Spacer(modifier = Modifier.padding(4.dp))
+                        Image(
+                            painter = painterResource(
+                                id= if(!privateChatMessage.received) R.drawable.message_sent_not_received
+                                    else if(privateChatMessage.received && !privateChatMessage.seen) R.drawable.ic_message_received
+                                    else R.drawable.ic_message_seen
+                            ),
+                            contentDescription = "Message Status",
+                            modifier = Modifier.fillMaxHeight(),
+                            colorFilter = ColorFilter.tint(
+                                MaterialTheme.colors.onSurface
+                            )
+                        )
+                    }
 
                 }
 

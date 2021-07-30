@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -87,9 +88,13 @@ fun SearchScreen(
                 }
             }
             searchViewModel.loadError.value.isNotEmpty() -> {
-                coroutineScope.launch {
-                    scaffoldState.snackbarHostState.showSnackbar(searchViewModel.loadError.value)
-                    searchViewModel.loadError.value = ""
+                Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No User Found!",
+                        style = MaterialTheme.typography.h6,
+                        modifier =Modifier.fillMaxWidth().padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
             else -> {

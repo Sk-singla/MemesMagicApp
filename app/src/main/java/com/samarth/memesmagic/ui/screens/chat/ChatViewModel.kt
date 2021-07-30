@@ -1,9 +1,6 @@
 package com.samarth.memesmagic.ui.screens.chat
 
 import android.content.Context
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,18 +8,15 @@ import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.data.models.webosocket_models.JoinServerHandshake
 import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.remote.WebSocketApi
-import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
-import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
+import com.samarth.memesmagic.data.remote.ws.models.*
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.ChatUtils
-import com.samarth.memesmagic.util.Constants.CHAT_MESSAGES_LIMIT
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.tinder.scarlet.WebSocket
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
 
@@ -48,19 +42,11 @@ class ChatViewModel @Inject constructor(
     var openedChatRoomsListFirstTime = true
 
 
-    init {
-        listenToConnectionEvent()
-        send()
-        observeWebSocketModelEvents()
-    }
-
-    fun send() = viewModelScope.launch(dispatchers.io){
+    fun observeConnectionEvents() = viewModelScope.launch(dispatchers.io){
         connectionEvent.collect { event ->
             when(event){
                 is WebSocket.Event.OnConnectionOpened<*> -> {
-                    webSocketApi.sendBaseModel(
-                        JoinServerHandshake()
-                    )
+                    connect()
                 }
                 else -> Unit
             }
@@ -68,7 +54,7 @@ class ChatViewModel @Inject constructor(
     }
 
 
-    fun sendMessage() = viewModelScope.launch {
+    fun sendChatMessage() = viewModelScope.launch {
         val chatMessage = currentMessage.value.trim()
         if(chatMessage.isEmpty() || ChatUtils.currentChatRoom == null){
             return@launch
@@ -114,40 +100,77 @@ class ChatViewModel @Inject constructor(
         val curUserEmail = getEmail(context) ?: ""
         memeDao.getAllMessages().collect { privateMessages ->
 
-             chatRooms.value = privateMessages.groupBy { privateChatMessage ->
+            // todo: optimize getting rooms list
+
+            privateMessages.forEach { privateChatMessage->
                 val isMessageReceived = privateChatMessage.to == curUserEmail
-                if(isMessageReceived){
-                    privateChatMessage.from
+                val otherUserEmail = if(isMessageReceived) privateChatMessage.from else privateChatMessage.to
+
+                val tempChatRoom = chatRooms.value.find { it.userEmail ==  otherUserEmail}
+                if(tempChatRoom != null){
+                    chatRooms.value -= tempChatRoom
+                    chatRooms.value += PrivateChatRoom(
+                        userEmail = otherUserEmail,
+                        name = privateChatMessage.name,
+                        profilePic = privateChatMessage.profilePic,
+                        lastMessage = privateChatMessage
+                    )
                 } else {
-                    privateChatMessage.to
+                    chatRooms.value += PrivateChatRoom(
+                        userEmail = otherUserEmail,
+                        name = privateChatMessage.name,
+                        profilePic = privateChatMessage.profilePic,
+                        lastMessage = privateChatMessage
+                    )
                 }
-             }.entries.map { map ->
-                val lastMessage = map.value.last()
-                PrivateChatRoom(
-                    userEmail = map.key,
-                    name = lastMessage.name,
-                    profilePic = lastMessage.profilePic,
-                    lastMessage = lastMessage
-                )
-             }
-
-
+            }
         }
     }
 
-    fun observeWebSocketModelEvents()  = viewModelScope.launch(dispatchers.io){
+    fun observeWebSocketBaseModelEvents()  = viewModelScope.launch(dispatchers.io){
         webSocketApi.observeBaseModel().collect { data ->
             when(data){
                 is PrivateChatMessage -> {
-                    Log.d("private_chat",data.message)
                     memeDao.savePrivateMessage(data)
+                    messageReceived(data.id,data.from)
+                }
+                is MessageReceived -> {
+                    memeDao.messageReceived(data.msgId)
+                }
+                is MessageSeen -> {
+                    memeDao.messageSeen(data.msgId)
                 }
                 else -> Unit
             }
-
         }
     }
 
+    fun messageSeen(msgId:String,messageSender:String) = viewModelScope.launch(dispatchers.io){
+        webSocketApi.sendBaseModel(
+            MessageSeen(
+                msgId = msgId,
+                msgSender = messageSender
+            )
+        )
+        memeDao.messageReceived(msgId)
+    }
+    fun messageReceived(msgId:String,messageSender:String) = viewModelScope.launch(dispatchers.io){
+        webSocketApi.sendBaseModel(
+            MessageReceived(
+                msgId = msgId,
+                msgSender = messageSender
+            )
+        )
+        memeDao.messageSeen(msgId)
+    }
+
+
+    fun disconnect(){
+        webSocketApi.sendBaseModel(DisconnectRequest())
+    }
+    fun connect(){
+        webSocketApi.sendBaseModel(JoinServerHandshake())
+    }
 
 
     private fun clearChatMessageTextField(){

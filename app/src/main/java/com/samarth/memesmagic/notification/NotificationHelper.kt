@@ -2,11 +2,9 @@ package com.samarth.memesmagic.notification
 
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.samarth.memesmagic.MainActivity
 import com.samarth.memesmagic.R
 
 object NotificationHelper {

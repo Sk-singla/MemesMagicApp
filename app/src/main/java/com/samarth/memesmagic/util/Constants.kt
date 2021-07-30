@@ -12,7 +12,7 @@ object Constants {
     const val MEME_MAKER_BASE_URL = "http://alpha-meme-maker.herokuapp.com"
     const val BASE_URL_DEPLOYMENT = "https://memesmagic.herokuapp.com"
     const val BASE_URL_LOCAL = "http://192.168.43.33:8081"
-    const val BASE_URL = BASE_URL_LOCAL                  //  <-------- change this
+    const val BASE_URL = BASE_URL_DEPLOYMENT                  //  <-------- change this
     const val BASE_URL_WS = "$BASE_URL$API_VERSION/ws"
     const val RECONNECT_INTERVAL = 3000L
 
@@ -45,6 +45,9 @@ object Constants {
     const val TYPE_LIKE_POST = "TYPE_LIKE_POST"
     const val TYPE_JOIN_SERVER_HANDSHAKE = "TYPE_JOIN_SERVER_HANDSHAKE"
     const val TYPE_PRIVATE_CHAT_MESSAGE = "TYPE_PRIVATE_CHAT_MESSAGE"
+    const val TYPE_DISCONNECT_REQUEST = "TYPE_DISCONNECT_REQUEST"
+    const val TYPE_MESSAGE_RECEIVED = "TYPE_MESSAGE_RECEIVED"
+    const val TYPE_MESSAGE_SEEN = "TYPE_MESSAGE_SEEN"
 
 
 

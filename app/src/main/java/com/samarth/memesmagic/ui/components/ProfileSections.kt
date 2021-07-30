@@ -1,5 +1,12 @@
 package com.samarth.memesmagic.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -10,11 +17,7 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,23 +26,31 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import coil.request.ImageRequest
 import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.response.Post
+import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.data.remote.response.User
+import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.ui.theme.Green700
 import com.samarth.memesmagic.util.CommentsUtil
+import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.numberOfFollowersOrFollowings
 import com.samarth.memesmagic.util.numberOfPosts
+import kotlinx.coroutines.launch
 
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
 fun FullProfileScreen(
     modifier:Modifier = Modifier,
     user:User?= null,
+    currentUser:User?= null,
     posts:List<Post>? = null,
     isLoading:Boolean = false,
     loadError:String = "",
@@ -49,10 +60,35 @@ fun FullProfileScreen(
     onEditScreenPressed: () -> Unit,
     onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit,
     detailView : ()->Unit,
-    badgesClick: ()-> Unit,
     onLogout: () -> Unit = {},
-    messageUser: () -> Unit = {}
+    messageUser: () -> Unit = {},
+    followUser:( (
+        emailOfUserToFollow:String,
+        onSuccess :(UserInfo)->Unit,
+        onFail:(String)->Unit
+    )->Unit)? = null,
+    unFollowUser:( (
+        emailOfUserToUnFollow:String,
+        onSuccess :()->Unit,
+        onFail:(String)->Unit
+    )->Unit)? = null,
+    scaffoldState:ScaffoldState = rememberScaffoldState(),
+    navigateToAnotherUserProfile:(String)->Unit
 ) {
+
+
+    var isBadgesVisible by remember {
+        mutableStateOf(false)
+    }
+
+    var isFollowersOrFollowingVisible by remember {
+        mutableStateOf(false)
+    }
+    var otherUsers by remember {
+        mutableStateOf(listOf<UserInfo>())
+    }
+
+    val coroutineScope = rememberCoroutineScope()
 
 
     Column(modifier = modifier) {
@@ -79,12 +115,20 @@ fun FullProfileScreen(
             }
             else -> {
 
-                user?.let {
+                user?.let { curUser ->
                     ProfileTopSection(
-                        user = it,
+                        user = curUser,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
+                        showFollowers = {
+                            otherUsers = curUser.followers
+                            isFollowersOrFollowingVisible = true
+                        },
+                        showFollowings = {
+                            otherUsers = curUser.followings
+                            isFollowersOrFollowingVisible = true
+                        }
                     )
 
                     Divider(modifier = Modifier.padding(horizontal = 12.dp))
@@ -95,8 +139,10 @@ fun FullProfileScreen(
                         isFollowing = isFollowing,
                         onEditScreenPressed = onEditScreenPressed,
                         onLogout = onLogout,
-                        badgesClick = badgesClick,
-                        numberOfRewards = it.rewards.size,
+                        badgesClick = {
+                              isBadgesVisible = true
+                        },
+                        numberOfRewards = curUser.rewards.size,
                         messageUser = messageUser
                     )
 
@@ -128,7 +174,149 @@ fun FullProfileScreen(
 
                     }
 
+
+
+
+
+
+
+
+
+
+
+
+                    AnimatedVisibility(
+                        isBadgesVisible,
+                        enter = expandIn(
+                            expandFrom = Alignment.Center,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                visibilityThreshold = IntSize.VisibilityThreshold
+                            )
+                        ),
+                        exit = shrinkOut(
+                            shrinkTowards = Alignment.Center
+                        )
+
+                    ) {
+                        RewardsDialogBox(
+                            rewards = curUser.rewards,
+                            onDismiss = {
+                                isBadgesVisible = false
+                            },
+                            isLoading = false,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.4f)
+                        )
+                    }
+
+
+
+
+
+                    AnimatedVisibility(
+                        isFollowersOrFollowingVisible,
+                        enter = expandIn(
+                            expandFrom = Alignment.Center,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                visibilityThreshold = IntSize.VisibilityThreshold
+                            )
+                        ),
+                        exit = shrinkOut(
+                            shrinkTowards = Alignment.Center
+                        )
+
+                    ) {
+                        FollowersOrFollowingDialogBox(
+                            users = otherUsers,
+                            onDismiss = {
+                                isFollowersOrFollowingVisible = false
+                            },
+                            isLoading = false,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.6f),
+                            isFollowingToUser = { followerEmail ->
+                                if(isItAnotherUserProfile) {
+                                    currentUser?.followings?.find { it.email == followerEmail } != null
+                                } else {
+                                    curUser.followings.find {it.email == followerEmail } != null
+                                }
+                            },
+
+                            followUser = { emailOfUserToFollow: String, onSuccess: () -> Unit ->
+
+                                followUser?.invoke(
+                                    emailOfUserToFollow,
+                                    { userInfo ->
+                                        onSuccess()
+                                        if(!isItAnotherUserProfile && curUser.followings.find { it.email == emailOfUserToFollow } == null){
+                                            curUser.followings.add(userInfo)
+                                        } else if(isItAnotherUserProfile){
+                                            currentUser?.followings?.add(userInfo)
+                                        }
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                "Successfully Followed to ${userInfo.name}",
+                                            )
+                                        }
+                                    },
+                                    { errorMessage ->
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                errorMessage,
+                                            )
+                                        }
+                                    }
+                                )
+                            },
+                            unFollowUser = { emailOfUserToUnFollow, onSuccess ->
+
+                                unFollowUser?.invoke(
+                                    emailOfUserToUnFollow,
+                                    {
+
+
+                                        onSuccess()
+                                        curUser.followings.find { it.email == emailOfUserToUnFollow }
+                                            ?.let {
+                                                if(!isItAnotherUserProfile){
+                                                    otherUsers -= it
+                                                    curUser.followings.remove(it)
+                                                } else {
+                                                    currentUser?.followings?.remove(it)
+                                                }
+                                            }
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                "Successfully Unfollowed!",
+                                            )
+                                        }
+                                    },
+                                    { errorMessage ->
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                errorMessage,
+                                            )
+                                        }
+                                    }
+                                )
+                            },
+                            onClick = {
+                                navigateToAnotherUserProfile(it)
+                            }
+                        )
+
+                    }
+
                 }
+
+
+
+
+
             }
         }
     }
@@ -140,6 +328,8 @@ fun FullProfileScreen(
 fun ProfileTopSection(
     user: User,
     modifier: Modifier = Modifier,
+    showFollowers: ()->Unit,
+    showFollowings: ()->Unit
 ) {
     Column(modifier = modifier) {
 
@@ -173,28 +363,56 @@ fun ProfileTopSection(
             )
 
 
-            listOf(
-                Pair(numberOfPosts(user.postCount),"Posts"),
-                Pair(numberOfFollowersOrFollowings(user.followers.size),"Followers"),
-                Pair(numberOfFollowersOrFollowings(user.followings.size),"Followings")
-            ).forEach{ item ->
+            Column(
+                modifier = Modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                Text(
+                    text = numberOfPosts(user.postCount),
+                    style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.W500
+                )
+                Text(
+                    text = "Posts",
+                    style = MaterialTheme.typography.body2
+                )
+            }
 
-                Column(
-                    modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ){
-                    Text(
-                        text = item.first,
-                        style = MaterialTheme.typography.h6,
-                        fontWeight = FontWeight.W500
-                    )
-                    Text(
-                        text = item.second,
-                        style = MaterialTheme.typography.body2
-                    )
-                }
+            Column(
+                modifier = Modifier.clickable {
+                      showFollowers()
+                },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ){
+                Text(
+                    text = numberOfFollowersOrFollowings(user.followers.size),
+                    style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.W500
+                )
+                Text(
+                    text = "Followers",
+                    style = MaterialTheme.typography.body2
+                )
+            }
 
+            Column(
+                modifier = Modifier.clickable {
+                      showFollowings()
+                },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                Text(
+                    text = numberOfFollowersOrFollowings(user.followings.size),
+                    style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.W500
+                )
+                Text(
+                    text = "Followings",
+                    style = MaterialTheme.typography.body2
+                )
             }
 
 
@@ -220,7 +438,7 @@ fun ProfileScreenButtons(
     onLogout: () -> Unit,
     badgesClick: () -> Unit,
     numberOfRewards:Int,
-    messageUser: ()->Unit
+    messageUser: ()->Unit,
 ) {
 
     var isFollowingToUser by remember {
@@ -254,7 +472,7 @@ fun ProfileScreenButtons(
             Text(
                 text = if (isItAnotherUserProfile && isFollowingToUser)
                     "Unfollow" else if (isItAnotherUserProfile && !isFollowingToUser)
-                    " Follow " else "Edit Profile"
+                    " Follow  " else "Edit Profile"
             )
         }
 
@@ -306,7 +524,6 @@ fun ProfileScreenButtons(
 
 }
 
-
 @ExperimentalFoundationApi
 @Composable
 fun ProfilePostsSection(posts:List<Post>,detailView: () -> Unit) {
@@ -341,5 +558,3 @@ fun ProfilePostsSection(posts:List<Post>,detailView: () -> Unit) {
     }
 
 }
-
-

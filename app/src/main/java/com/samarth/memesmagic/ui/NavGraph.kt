@@ -61,11 +61,11 @@ fun MainNavGraph(
     startActivityForResult:(String,(Uri?)->Unit)->Unit,
     updateOrRequestPermissions:()->Boolean,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    chatViewModel: ChatViewModel = hiltViewModel()
 ){
     val feedViewModel:FeedViewModel = hiltViewModel()
     val createViewModel:CreateViewModel = hiltViewModel()
-    val chatViewModel:ChatViewModel = hiltViewModel()
 
     NavHost(navController = navController, startDestination = SPLASH_SCREEN,modifier =modifier){
 

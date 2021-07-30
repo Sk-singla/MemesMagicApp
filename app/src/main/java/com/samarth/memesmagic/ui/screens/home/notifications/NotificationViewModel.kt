@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.ui.screens.home.rewards
+package com.samarth.memesmagic.ui.screens.home.notifications
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RewardViewModel @Inject constructor(
+class NotificationViewModel @Inject constructor(
     val memeRepo: MemeRepo
 ) : ViewModel(){
 
@@ -32,4 +32,8 @@ class RewardViewModel @Inject constructor(
         }
         isLoading.value = false
     }
+
+
+
+
 }
