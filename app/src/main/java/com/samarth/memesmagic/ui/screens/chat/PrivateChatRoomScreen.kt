@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
@@ -22,7 +23,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
+import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.CustomTopBar
+import com.samarth.memesmagic.ui.theme.Green200
 import com.samarth.memesmagic.util.*
 
 @Composable
@@ -30,6 +33,8 @@ fun PrivateChatRoomScreen(
     navController: NavController,
     chatViewModel: ChatViewModel
 ) {
+
+    // todo: when come from another profile or my profile change current chatroom
 
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
@@ -101,7 +106,7 @@ fun PrivateChatRoomScreen(
                 contentAlignment = Alignment.Center
             ){
                 Row {
-                    TextField(
+                    CustomTextField(
                         value = chatViewModel.currentMessage.value,
                         onValueChange = {
                             chatViewModel.currentMessage.value = it
@@ -132,6 +137,7 @@ fun PrivateChatRoomScreen(
 
     }
 
+    // todo: add message state of sent but not reached to server
 }
 
 
@@ -156,12 +162,15 @@ fun PrivateChatMessageItem(
             ) {
                 Column(
                     modifier = Modifier
-                        .background(color = MaterialTheme.colors.surface.copy(alpha = 0.7f))
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colors.onSurface.copy(0.7f),
+                        .shadow(
+                            elevation = 2.dp,
                             shape = if (isFirst) ReceivedFirstMessageShape
                             else MiddleChatMessageShape
+                        )
+                        .background(
+                            color = MaterialTheme.colors.surface,
+                            shape =  if (isFirst) ReceivedFirstMessageShape
+                                    else MiddleChatMessageShape
                         )
                         .padding(vertical = 8.dp, horizontal = 16.dp)
                 ) {
@@ -193,10 +202,11 @@ fun PrivateChatMessageItem(
             ) {
                 Column(
                     modifier = Modifier
-                        .background(color = MaterialTheme.colors.primaryVariant.copy(alpha = 0.4f))
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colors.onSurface.copy(0.7f),
+                        .shadow(2.dp,shape = if (isFirst) SentFirstMessageShape
+                                            else MiddleChatMessageShape
+                        )
+                        .background(
+                            color = Green200,
                             shape = if (isFirst) SentFirstMessageShape
                             else MiddleChatMessageShape
                         )

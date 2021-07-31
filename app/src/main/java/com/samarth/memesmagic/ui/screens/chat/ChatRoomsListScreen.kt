@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui.screens.chat
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,8 +18,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,6 +38,7 @@ import com.samarth.memesmagic.util.ChatUtils
 import com.samarth.memesmagic.util.Screens.CHAT_ROOM_SCREEN
 import com.samarth.memesmagic.util.Screens.FIND_ANOTHER_USER_FOR_CHAT
 import com.samarth.memesmagic.util.TokenHandler.getEmail
+import com.samarth.memesmagic.util.lastChatMessageTime
 import kotlinx.coroutines.launch
 
 @Composable
@@ -74,7 +78,8 @@ fun ChatRoomsListScreen(
                             coroutineScope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar("Clicked!")
                             }
-                        }
+                        },
+                        currentUserEmail = chatViewModel.currentUserEmail
                     )
 
                 }
@@ -96,7 +101,7 @@ fun ChatRoomsListScreen(
                     )
                     Spacer(modifier = Modifier.padding(16.dp))
                     CustomButton(
-                        text = "Search Users to chat",
+                        text = "Search Users",
                         modifier = Modifier.padding(horizontal = 16.dp)
                     ) {
                         navController.navigate(FIND_ANOTHER_USER_FOR_CHAT)
@@ -114,14 +119,15 @@ fun ChatRoomsListScreen(
 fun PrivateChatRoomItem(
     privateChatRoom:PrivateChatRoom,
     modifier: Modifier = Modifier,
+    currentUserEmail:String,
     onChatRoomClick: () -> Unit
 ) {
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-            .clickable { onChatRoomClick() },
+            .clickable { onChatRoomClick() }
+            .padding(start = 16.dp, top = 16.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -147,23 +153,78 @@ fun PrivateChatRoomItem(
         )
 
         Column(
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp)
         ){
-            Text(
-                text = privateChatRoom.name,
-                style = MaterialTheme.typography.h6,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            if(privateChatRoom.lastMessage != null) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ){
                 Text(
-                    text = privateChatRoom.lastMessage!!.message,
-                    style = MaterialTheme.typography.body1,
+                    text = privateChatRoom.name,
+                    style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                Text(
+                    text = privateChatRoom.lastMessage?.timeStamp?.let { lastChatMessageTime(it) } ?: "",
+                    style = MaterialTheme.typography.body2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            if(privateChatRoom.lastMessage != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (privateChatRoom.lastMessage!!.from == currentUserEmail) {
+                            Image(
+                                painter = painterResource(
+                                    id = if (!privateChatRoom.lastMessage!!.received) R.drawable.message_sent_not_received
+                                    else if (privateChatRoom.lastMessage!!.received && !privateChatRoom.lastMessage!!.seen) R.drawable.ic_message_received
+                                    else R.drawable.ic_message_seen
+                                ),
+                                contentDescription = "Message Status",
+                                modifier = Modifier.height(16.dp).padding(end = 4.dp),
+                                colorFilter = ColorFilter.tint(
+                                    MaterialTheme.colors.onSurface
+                                )
+                            )
+                        }
+                        Text(
+                            text = privateChatRoom.lastMessage!!.message,
+                            style = MaterialTheme.typography.body1,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                    }
+
+
+
+                    if (privateChatRoom.lastMessage!!.from != currentUserEmail && !privateChatRoom.lastMessage!!.seen) {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .background(
+                                    color = MaterialTheme.colors.primary,
+                                    shape = CircleShape
+                                )
+                                .padding(8.dp)
+                        ) {}
+                    }
+
+                }
 
             }
 

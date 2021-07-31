@@ -34,6 +34,8 @@ inline fun <T> sdk29AndUp(onSdk29:()->T):T?{
         onSdk29()
     } else null
 }
+// todo: complete these date related or extra functions
+
 
 @SuppressLint("SimpleDateFormat")
 fun getDate(time:Long,isMonth:Boolean = true):String{
@@ -43,6 +45,12 @@ fun getDate(time:Long,isMonth:Boolean = true):String{
 }
 
 fun getChatMessageTime(time: Long): String{
+    val date = Date(time)
+    val stf = SimpleDateFormat("hh:mm aaa")
+    return stf.format(date)
+}
+
+fun lastChatMessageTime(time:Long) : String{
     val date = Date(time)
     val stf = SimpleDateFormat("hh:mm aaa")
     return stf.format(date)

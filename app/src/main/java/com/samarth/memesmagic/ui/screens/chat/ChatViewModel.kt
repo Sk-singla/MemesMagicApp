@@ -152,7 +152,7 @@ class ChatViewModel @Inject constructor(
                 msgSender = messageSender
             )
         )
-        memeDao.messageReceived(msgId)
+        memeDao.messageSeen(msgId)
     }
     fun messageReceived(msgId:String,messageSender:String) = viewModelScope.launch(dispatchers.io){
         webSocketApi.sendBaseModel(
@@ -161,7 +161,7 @@ class ChatViewModel @Inject constructor(
                 msgSender = messageSender
             )
         )
-        memeDao.messageSeen(msgId)
+        memeDao.messageReceived(msgId)
     }
 
 

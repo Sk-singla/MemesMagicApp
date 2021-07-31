@@ -12,7 +12,7 @@ object Constants {
     const val MEME_MAKER_BASE_URL = "http://alpha-meme-maker.herokuapp.com"
     const val BASE_URL_DEPLOYMENT = "https://memesmagic.herokuapp.com"
     const val BASE_URL_LOCAL = "http://192.168.43.33:8081"
-    const val BASE_URL = BASE_URL_DEPLOYMENT                  //  <-------- change this
+    const val BASE_URL = BASE_URL_LOCAL                  //  <-------- change this
     const val BASE_URL_WS = "$BASE_URL$API_VERSION/ws"
     const val RECONNECT_INTERVAL = 3000L
 
