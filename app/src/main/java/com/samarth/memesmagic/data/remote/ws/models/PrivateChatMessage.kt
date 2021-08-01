@@ -2,6 +2,7 @@ package com.samarth.memesmagic.data.remote.ws.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.util.Constants.TYPE_PRIVATE_CHAT_MESSAGE
 import java.util.*
@@ -15,8 +16,7 @@ data class PrivateChatMessage(
     var timeStamp: Long = System.currentTimeMillis(),
     @PrimaryKey(autoGenerate = false)
     var id: String = UUID.randomUUID().toString(),
-    var seen: Boolean = false,
-    var received: Boolean = false,
+    var msgStatus: PrivateChatMessageStatus = PrivateChatMessageStatus.LOCAL,
     var replyOf: String?=null,
     var profilePic: String? = null,
     val name: String = ""

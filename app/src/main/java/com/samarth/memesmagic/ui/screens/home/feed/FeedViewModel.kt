@@ -11,6 +11,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samarth.memesmagic.BuildConfig
+import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
@@ -38,7 +39,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
-    val memeRepo: MemeRepo
+    val memeRepo: MemeRepo,
+    val memeDao: MemeDao
 ):ViewModel() {
 
     val isLoading = mutableStateOf(true)
@@ -247,7 +249,8 @@ class FeedViewModel @Inject constructor(
     }
 
 
-
-
+    fun clearLocalData(){
+        memeDao.clearData()
+    }
 
 }

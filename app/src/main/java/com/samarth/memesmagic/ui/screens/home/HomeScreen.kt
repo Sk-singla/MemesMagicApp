@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui.screens.home
 
 import android.content.Intent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
@@ -20,6 +21,7 @@ import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.util.Screens
 
+@ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable

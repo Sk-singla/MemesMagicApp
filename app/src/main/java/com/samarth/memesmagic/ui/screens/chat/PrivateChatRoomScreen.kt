@@ -2,7 +2,6 @@ package com.samarth.memesmagic.ui.screens.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -13,15 +12,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
-import androidx.compose.ui.graphics.vector.DefaultTintColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
 import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.CustomTopBar
@@ -72,14 +69,14 @@ fun PrivateChatRoomScreen(
                     val isReceived = privateChatMessage.to == chatViewModel.currentUserEmail
                     val isFirst = index == chatViewModel.currentChatRoomMessages.value.size -1 || chatViewModel.currentChatRoomMessages.value[index+1].from != chatViewModel.currentChatRoomMessages.value[index].from
 
-                    if(isReceived && !privateChatMessage.received){
+                    if(isReceived && privateChatMessage.msgStatus == PrivateChatMessageStatus.SENT){
                         chatViewModel.messageReceived(
                             msgId = privateChatMessage.id,
                             messageSender = privateChatMessage.from
                         )
                     }
 
-                    if(isReceived && !privateChatMessage.seen){
+                    if(isReceived && privateChatMessage.msgStatus == PrivateChatMessageStatus.RECEIVED){
                         chatViewModel.messageSeen(
                             msgId = privateChatMessage.id,
                             messageSender = privateChatMessage.from
@@ -169,8 +166,8 @@ fun PrivateChatMessageItem(
                         )
                         .background(
                             color = MaterialTheme.colors.surface,
-                            shape =  if (isFirst) ReceivedFirstMessageShape
-                                    else MiddleChatMessageShape
+                            shape = if (isFirst) ReceivedFirstMessageShape
+                            else MiddleChatMessageShape
                         )
                         .padding(vertical = 8.dp, horizontal = 16.dp)
                 ) {
@@ -202,8 +199,9 @@ fun PrivateChatMessageItem(
             ) {
                 Column(
                     modifier = Modifier
-                        .shadow(2.dp,shape = if (isFirst) SentFirstMessageShape
-                                            else MiddleChatMessageShape
+                        .shadow(
+                            2.dp, shape = if (isFirst) SentFirstMessageShape
+                            else MiddleChatMessageShape
                         )
                         .background(
                             color = Green200,
@@ -230,9 +228,7 @@ fun PrivateChatMessageItem(
                         Spacer(modifier = Modifier.padding(4.dp))
                         Image(
                             painter = painterResource(
-                                id= if(!privateChatMessage.received) R.drawable.message_sent_not_received
-                                    else if(privateChatMessage.received && !privateChatMessage.seen) R.drawable.ic_message_received
-                                    else R.drawable.ic_message_seen
+                                id= getIconAccordingToMessageStatus(privateChatMessage.msgStatus)
                             ),
                             contentDescription = "Message Status",
                             modifier = Modifier.fillMaxHeight(),

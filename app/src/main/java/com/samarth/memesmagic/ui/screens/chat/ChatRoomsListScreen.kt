@@ -26,18 +26,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.request.ImageRequest
 import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
-import com.samarth.memesmagic.data.remote.response.UserInfo
+import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.ui.components.CustomButton
 import com.samarth.memesmagic.util.ChatUtils
 import com.samarth.memesmagic.util.Screens.CHAT_ROOM_SCREEN
 import com.samarth.memesmagic.util.Screens.FIND_ANOTHER_USER_FOR_CHAT
 import com.samarth.memesmagic.util.TokenHandler.getEmail
+import com.samarth.memesmagic.util.getIconAccordingToMessageStatus
 import com.samarth.memesmagic.util.lastChatMessageTime
 import kotlinx.coroutines.launch
 
@@ -193,15 +193,18 @@ fun PrivateChatRoomItem(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        /**
+                         *  IF LAST MESSAGE IS FROM CURRENT USER ======= ( NOT RECEIVED )
+                         */
                         if (privateChatRoom.lastMessage!!.from == currentUserEmail) {
                             Image(
                                 painter = painterResource(
-                                    id = if (!privateChatRoom.lastMessage!!.received) R.drawable.message_sent_not_received
-                                    else if (privateChatRoom.lastMessage!!.received && !privateChatRoom.lastMessage!!.seen) R.drawable.ic_message_received
-                                    else R.drawable.ic_message_seen
+                                    id = getIconAccordingToMessageStatus(privateChatRoom.lastMessage!!.msgStatus)
                                 ),
                                 contentDescription = "Message Status",
-                                modifier = Modifier.height(16.dp).padding(end = 4.dp),
+                                modifier = Modifier
+                                    .height(16.dp)
+                                    .padding(end = 4.dp),
                                 colorFilter = ColorFilter.tint(
                                     MaterialTheme.colors.onSurface
                                 )
@@ -218,7 +221,7 @@ fun PrivateChatRoomItem(
 
 
 
-                    if (privateChatRoom.lastMessage!!.from != currentUserEmail && !privateChatRoom.lastMessage!!.seen) {
+                    if (privateChatRoom.lastMessage!!.from != currentUserEmail && privateChatRoom.lastMessage!!.msgStatus != PrivateChatMessageStatus.SEEN) {
                         Box(
                             modifier = Modifier
                                 .padding(end = 16.dp)

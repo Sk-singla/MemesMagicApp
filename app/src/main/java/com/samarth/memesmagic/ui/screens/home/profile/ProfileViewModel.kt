@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
@@ -20,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    val memeRepo: MemeRepo
+    val memeRepo: MemeRepo,
+    val memeDao: MemeDao
 ):ViewModel() {
 
 
@@ -57,6 +59,7 @@ class ProfileViewModel @Inject constructor(
 
     fun logoutUser(context: Context) = viewModelScope.launch {
         TokenHandler.logout(context)
+        memeDao.clearData()
     }
 
 

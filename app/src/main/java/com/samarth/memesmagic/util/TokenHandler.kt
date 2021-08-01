@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.util.Constants.DATA_PREFERENCES_NAME_FOR_TOKEN
 import com.samarth.memesmagic.util.Constants.EMAIL_KEY
 import com.samarth.memesmagic.util.Constants.FCM_TOKEN_KEY
@@ -13,11 +14,11 @@ import com.samarth.memesmagic.util.Constants.JWT_TOKEN_KEY
 import com.samarth.memesmagic.util.Constants.REWARD_ID_KEY
 import com.samarth.memesmagic.util.Constants.YEAR_REWARD_ID
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
 object TokenHandler {
 
     private val Context.dataStore:DataStore<Preferences> by preferencesDataStore(name = DATA_PREFERENCES_NAME_FOR_TOKEN)
-
 
     suspend fun saveJwtToken(context:Context,token:String,email:String){
         val jwtTokeKey = stringPreferencesKey(JWT_TOKEN_KEY)

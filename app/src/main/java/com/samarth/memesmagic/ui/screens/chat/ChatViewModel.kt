@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui.screens.chat
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.data.models.webosocket_models.JoinServerHandshake
 import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.remote.WebSocketApi
+import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.*
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.ChatUtils
@@ -17,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -39,7 +42,6 @@ class ChatViewModel @Inject constructor(
     val currentMessage = mutableStateOf("")
 
     var currentUserEmail = ""
-    var openedChatRoomsListFirstTime = true
 
 
     fun observeConnectionEvents() = viewModelScope.launch(dispatchers.io){
@@ -47,6 +49,7 @@ class ChatViewModel @Inject constructor(
             when(event){
                 is WebSocket.Event.OnConnectionOpened<*> -> {
                     connect()
+                    getAllMessagesOfStatusLocalAndSendThemAgain()
                 }
                 else -> Unit
             }
@@ -79,7 +82,20 @@ class ChatViewModel @Inject constructor(
             connectionEventChannel.send(event)
         }
     }
+// todo : get chat messages having status LOCAL and send them to server
 
+    fun getAllMessagesOfStatusLocalAndSendThemAgain() = viewModelScope.launch(dispatchers.io){
+
+        Log.d("local","-------------------\n")
+        Log.d("local","-------------------\n")
+        Log.d("local","-----GET LOCAL ------\n")
+        Log.d("local","-------------------\n")
+        Log.d("local","-------------------\n")
+        memeDao.getAllMessagesWhereStatus(PrivateChatMessageStatus.LOCAL.name).forEach {
+            Log.d("local",it.message)
+            webSocketApi.sendBaseModel(it)
+        }
+    }
 
     fun observeSingleChatLocalDatabase(
         userEmail: String = ChatUtils.currentChatRoom?.userEmail ?: ""
@@ -134,11 +150,14 @@ class ChatViewModel @Inject constructor(
                     memeDao.savePrivateMessage(data)
                     messageReceived(data.id,data.from)
                 }
+                is MessageReachedServerAcknowledgement -> {
+                    memeDao.updatePrivateChatMessageStatus(data.msgId,PrivateChatMessageStatus.SENT.name)
+                }
                 is MessageReceived -> {
-                    memeDao.messageReceived(data.msgId)
+                    memeDao.updatePrivateChatMessageStatus(data.msgId,PrivateChatMessageStatus.RECEIVED.name)
                 }
                 is MessageSeen -> {
-                    memeDao.messageSeen(data.msgId)
+                    memeDao.updatePrivateChatMessageStatus(data.msgId,PrivateChatMessageStatus.SEEN.name)
                 }
                 else -> Unit
             }
@@ -152,7 +171,7 @@ class ChatViewModel @Inject constructor(
                 msgSender = messageSender
             )
         )
-        memeDao.messageSeen(msgId)
+        memeDao.updatePrivateChatMessageStatus(msgId,PrivateChatMessageStatus.SEEN.name)
     }
     fun messageReceived(msgId:String,messageSender:String) = viewModelScope.launch(dispatchers.io){
         webSocketApi.sendBaseModel(
@@ -161,7 +180,7 @@ class ChatViewModel @Inject constructor(
                 msgSender = messageSender
             )
         )
-        memeDao.messageReceived(msgId)
+        memeDao.updatePrivateChatMessageStatus(msgId,PrivateChatMessageStatus.RECEIVED.name)
     }
 
 

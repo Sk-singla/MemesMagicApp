@@ -56,6 +56,9 @@ fun FeedScreen(
 
     LaunchedEffect(key1 = Unit) {
 
+        /**
+         *  GET FIREBASE MESSAGING TOKEN AND UPDATE IT ON SERVER IF IT IS NEW.
+         */
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             val token = task.result ?: ""
@@ -74,6 +77,10 @@ fun FeedScreen(
                 }
             )
         }
+
+        /**
+         *  GET REWARDS AND SHOW IN DIALOG BOXES IF IT IS NEW REWARD
+         */
 
         feedViewModel.getYearReward(context,
             newReward = { reward, isItForMe ->
@@ -97,6 +104,9 @@ fun FeedScreen(
         )
 
 
+        /**
+         * GET NEW FEED IF FEED SCREEN IS OPENED FIRST TIME
+         */
         if(feedViewModel.firstTimeOpenedFeedScreen.value) {
             feedViewModel.getFeedFromGithub()
             feedViewModel.getFeed(
@@ -110,6 +120,11 @@ fun FeedScreen(
             feedViewModel.firstTimeOpenedFeedScreen.value = false
         }
 
+
+        /**
+         * GET CURRENT USER AND LOGOUT ON FAIL IF ERROR CODE IS NOT TIMEOUT
+         */
+
         feedViewModel.getUser(
             getEmail(context)!!,
             onFail = {
@@ -117,6 +132,7 @@ fun FeedScreen(
                  if(!it.contains("timeout")){
                      coroutineScope.launch {
                          logout(context)
+                         feedViewModel.clearLocalData()
                          parentNavController.popBackStack()
                          parentNavController.navigate(LANDING_SCREEN)
                      }
@@ -131,9 +147,15 @@ fun FeedScreen(
         )
     }
 
+
+    /**
+     *  MAIN SCREEN STARTS
+     */
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-
+        /**
+         * REWARDS DIALOG BOXES
+         */
         newReward?.let {
 
             CongratsDialogBox(
@@ -179,6 +201,9 @@ fun FeedScreen(
         }
 
 
+        /**
+         * ===================== FEED =================
+         */
         val scrollState = rememberLazyListState()
 
         if(feedViewModel.isLoading.value){

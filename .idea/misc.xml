@@ -3,7 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/sksam/AndroidStudioProjects/MemesMagicCompose/app/src/main/res/drawable/ic_done_all.xml" value="0.15625" />
         <entry key="..\:/Users/sksam/AndroidStudioProjects/MemesMagicCompose/app/src/main/res/drawable/ic_memer_of_the_month.xml" value="0.536" />
+        <entry key="..\:/Users/sksam/AndroidStudioProjects/MemesMagicCompose/app/src/main/res/drawable/ic_message_received.xml" value="0.2703125" />
+        <entry key="..\:/Users/sksam/AndroidStudioProjects/MemesMagicCompose/app/src/main/res/drawable/ic_message_seen.xml" value="0.2703125" />
+        <entry key="..\:/Users/sksam/AndroidStudioProjects/MemesMagicCompose/app/src/main/res/drawable/message_sent_not_received.xml" value="0.2703125" />
         <entry key="..\:/Users/sksam/AndroidStudioProjects/MemesMagicCompose/app/src/main/res/xml/file_path.xml" value="0.1" />
       </map>
     </option>
