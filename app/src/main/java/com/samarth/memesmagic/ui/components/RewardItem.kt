@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.MemeBadgeType
 import com.samarth.memesmagic.data.remote.response.Reward
-import com.samarth.memesmagic.util.getDate
+import com.samarth.memesmagic.util.getRewardDate
 
 @Composable
 fun RewardItem(
@@ -52,7 +52,7 @@ fun RewardItem(
             )
             
             Text(
-                text = getDate(reward.time,reward.memeBadgeType == MemeBadgeType.MEMER_OF_THE_MONTH),
+                text = getRewardDate(reward.time,reward.memeBadgeType == MemeBadgeType.MEMER_OF_THE_MONTH),
                 style = MaterialTheme.typography.body2
             )
 

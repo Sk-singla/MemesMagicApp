@@ -2,7 +2,10 @@ package com.samarth.memesmagic.ui.screens.home.profile
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,6 +38,10 @@ fun SinglePostScreen(
     var email by remember {
         mutableStateOf("")
     }
+    var deletePostDialogBoxVisible by remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(key1 = Unit) {
         email = getEmail(context) ?: ""
     }
@@ -77,48 +84,55 @@ fun SinglePostScreen(
 
         if(CommentsUtil.post != null) {
 
-            Box(modifier = Modifier.fillMaxSize()) {
 
-                PostItem(
-                    post = CommentsUtil.post!!,
-                    isLiked = feedViewModel.isPostLiked(CommentsUtil.post!!, context),
-                    onLikeIconPressed = { post, isPostLiked, onSuccess ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
 
-                        if (post.postResource == PostResource.GITHUB_API) {
-                            onSuccess()
-                        } else {
-                            if (isPostLiked) {
-                                feedViewModel.dislikePost(post, onSuccess)
+                    PostItem(
+                        post = CommentsUtil.post!!,
+                        isLiked = feedViewModel.isPostLiked(CommentsUtil.post!!, context),
+                        onLikeIconPressed = { post, isPostLiked, onSuccess ->
+
+                            if (post.postResource == PostResource.GITHUB_API) {
+                                onSuccess()
                             } else {
-                                feedViewModel.likePost(post, onSuccess)
+                                if (isPostLiked) {
+                                    feedViewModel.dislikePost(post, onSuccess)
+                                } else {
+                                    feedViewModel.likePost(post, onSuccess)
+                                }
                             }
-                        }
-                    },
-                    onCommentIconPressed = {
-                        CommentsUtil.post = it
-                        parentNavController.navigate(Screens.COMMENT_SCREEN)
-                    },
-                    onShareIconPressed = {
-                        feedViewModel.shareImage(
-                            context,
-                            it.mediaLink,
-                            startActivity
-                        ) {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(it)
+                        },
+                        onCommentIconPressed = {
+                            CommentsUtil.post = it
+                            parentNavController.navigate(Screens.COMMENT_SCREEN)
+                        },
+                        onShareIconPressed = {
+                            feedViewModel.shareImage(
+                                context,
+                                it.mediaLink,
+                                startActivity
+                            ) {
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(it)
+                                }
                             }
-                        }
-                    },
-                    onClick = {
+                        },
+                        onClick = {
 
+                        }
+                    )
+
+                    if (feedViewModel.isLoading.value) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
-                )
 
-                if(feedViewModel.isLoading.value){
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
-            }
+
 
         }
 

@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -43,7 +44,7 @@ fun FollowersOrFollowingDialogBox(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = MaterialTheme.colors.surface),
+                        .background(color = MaterialTheme.colors.surface,shape = RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
 
@@ -73,11 +74,9 @@ fun FollowersOrFollowingDialogBox(
                                             followUser(user.email, onSuccess)
                                         }
                                     },
-                                    onClick = {
-                                        onClick(user.email)
-                                    },
                                     modifier = Modifier.fillMaxWidth()
-                                        .padding(bottom = 16.dp)
+                                        .clickable { onClick(user.email) }
+                                        .padding(vertical = 8.dp)
                                 )
                             }
                         }

@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui.screens.home.search
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -117,10 +118,10 @@ fun SearchScreen(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 12.dp),
-                            onClick = {
-                                parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${userInfo.email}")
-                            }
+                                .clickable {
+                                    parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${userInfo.email}")
+                                }
+                                .padding(top = 12.dp)
                         )
 
                     }

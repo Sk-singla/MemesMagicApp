@@ -115,6 +115,11 @@ fun ChatRoomsListScreen(
 }
 
 
+/**
+ * =========================== CHAT ROOM ITEM =========================
+ */
+
+
 @Composable
 fun PrivateChatRoomItem(
     privateChatRoom:PrivateChatRoom,
@@ -159,7 +164,8 @@ fun PrivateChatRoomItem(
         ){
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
                     text = privateChatRoom.name,

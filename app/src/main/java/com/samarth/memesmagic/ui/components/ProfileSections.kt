@@ -7,10 +7,7 @@ import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -380,7 +377,9 @@ fun ProfileTopSection(
             }
 
             Column(
-                modifier = Modifier.clickable {
+                modifier = Modifier
+                    .background(shape = CircleShape,color = MaterialTheme.colors.surface)
+                    .clickable {
                       showFollowers()
                 },
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -462,7 +461,7 @@ fun ProfileScreenButtons(
                 }
             },
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 4.dp)
                 .shadow(2.dp),
             colors = ButtonDefaults.outlinedButtonColors(
                 backgroundColor = MaterialTheme.colors.surface,
@@ -482,7 +481,7 @@ fun ProfileScreenButtons(
                       messageUser()
                 },
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 4.dp)
                     .shadow(2.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     backgroundColor = MaterialTheme.colors.surface,
@@ -505,7 +504,7 @@ fun ProfileScreenButtons(
                     }
                 },
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 4.dp)
                     .shadow(2.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                 backgroundColor = MaterialTheme.colors.surface,
@@ -515,7 +514,8 @@ fun ProfileScreenButtons(
             Text(
                 text = if (isItAnotherUserProfile)
                     "$numberOfRewards Badge${if(numberOfRewards>1) "s" else ""}"
-                else "   Logout   "
+                else "   Logout   ",
+                textAlign = TextAlign.Center
             )
         }
 

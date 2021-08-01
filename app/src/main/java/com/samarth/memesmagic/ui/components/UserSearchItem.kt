@@ -33,8 +33,7 @@ fun UserSearchItem(
     userInfo: UserInfo,
     following: Boolean,
     onFollowUnFollowBtnPressed: (onSuccess:()->Unit) -> Unit,
-    modifier: Modifier = Modifier,
-    onClick:()->Unit
+    modifier: Modifier = Modifier
 ) {
 
     var isFollowingToUser by remember {
@@ -70,9 +69,7 @@ fun UserSearchItem(
                         width = 1.dp,
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
                         shape = CircleShape
-                    ).clickable{
-                        onClick()
-                    }
+                    )
             )
 
 
@@ -82,9 +79,6 @@ fun UserSearchItem(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.clickable{
-                    onClick()
-                }
             )
         }
 
