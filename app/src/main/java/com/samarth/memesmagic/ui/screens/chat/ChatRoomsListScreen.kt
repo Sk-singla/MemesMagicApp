@@ -12,9 +12,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +28,9 @@ import androidx.navigation.NavController
 import coil.request.ImageRequest
 import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.data.local.entities.relations.PrivateChatRoomWithPrivateChatMessages
 import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
+import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.ui.components.CustomButton
 import com.samarth.memesmagic.util.ChatUtils
@@ -50,9 +50,11 @@ fun ChatRoomsListScreen(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+
     LaunchedEffect(key1 = true){
         chatViewModel.currentUserEmail = getEmail(context) ?: ""
         chatViewModel.observeLocalDatabase(context)
+
     }
 
     Scaffold(
@@ -65,15 +67,19 @@ fun ChatRoomsListScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
 
+//                chatViewModel.chatRooms.value.sortedByDescending {
+//                it.lastMessage?.timeStamp
+//            }
+
                 items(
-                    chatViewModel.chatRooms.value.sortedByDescending {
-                        it.lastMessage?.timeStamp
+                    chatViewModel.chatRooms.value.values.sortedByDescending {
+                        it.privateChatMessages.lastOrNull()?.timeStamp
                     }
                 ) { chatRoom ->
                     PrivateChatRoomItem(
                         privateChatRoom = chatRoom,
                         onChatRoomClick = {
-                            ChatUtils.currentChatRoom = chatRoom
+                            ChatUtils.currentChatRoom = chatRoom.privateChatRoom
                             navController.navigate(CHAT_ROOM_SCREEN)
                             coroutineScope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar("Clicked!")
@@ -122,11 +128,13 @@ fun ChatRoomsListScreen(
 
 @Composable
 fun PrivateChatRoomItem(
-    privateChatRoom:PrivateChatRoom,
+    privateChatRoom:PrivateChatRoomWithPrivateChatMessages,
     modifier: Modifier = Modifier,
     currentUserEmail:String,
     onChatRoomClick: () -> Unit
 ) {
+
+    val lastChatMessage = privateChatRoom.privateChatMessages.lastOrNull()
 
     Row(
         modifier = modifier
@@ -139,7 +147,7 @@ fun PrivateChatRoomItem(
         Image(
             painter = rememberCoilPainter(
                 request = ImageRequest.Builder(LocalContext.current)
-                    .data(privateChatRoom.profilePic ?: R.drawable.ic_person)
+                    .data(privateChatRoom.privateChatRoom.profilePic ?: R.drawable.ic_person)
                     .placeholder(R.drawable.ic_person)
                     .error(R.drawable.ic_error)
                     .build(),
@@ -168,7 +176,7 @@ fun PrivateChatRoomItem(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = privateChatRoom.name,
+                    text = privateChatRoom.privateChatRoom.name,
                     style = MaterialTheme.typography.h6,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -176,14 +184,14 @@ fun PrivateChatRoomItem(
                 )
 
                 Text(
-                    text = privateChatRoom.lastMessage?.timeStamp?.let { lastChatMessageTime(it) } ?: "",
+                    text = lastChatMessage?.timeStamp?.let { lastChatMessageTime(it) } ?: "", //privateChatRoom.lastMessage?.timeStamp?.let { lastChatMessageTime(it) } ?: "",
                     style = MaterialTheme.typography.body2,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            if(privateChatRoom.lastMessage != null) {
+            if(lastChatMessage != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -196,10 +204,10 @@ fun PrivateChatRoomItem(
                         /**
                          *  IF LAST MESSAGE IS FROM CURRENT USER ======= ( NOT RECEIVED )
                          */
-                        if (privateChatRoom.lastMessage!!.from == currentUserEmail) {
+                        if (lastChatMessage.from == currentUserEmail) {
                             Image(
                                 painter = painterResource(
-                                    id = getIconAccordingToMessageStatus(privateChatRoom.lastMessage!!.msgStatus)
+                                    id = getIconAccordingToMessageStatus(lastChatMessage.msgStatus)
                                 ),
                                 contentDescription = "Message Status",
                                 modifier = Modifier
@@ -211,7 +219,7 @@ fun PrivateChatRoomItem(
                             )
                         }
                         Text(
-                            text = privateChatRoom.lastMessage!!.message,
+                            text = lastChatMessage.message,
                             style = MaterialTheme.typography.body1,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -221,7 +229,7 @@ fun PrivateChatRoomItem(
 
 
 
-                    if (privateChatRoom.lastMessage!!.from != currentUserEmail && privateChatRoom.lastMessage!!.msgStatus != PrivateChatMessageStatus.SEEN) {
+                    if (lastChatMessage.from != currentUserEmail && lastChatMessage.msgStatus != PrivateChatMessageStatus.SEEN) {
                         Box(
                             modifier = Modifier
                                 .padding(end = 16.dp)

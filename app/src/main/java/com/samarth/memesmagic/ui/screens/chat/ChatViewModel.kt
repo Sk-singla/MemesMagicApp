@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.data.models.webosocket_models.JoinServerHandshake
 import com.samarth.memesmagic.data.local.dao.MemeDao
+import com.samarth.memesmagic.data.local.entities.relations.PrivateChatRoomWithPrivateChatMessages
 import com.samarth.memesmagic.data.remote.WebSocketApi
 import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.*
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -36,7 +38,7 @@ class ChatViewModel @Inject constructor(
     val connectionEvent = connectionEventChannel.receiveAsFlow().flowOn(dispatchers.io)
 
 
-    val chatRooms = mutableStateOf(listOf<PrivateChatRoom>())
+    val chatRooms = mutableStateOf(hashMapOf<String,PrivateChatRoomWithPrivateChatMessages>())
 
     val currentChatRoomMessages = mutableStateOf(mutableListOf<PrivateChatMessage>())
     val currentMessage = mutableStateOf("")
@@ -70,10 +72,11 @@ class ChatViewModel @Inject constructor(
             timeStamp = System.currentTimeMillis(),
             id = UUID.randomUUID().toString(),
             name = ChatUtils.currentChatRoom!!.name,
-            profilePic = ChatUtils.currentChatRoom!!.profilePic
+            profilePic = ChatUtils.currentChatRoom!!.profilePic,
+            otherUserEmail = ChatUtils.currentChatRoom!!.userEmail
         )
         webSocketApi.sendBaseModel(privateChatMessage)
-        memeDao.savePrivateMessage(privateChatMessage)
+        savePrivateChatMessageToLocalDatabase(privateChatMessage)
         clearChatMessageTextField()
     }
 
@@ -97,57 +100,48 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun createChatRoom(
+        privateChatRoom: PrivateChatRoom = ChatUtils.currentChatRoom!!
+    ) = viewModelScope.launch(dispatchers.io){
+        memeDao.insertPrivateChatRoom(privateChatRoom)
+    }
     fun observeSingleChatLocalDatabase(
         userEmail: String = ChatUtils.currentChatRoom?.userEmail ?: ""
-    ) = viewModelScope.launch{
+    ) = viewModelScope.launch(dispatchers.io){
         memeDao.getAllMessagesFromUser(
             email = userEmail,
         ).collect { privateMessages ->
-            currentChatRoomMessages.value = privateMessages.toMutableList()
-
-            // todo: remove this every time sorting
-            currentChatRoomMessages.value.sortByDescending {
-                it.timeStamp
-            }
+            currentChatRoomMessages.value = privateMessages.privateChatMessages.toMutableList()
         }
     }
 
     fun observeLocalDatabase(context: Context) = viewModelScope.launch(dispatchers.io){
-        val curUserEmail = getEmail(context) ?: ""
-        memeDao.getAllMessages().collect { privateMessages ->
+//        val curUserEmail = getEmail(context) ?: ""
+        memeDao.getAllPrivateChatRooms().collect { privateChatRooms ->
 
             // todo: optimize getting rooms list
-
-            privateMessages.forEach { privateChatMessage->
-                val isMessageReceived = privateChatMessage.to == curUserEmail
-                val otherUserEmail = if(isMessageReceived) privateChatMessage.from else privateChatMessage.to
-
-                val tempChatRoom = chatRooms.value.find { it.userEmail ==  otherUserEmail}
-                if(tempChatRoom != null){
-                    chatRooms.value -= tempChatRoom
-                    chatRooms.value += PrivateChatRoom(
-                        userEmail = otherUserEmail,
-                        name = privateChatMessage.name,
-                        profilePic = privateChatMessage.profilePic,
-                        lastMessage = privateChatMessage
-                    )
-                } else {
-                    chatRooms.value += PrivateChatRoom(
-                        userEmail = otherUserEmail,
-                        name = privateChatMessage.name,
-                        profilePic = privateChatMessage.profilePic,
-                        lastMessage = privateChatMessage
-                    )
-                }
+            privateChatRooms.forEach {
+                chatRooms.value[it.privateChatRoom.userEmail] = it
             }
         }
+    }
+
+    suspend fun savePrivateChatMessageToLocalDatabase(data: PrivateChatMessage){
+        memeDao.savePrivateMessage(data)
+        memeDao.insertPrivateChatRoom(
+            PrivateChatRoom(
+                data.otherUserEmail,
+                data.name,
+                data.profilePic
+            )
+        )
     }
 
     fun observeWebSocketBaseModelEvents()  = viewModelScope.launch(dispatchers.io){
         webSocketApi.observeBaseModel().collect { data ->
             when(data){
                 is PrivateChatMessage -> {
-                    memeDao.savePrivateMessage(data)
+                    savePrivateChatMessageToLocalDatabase(data)
                     messageReceived(data.id,data.from)
                 }
                 is MessageReachedServerAcknowledgement -> {

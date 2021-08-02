@@ -6,13 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,9 +33,11 @@ fun PrivateChatRoomScreen(
     // todo: when come from another profile or my profile change current chatroom
 
     val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = Unit ){
+        chatViewModel.createChatRoom()
+        chatViewModel.currentUserEmail = TokenHandler.getEmail(context) ?: ""
         chatViewModel.observeSingleChatLocalDatabase()
     }
 
@@ -64,7 +65,10 @@ fun PrivateChatRoomScreen(
                 item {
                     Spacer(modifier = Modifier.padding(40.dp))
                 }
-                itemsIndexed(chatViewModel.currentChatRoomMessages.value) {  index, privateChatMessage->
+
+                itemsIndexed(
+                    chatViewModel.currentChatRoomMessages.value.reversed()
+                ) {  index, privateChatMessage->
 
                     val isReceived = privateChatMessage.to == chatViewModel.currentUserEmail
                     val isFirst = index == chatViewModel.currentChatRoomMessages.value.size -1 || chatViewModel.currentChatRoomMessages.value[index+1].from != chatViewModel.currentChatRoomMessages.value[index].from

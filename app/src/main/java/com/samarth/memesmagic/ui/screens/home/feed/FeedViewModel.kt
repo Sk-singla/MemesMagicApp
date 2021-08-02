@@ -249,7 +249,7 @@ class FeedViewModel @Inject constructor(
     }
 
 
-    fun clearLocalData(){
+    suspend fun clearLocalData(){
         memeDao.clearData()
     }
 

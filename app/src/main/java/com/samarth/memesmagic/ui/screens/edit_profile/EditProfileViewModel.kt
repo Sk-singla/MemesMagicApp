@@ -50,7 +50,6 @@ class EditProfileViewModel @Inject constructor(
 
     fun selectProfilePic(startActivityForImage:(String,(Uri?)->Unit) -> Unit){
         startActivityForImage("image/*"){
-            Log.d("MyLog","select -> ${it}")
             profilePic.value = it
         }
     }
@@ -60,10 +59,7 @@ class EditProfileViewModel @Inject constructor(
         if(profilePic.value == null){
             updateUserInfo("",onSuccess,onFail)
         } else {
-
-
             try {
-
                 val fd = context.contentResolver.openFileDescriptor(profilePic.value!!,"r",null)!!
                 val inputStream = FileInputStream(fd.fileDescriptor)
                 val file = File(
@@ -72,7 +68,7 @@ class EditProfileViewModel @Inject constructor(
                 )
                 val outputStream = FileOutputStream(file)
                 inputStream.copyTo(outputStream)
-                uploadImageToAwsAndUpdaterUserInfo(file,onSuccess,onFail)
+                uploadImageToAwsAndUpdaterUserInfo(file,context,onSuccess,onFail)
 
             }catch (e:Exception){
                 onFail(e.message ?: "IO exception")
@@ -83,10 +79,11 @@ class EditProfileViewModel @Inject constructor(
 
 
 
-    private fun uploadImageToAwsAndUpdaterUserInfo(imageFile:File, onSuccess: () -> Unit, onFail:(String)->Unit) = viewModelScope.launch {
+    private fun uploadImageToAwsAndUpdaterUserInfo(imageFile:File, context: Context,onSuccess: () -> Unit, onFail:(String)->Unit) = viewModelScope.launch {
         isLoading.value = true
+        val currentUserEmail = getEmail(context)!!
         memeRepo.uploadFileOnAwsS3(
-            fileName = imageFile.name,
+            fileName = "$currentUserEmail/profilePic",
             file = imageFile,
             onSuccess = {
                 updateUserInfo("$BUCKET_OBJECT_URL_PREFIX$it",onSuccess,onFail)
