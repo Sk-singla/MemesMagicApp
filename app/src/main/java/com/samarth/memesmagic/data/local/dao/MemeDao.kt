@@ -24,20 +24,22 @@ interface MemeDao {
     @Query("UPDATE PrivateChatMessage SET msgStatus = :status WHERE id= :msgId")
     suspend fun updatePrivateChatMessageStatus(msgId:String,status:String)
 
-    @Query("SELECT * FROM PrivateChatMessage")
-    fun getAllMessages():Flow<List<PrivateChatMessage>>
+    @Query("SELECT COUNT(*) FROM PrivateChatMessage WHERE `from` != :currentUserEmail AND msgStatus = :messageStatus")
+    fun getAllUnSeenMessagesCount(
+        currentUserEmail: String,
+        messageStatus : String = PrivateChatMessageStatus.RECEIVED.name
+    ):Flow<Int>
 
     @Transaction
     @Query("SELECT * FROM PrivateChatRoom")
     fun getAllPrivateChatRooms():Flow<List<PrivateChatRoomWithPrivateChatMessages>>
 
     @Query("SELECT * FROM PrivateChatRoom WHERE userEmail = :email")
-    fun getAllMessagesFromUser(email: String):Flow<PrivateChatRoomWithPrivateChatMessages>
+    fun getAllMessagesFromUser(email: String):Flow<PrivateChatRoomWithPrivateChatMessages>?
 
     @Query("SELECT * FROM PrivateChatMessage WHERE msgStatus = :status")
     fun getAllMessagesWhereStatus(status:String):List<PrivateChatMessage>
 
     @Query("DELETE FROM PrivateChatMessage")
     suspend fun clearData()
-
 }

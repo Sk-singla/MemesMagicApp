@@ -101,7 +101,12 @@ fun MainNavGraph(
         }
 
         composable(HOME_SCREEN){
-            HomeScreen(navController = navController,startActivity = startActivity,feedViewModel = feedViewModel)
+            HomeScreen(
+                navController = navController,
+                startActivity = startActivity,
+                feedViewModel = feedViewModel,
+                chatViewModel = chatViewModel
+            )
         }
 
         composable(LOGIN_SCREEN){

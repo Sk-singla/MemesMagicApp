@@ -7,15 +7,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.request.ImageRequest
 import com.google.accompanist.coil.rememberCoilPainter
@@ -33,11 +36,14 @@ import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.ui.components.CustomButton
+import com.samarth.memesmagic.ui.components.CustomTopBar
+import com.samarth.memesmagic.ui.components.ProfileImage
 import com.samarth.memesmagic.util.ChatUtils
 import com.samarth.memesmagic.util.Screens.CHAT_ROOM_SCREEN
 import com.samarth.memesmagic.util.Screens.FIND_ANOTHER_USER_FOR_CHAT
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.getIconAccordingToMessageStatus
+import com.samarth.memesmagic.util.getMessageCount
 import com.samarth.memesmagic.util.lastChatMessageTime
 import kotlinx.coroutines.launch
 
@@ -53,12 +59,44 @@ fun ChatRoomsListScreen(
 
     LaunchedEffect(key1 = true){
         chatViewModel.currentUserEmail = getEmail(context) ?: ""
-        chatViewModel.observeLocalDatabase(context)
+        chatViewModel.observeLocalDatabase()
 
     }
 
     Scaffold(
-        scaffoldState = scaffoldState
+        scaffoldState = scaffoldState,
+        topBar = {
+            CustomTopBar(
+                title = "Chat"
+            )
+        },
+        floatingActionButton = {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(48.dp)
+                    .shadow(
+                        4.dp,
+                        shape = CircleShape
+                    )
+                    .background(
+                        color = MaterialTheme.colors.primary,
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ){
+                IconButton(
+                    onClick = {
+                        navController.navigate(FIND_ANOTHER_USER_FOR_CHAT)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Search users to chat"
+                    )
+                }
+            }
+        }
     ) {
 
 
@@ -71,23 +109,31 @@ fun ChatRoomsListScreen(
 //                it.lastMessage?.timeStamp
 //            }
 
-                items(
-                    chatViewModel.chatRooms.value.values.sortedByDescending {
+
+
+                itemsIndexed(
+                    chatViewModel.chatRooms.value.sortedByDescending {
                         it.privateChatMessages.lastOrNull()?.timeStamp
                     }
-                ) { chatRoom ->
-                    PrivateChatRoomItem(
-                        privateChatRoom = chatRoom,
-                        onChatRoomClick = {
-                            ChatUtils.currentChatRoom = chatRoom.privateChatRoom
-                            navController.navigate(CHAT_ROOM_SCREEN)
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar("Clicked!")
-                            }
-                        },
-                        currentUserEmail = chatViewModel.currentUserEmail
-                    )
+                ) { idx, chatRoom ->
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        PrivateChatRoomItem(
+                            privateChatRoom = chatRoom,
+                            onChatRoomClick = {
+                                ChatUtils.currentChatRoom = chatRoom.privateChatRoom
+                                navController.navigate(CHAT_ROOM_SCREEN)
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar("Clicked!")
+                                }
+                            },
+                            currentUserEmail = chatViewModel.currentUserEmail
+                        )
 
+                        if(idx < chatViewModel.chatRooms.value.size -1)
+                            Divider(modifier = Modifier.fillMaxWidth())
+                    }
                 }
 
             }
@@ -96,23 +142,14 @@ fun ChatRoomsListScreen(
                 modifier =Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Column{
-                    Text(
-                        text = "You don't have any chat with anyone!",
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.padding(16.dp))
-                    CustomButton(
-                        text = "Search Users",
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    ) {
-                        navController.navigate(FIND_ANOTHER_USER_FOR_CHAT)
-                    }
-                }
+                Text(
+                    text = "You don't have any chat with anyone!",
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    textAlign = TextAlign.Center
+                )
             }
         }
 
@@ -140,29 +177,15 @@ fun PrivateChatRoomItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onChatRoomClick() }
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp),
+            .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Image(
-            painter = rememberCoilPainter(
-                request = ImageRequest.Builder(LocalContext.current)
-                    .data(privateChatRoom.privateChatRoom.profilePic ?: R.drawable.ic_person)
-                    .placeholder(R.drawable.ic_person)
-                    .error(R.drawable.ic_error)
-                    .build(),
-                fadeIn = true,
-            ),
-            contentScale = ContentScale.Crop,
-            contentDescription = "User Image",
+        ProfileImage(
+            name = privateChatRoom.privateChatRoom.name,
+            imageUrl = privateChatRoom.privateChatRoom.profilePic,
             modifier = Modifier
                 .size(48.dp)
-                .clip(CircleShape)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
-                    shape = CircleShape
-                )
         )
 
         Column(
@@ -233,12 +256,27 @@ fun PrivateChatRoomItem(
                         Box(
                             modifier = Modifier
                                 .padding(end = 16.dp)
+                                .size(20.dp)
                                 .background(
                                     color = MaterialTheme.colors.primary,
                                     shape = CircleShape
-                                )
-                                .padding(8.dp)
-                        ) {}
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = getMessageCount(
+                                    privateChatRoom.privateChatMessages.filter {
+                                        it.from != currentUserEmail && it.msgStatus == PrivateChatMessageStatus.RECEIVED
+                                    }.size
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 1,
+                                textAlign = TextAlign.Center,
+                                fontSize = 8.sp,
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
 
                 }

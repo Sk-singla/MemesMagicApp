@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui.screens.chat
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,9 +30,6 @@ fun PrivateChatRoomScreen(
     navController: NavController,
     chatViewModel: ChatViewModel
 ) {
-
-    // todo: when come from another profile or my profile change current chatroom
-
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
 
@@ -39,17 +37,25 @@ fun PrivateChatRoomScreen(
         chatViewModel.createChatRoom()
         chatViewModel.currentUserEmail = TokenHandler.getEmail(context) ?: ""
         chatViewModel.observeSingleChatLocalDatabase()
+
+//        if(chatViewModel.chatRoomMessages.value[ChatUtils.currentChatRoom?.userEmail] == null){
+//            chatViewModel.chatRoomMessages.value[ChatUtils.currentChatRoom?.userEmail ?: ""] = listOf()
+//        }
     }
 
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
             CustomTopBar(
-                title = ChatUtils.currentChatRoom?.name ?: ""
+                title = ChatUtils.currentChatRoom?.name ?: "",
             )
         }
     ) {
 
+        BackHandler {
+            chatViewModel.currentChatRoomMessageJob?.cancel()
+            navController.popBackStack()
+        }
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -67,7 +73,7 @@ fun PrivateChatRoomScreen(
                 }
 
                 itemsIndexed(
-                    chatViewModel.currentChatRoomMessages.value.reversed()
+                    chatViewModel.currentChatRoomMessages.value.reversed() ?: listOf()
                 ) {  index, privateChatMessage->
 
                     val isReceived = privateChatMessage.to == chatViewModel.currentUserEmail
@@ -99,6 +105,8 @@ fun PrivateChatRoomScreen(
             }
 
 
+            // ========= MESSAGE EDIT TEXT ==============
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,6 +120,7 @@ fun PrivateChatRoomScreen(
                         onValueChange = {
                             chatViewModel.currentMessage.value = it
                         },
+                        placeholder = "Enter a message...",
                         trailingIcon = {
                             IconButton(onClick = {
                                 chatViewModel.sendChatMessage()
@@ -137,8 +146,6 @@ fun PrivateChatRoomScreen(
         }
 
     }
-
-    // todo: add message state of sent but not reached to server
 }
 
 

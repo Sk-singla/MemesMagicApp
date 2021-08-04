@@ -17,6 +17,7 @@ import com.samarth.memesmagic.util.ChatUtils
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.tinder.scarlet.WebSocket
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -38,12 +39,12 @@ class ChatViewModel @Inject constructor(
     val connectionEvent = connectionEventChannel.receiveAsFlow().flowOn(dispatchers.io)
 
 
-    val chatRooms = mutableStateOf(hashMapOf<String,PrivateChatRoomWithPrivateChatMessages>())
-
+    val chatRooms = mutableStateOf(listOf<PrivateChatRoomWithPrivateChatMessages>())
     val currentChatRoomMessages = mutableStateOf(mutableListOf<PrivateChatMessage>())
+    var currentChatRoomMessageJob: Job? = null
     val currentMessage = mutableStateOf("")
-
     var currentUserEmail = ""
+    var unSeenMessagesCount = mutableStateOf(0)
 
 
     fun observeConnectionEvents() = viewModelScope.launch(dispatchers.io){
@@ -85,15 +86,8 @@ class ChatViewModel @Inject constructor(
             connectionEventChannel.send(event)
         }
     }
-// todo : get chat messages having status LOCAL and send them to server
 
     fun getAllMessagesOfStatusLocalAndSendThemAgain() = viewModelScope.launch(dispatchers.io){
-
-        Log.d("local","-------------------\n")
-        Log.d("local","-------------------\n")
-        Log.d("local","-----GET LOCAL ------\n")
-        Log.d("local","-------------------\n")
-        Log.d("local","-------------------\n")
         memeDao.getAllMessagesWhereStatus(PrivateChatMessageStatus.LOCAL.name).forEach {
             Log.d("local",it.message)
             webSocketApi.sendBaseModel(it)
@@ -107,22 +101,20 @@ class ChatViewModel @Inject constructor(
     }
     fun observeSingleChatLocalDatabase(
         userEmail: String = ChatUtils.currentChatRoom?.userEmail ?: ""
-    ) = viewModelScope.launch(dispatchers.io){
-        memeDao.getAllMessagesFromUser(
-            email = userEmail,
-        ).collect { privateMessages ->
-            currentChatRoomMessages.value = privateMessages.privateChatMessages.toMutableList()
+    ) {
+        currentChatRoomMessageJob = viewModelScope.launch(dispatchers.io){
+            memeDao.getAllMessagesFromUser(
+                email = userEmail,
+            )?.collect { privateMessages ->
+                currentChatRoomMessages.value = privateMessages.privateChatMessages.toMutableList()
+            }
         }
     }
 
-    fun observeLocalDatabase(context: Context) = viewModelScope.launch(dispatchers.io){
+    fun observeLocalDatabase() = viewModelScope.launch(dispatchers.io){
 //        val curUserEmail = getEmail(context) ?: ""
         memeDao.getAllPrivateChatRooms().collect { privateChatRooms ->
-
-            // todo: optimize getting rooms list
-            privateChatRooms.forEach {
-                chatRooms.value[it.privateChatRoom.userEmail] = it
-            }
+            chatRooms.value = privateChatRooms
         }
     }
 
@@ -175,6 +167,16 @@ class ChatViewModel @Inject constructor(
             )
         )
         memeDao.updatePrivateChatMessageStatus(msgId,PrivateChatMessageStatus.RECEIVED.name)
+    }
+
+    fun observeUnseenMessages(
+        context:Context
+    ) = viewModelScope.launch(dispatchers.io){
+        memeDao.getAllUnSeenMessagesCount(
+            getEmail(context)!!
+        ).collect {
+            unSeenMessagesCount.value = it
+        }
     }
 
 

@@ -30,6 +30,7 @@ import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.logout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -130,7 +131,7 @@ fun FeedScreen(
             onFail = {
                 Log.d("MyLog","User ------------> $it")
                  if(!it.contains("timeout")){
-                     coroutineScope.launch {
+                     coroutineScope.launch{
                          logout(context)
                          feedViewModel.clearLocalData()
                          parentNavController.popBackStack()

@@ -43,7 +43,14 @@ class SearchViewModel @Inject constructor(
 
     fun searchUser() = viewModelScope.launch{
         isLoading.value = true
-        val result = memeRepo.findUsers(searchKeyWord.value)
+        val searchKey = searchKeyWord.value.trim()
+        if(searchKey.isEmpty()){
+            isLoading.value = false
+            loadError.value = "Please Type Something!"
+            return@launch
+        }
+
+        val result = memeRepo.findUsers(searchKey)
         if(result is Resource.Success){
             usersList.value = result.data ?: emptyList()
             if(usersList.value.isEmpty()){

@@ -121,9 +121,8 @@ fun SinglePostScreen(
                                 }
                             }
                         },
-                        onClick = {
-
-                        }
+                        onClick = {},
+                        isSinglePost = true
                     )
 
                     if (feedViewModel.isLoading.value) {

@@ -57,7 +57,7 @@ class EditProfileViewModel @Inject constructor(
     fun updateProfile(context: Context,onSuccess: () -> Unit,onFail:(String)->Unit){
         isLoading.value = true
         if(profilePic.value == null){
-            updateUserInfo("",onSuccess,onFail)
+            updateUserInfo(null,onSuccess,onFail)
         } else {
             try {
                 val fd = context.contentResolver.openFileDescriptor(profilePic.value!!,"r",null)!!
@@ -95,7 +95,7 @@ class EditProfileViewModel @Inject constructor(
     }
 
 
-    private fun updateUserInfo( profilePicUrl:String,onSuccess:()->Unit, onFail: (String) -> Unit) = viewModelScope.launch{
+    private fun updateUserInfo( profilePicUrl:String?,onSuccess:()->Unit, onFail: (String) -> Unit) = viewModelScope.launch{
         isLoading.value = true
         val userInfoRequest = UserInfoRequest(
             userName.value,

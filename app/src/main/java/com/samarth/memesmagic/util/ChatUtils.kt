@@ -50,3 +50,11 @@ fun getMessageStatusTrackerIconTint(msgStatus: PrivateChatMessageStatus) = Color
         MaterialTheme.colors.primary
     }
 )
+
+fun getMessageCount(count:Int):String{
+    return if(count < 100){
+        "$count"
+    } else {
+        "99+"
+    }
+}

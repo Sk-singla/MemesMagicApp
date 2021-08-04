@@ -10,8 +10,10 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.data.local.dao.MemeDao
+import com.samarth.memesmagic.data.local.database.MemeDatabase
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
@@ -31,6 +33,7 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.lang.Exception
@@ -40,7 +43,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     val memeRepo: MemeRepo,
-    val memeDao: MemeDao
+    val memeDatabase: MemeDatabase,
+    val dispatcher: DispatcherProvider
 ):ViewModel() {
 
     val isLoading = mutableStateOf(true)
@@ -250,7 +254,9 @@ class FeedViewModel @Inject constructor(
 
 
     suspend fun clearLocalData(){
-        memeDao.clearData()
+        withContext(dispatcher.io) {
+            memeDatabase.clearAllTables()
+        }
     }
 
 }

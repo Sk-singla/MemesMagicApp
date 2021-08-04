@@ -122,7 +122,7 @@ fun SearchScreen(
                                 .clickable {
                                     parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${userInfo.email}")
                                 }
-                                .padding(top = 12.dp)
+                                .padding(vertical = 8.dp)
                         )
 
                     }

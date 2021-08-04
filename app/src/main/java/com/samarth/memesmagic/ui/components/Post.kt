@@ -41,7 +41,8 @@ fun PostItem(
     onLikeIconPressed:(post:Post,isPostLiked:Boolean, onSuccess:()->Unit)->Unit,
     onCommentIconPressed: (post:Post) -> Unit,
     onShareIconPressed: (post:Post) -> Unit,
-    onClick:()->Unit
+    onClick:()->Unit,
+    isSinglePost:Boolean = false
 ) {
 
     var isPostLiked by remember {
@@ -65,35 +66,23 @@ fun PostItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Image(
-                    painter = rememberCoilPainter(
-                        request = ImageRequest.Builder(LocalContext.current)
-                            .data(post.createdBy.profilePic ?: R.drawable.ic_person)
-                            .placeholder(R.drawable.ic_person)
-                            .error(R.drawable.ic_error)
-                            .build(),
-                        fadeIn = true,
-                    ),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "User Image",
+                ProfileImage(
+                    name = post.createdBy.name,
+                    imageUrl = post.createdBy.profilePic,
                     modifier = Modifier
                         .size(32.dp)
-                        .clip(CircleShape)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
-                            shape = CircleShape
-                        )
                         .clickable {
-                           onClick()
-                        },
+                            onClick()
+                        }
                 )
 
                 Text(
                     text = post.createdBy.name,
                     style = MaterialTheme.typography.body1,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 8.dp).clickable { onClick() }
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .clickable { onClick() }
                 )
 
             }
@@ -115,9 +104,14 @@ fun PostItem(
                         ),
                         contentScale = ContentScale.FillWidth,
                         contentDescription = "Post",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
+                        modifier = if(isSinglePost){
+                            Modifier
+                                .fillMaxWidth()
+                        } else {
+                            Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                        },
                     )
 
                 }
@@ -141,7 +135,7 @@ fun PostItem(
                     },
                     modifier = Modifier
                         .padding(start = 2.dp)
-                        .background(color = Color.Transparent,shape = CircleShape)
+                        .background(color = Color.Transparent, shape = CircleShape)
                 ) {
                     Icon(
                         painter = painterResource(id = if(isPostLiked) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
@@ -156,7 +150,7 @@ fun PostItem(
                     },
                     modifier = Modifier
                         .padding(start = 8.dp)
-                        .background(color = Color.Transparent,shape = CircleShape),
+                        .background(color = Color.Transparent, shape = CircleShape),
 
                 ) {
 
@@ -172,7 +166,7 @@ fun PostItem(
                     },
                     modifier = Modifier
                         .padding(start = 8.dp)
-                        .background(color = Color.Transparent,shape = CircleShape),
+                        .background(color = Color.Transparent, shape = CircleShape),
 
                     ) {
 

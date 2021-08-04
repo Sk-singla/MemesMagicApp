@@ -136,14 +136,23 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideMemeDao(
+    fun provideMemeDatabase(
         @ApplicationContext context: Context
-    ): MemeDao {
+    ): MemeDatabase {
         return Room.databaseBuilder(
             context,
             MemeDatabase::class.java,
             "Meme_db"
-        ).build().memeDao()
+        ).build()
+    }
+
+
+    @Singleton
+    @Provides
+    fun provideMemeDao(
+        memeDatabase: MemeDatabase
+    ): MemeDao {
+        return memeDatabase.memeDao()
     }
 
 

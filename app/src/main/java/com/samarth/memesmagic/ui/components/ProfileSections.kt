@@ -336,27 +336,13 @@ fun ProfileTopSection(
             verticalAlignment = Alignment.CenterVertically
         ){
 
-            Image(
-                painter = rememberCoilPainter(
-                    request = ImageRequest.Builder(LocalContext.current)
-                        .data(user.userInfo.profilePic ?: R.drawable.ic_person)
-                        .placeholder(R.drawable.ic_person)
-                        .error(R.drawable.ic_person)
-                        .build(),
-                    fadeIn = true,
-                ),
-                contentScale = ContentScale.Crop,
-                contentDescription = "User Image",
+            ProfileImage(
+                name = user.userInfo.name,
+                imageUrl = user.userInfo.profilePic,
                 modifier = Modifier
                     .padding(end = 8.dp, bottom = 8.dp)
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
-                        shape = CircleShape
-                    )
-//                    .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.85f)),
+                    .size(80.dp),
+                fontStyle = MaterialTheme.typography.h4
             )
 
 
@@ -378,10 +364,10 @@ fun ProfileTopSection(
 
             Column(
                 modifier = Modifier
-                    .background(shape = CircleShape,color = MaterialTheme.colors.surface)
+                    .background(shape = CircleShape, color = MaterialTheme.colors.surface)
                     .clickable {
-                      showFollowers()
-                },
+                        showFollowers()
+                    },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ){

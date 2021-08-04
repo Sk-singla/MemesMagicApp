@@ -50,28 +50,14 @@ fun UserSearchItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ){
-            Image(
-                painter = rememberCoilPainter(
-                    request = ImageRequest.Builder(LocalContext.current)
-                        .data(userInfo.profilePic ?: R.drawable.ic_person)
-                        .placeholder(R.drawable.ic_person)
-                        .error(R.drawable.ic_person)
-                        .build(),
-                    fadeIn = true,
-                ),
-                contentScale = ContentScale.Crop,
-                contentDescription = "User Image",
+
+            ProfileImage(
+                name = userInfo.name,
+                imageUrl = userInfo.profilePic,
                 modifier = Modifier
                     .padding(start = 8.dp,end = 16.dp)
                     .size(48.dp)
-                    .clip(CircleShape)
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
-                        shape = CircleShape
-                    )
             )
-
 
             Text(
                 text = userInfo.name,
