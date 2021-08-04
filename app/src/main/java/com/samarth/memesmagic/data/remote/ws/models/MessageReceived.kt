@@ -1,6 +1,5 @@
 package com.samarth.memesmagic.data.remote.ws.models
 
-import com.samarth.memesmagic.data.remote.ws.models.BaseModel
 import com.samarth.memesmagic.util.Constants.TYPE_MESSAGE_RECEIVED
 
 

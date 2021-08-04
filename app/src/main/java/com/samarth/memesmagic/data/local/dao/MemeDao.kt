@@ -1,14 +1,11 @@
 package com.samarth.memesmagic.data.local.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.samarth.memesmagic.data.local.entities.relations.PrivateChatRoomWithPrivateChatMessages
 import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Dao
 interface MemeDao {

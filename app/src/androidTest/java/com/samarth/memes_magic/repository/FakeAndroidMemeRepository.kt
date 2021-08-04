@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.repository
+package com.samarth.memes_magic.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore

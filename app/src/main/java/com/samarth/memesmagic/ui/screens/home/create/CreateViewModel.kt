@@ -21,7 +21,6 @@ import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Constants
 import com.samarth.memesmagic.util.Constants.BUCKET_OBJECT_URL_PREFIX
 import com.samarth.memesmagic.util.Resource
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import com.samarth.memesmagic.util.sdk29AndUp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ja.burhanrashid52.photoeditor.*

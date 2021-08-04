@@ -1,10 +1,8 @@
 package com.samarth.memesmagic.data.remote.ws.models
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
-import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.util.Constants.TYPE_PRIVATE_CHAT_MESSAGE
 import java.util.*
 

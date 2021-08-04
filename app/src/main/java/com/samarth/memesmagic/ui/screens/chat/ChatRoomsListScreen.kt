@@ -2,11 +2,9 @@ package com.samarth.memesmagic.ui.screens.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -15,11 +13,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,14 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.request.ImageRequest
-import com.google.accompanist.coil.rememberCoilPainter
-import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.local.entities.relations.PrivateChatRoomWithPrivateChatMessages
 import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
-import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
-import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
-import com.samarth.memesmagic.ui.components.CustomButton
 import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.ui.components.ProfileImage
 import com.samarth.memesmagic.util.ChatUtils

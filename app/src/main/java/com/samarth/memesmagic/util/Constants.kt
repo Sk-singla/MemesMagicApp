@@ -1,8 +1,5 @@
 package com.samarth.memesmagic.util
 
-import androidx.navigation.NavController
-import com.samarth.memesmagic.data.remote.response.Post
-
 object Constants {
     const val PARTIALLY_CLICKABLE_TEXT_TAG = "Click"
 

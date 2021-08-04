@@ -24,10 +24,6 @@ import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.scopes.ActivityScoped
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import java.io.File
 
 

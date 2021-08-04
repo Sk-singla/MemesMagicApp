@@ -4,7 +4,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.samarth.memesmagic.ui.screens.home.search.SearchScreen
 

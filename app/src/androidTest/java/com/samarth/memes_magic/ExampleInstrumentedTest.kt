@@ -1,4 +1,4 @@
-package com.samarth.memesmagic
+package com.samarth.memes_magic
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule

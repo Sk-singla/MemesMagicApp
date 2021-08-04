@@ -17,7 +17,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -25,17 +24,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import coil.request.ImageRequest
 import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.response.Post
-import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.ui.theme.Green700
 import com.samarth.memesmagic.util.CommentsUtil
-import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.numberOfFollowersOrFollowings
 import com.samarth.memesmagic.util.numberOfPosts
 import kotlinx.coroutines.launch

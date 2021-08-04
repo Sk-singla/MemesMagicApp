@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -22,9 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.UserSearchItem
-import com.samarth.memesmagic.util.ChatUtils
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
-import kotlinx.coroutines.launch
 
 @ExperimentalComposeUiApi
 @Composable

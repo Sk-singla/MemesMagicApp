@@ -21,7 +21,6 @@ import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.ui.components.AdvertiseDialogBox
 import com.samarth.memesmagic.ui.components.CongratsDialogBox
 import com.samarth.memesmagic.ui.components.PostItem
-import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
@@ -30,7 +29,6 @@ import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.logout
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable

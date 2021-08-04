@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.utils
+package com.samarth.memes_magic.utils
 
 import com.plcoding.doodlekong.util.DispatcherProvider
 import kotlinx.coroutines.CoroutineDispatcher

@@ -1,6 +1,5 @@
 package com.samarth.memesmagic.repository
 
-import android.content.Context
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.PostRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest

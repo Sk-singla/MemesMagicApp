@@ -2,7 +2,6 @@ package com.samarth.memesmagic.ui.screens.edit_profile
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +11,6 @@ import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Constants.BUCKET_OBJECT_URL_PREFIX
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getEmail
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import com.samarth.memesmagic.util.getFileName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

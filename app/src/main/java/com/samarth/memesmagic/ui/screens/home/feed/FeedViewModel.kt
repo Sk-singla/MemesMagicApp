@@ -1,18 +1,15 @@
 package com.samarth.memesmagic.ui.screens.home.feed
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.BuildConfig
-import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.local.database.MemeDatabase
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType

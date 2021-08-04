@@ -5,7 +5,6 @@ import com.tinder.scarlet.WebSocket
 import com.tinder.scarlet.ws.Receive
 import com.tinder.scarlet.ws.Send
 import kotlinx.coroutines.flow.Flow
-import retrofit2.http.Header
 
 interface WebSocketApi {
 

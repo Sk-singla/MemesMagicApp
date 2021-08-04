@@ -1,13 +1,10 @@
 package com.samarth.memesmagic.ui.screens.home.profile
 
-import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plcoding.doodlekong.util.DispatcherProvider
-import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.local.database.MemeDatabase
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
@@ -16,7 +13,6 @@ import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.TokenHandler.getEmail
-import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

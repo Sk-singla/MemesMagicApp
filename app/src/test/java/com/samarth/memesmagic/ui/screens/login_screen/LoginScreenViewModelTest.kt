@@ -2,12 +2,10 @@ package com.samarth.memesmagic.ui.screens.login_screen
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
-import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.repository.FAKE_EMAIL
 import com.samarth.memesmagic.repository.FAKE_PASSWORD
 import com.samarth.memesmagic.repository.FakeMemeRepository
 import com.samarth.memesmagic.utils.TestCoroutineDispatcherProvider
-import com.samarth.memesmagic.utils.TestCoroutineRule
 import kotlinx.coroutines.*
 import org.junit.Before
 import org.junit.Rule

@@ -2,12 +2,10 @@ package com.samarth.memesmagic.util
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
-import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.text.format.DateUtils
-import android.view.View
 import androidx.navigation.NavController
 import com.samarth.memesmagic.util.Screens.MAX_PASSWORD_LENGTH
 import com.samarth.memesmagic.util.Screens.MIN_PASSWORD_LENGTH

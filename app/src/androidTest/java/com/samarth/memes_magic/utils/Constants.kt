@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.utils
+package com.samarth.memes_magic.utils
 
 
 const val FAKE_NAME = "SAMARTH"
