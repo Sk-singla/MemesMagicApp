@@ -32,8 +32,10 @@ interface MemeDao {
 
     @Transaction
     @Query("SELECT * FROM PrivateChatRoom")
-    fun getAllPrivateChatRooms():Flow<List<PrivateChatRoomWithPrivateChatMessages>>
+    fun getAllPrivateChatRooms():Flow<List<PrivateChatRoomWithPrivateChatMessages>>?
 
+
+    @Transaction
     @Query("SELECT * FROM PrivateChatRoom WHERE userEmail = :email")
     fun getAllMessagesFromUser(email: String):Flow<PrivateChatRoomWithPrivateChatMessages>?
 

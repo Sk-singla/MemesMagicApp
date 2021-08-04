@@ -113,7 +113,7 @@ class ChatViewModel @Inject constructor(
 
     fun observeLocalDatabase() = viewModelScope.launch(dispatchers.io){
 //        val curUserEmail = getEmail(context) ?: ""
-        memeDao.getAllPrivateChatRooms().collect { privateChatRooms ->
+        memeDao.getAllPrivateChatRooms()?.collect { privateChatRooms ->
             chatRooms.value = privateChatRooms
         }
     }

@@ -29,10 +29,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -173,9 +171,12 @@ object AppModule {
     ): WebSocketApi {
 
 
-        var token = "token"
-        runBlocking {
-            token = TokenHandler.getJwtToken(app.applicationContext) ?: "NULL"
+        var token = "NULL"
+
+        CoroutineScope(Dispatchers.IO).launch {
+            TokenHandler.getLiveJwtToken(app.applicationContext).collect {
+                token = it
+            }
         }
 
         Log.d("token",token)

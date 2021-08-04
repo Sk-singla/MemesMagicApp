@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.samarth.memesmagic.data.local.dao.MemeDao
@@ -13,7 +14,9 @@ import com.samarth.memesmagic.util.Constants.FCM_TOKEN_KEY
 import com.samarth.memesmagic.util.Constants.JWT_TOKEN_KEY
 import com.samarth.memesmagic.util.Constants.REWARD_ID_KEY
 import com.samarth.memesmagic.util.Constants.YEAR_REWARD_ID
-import kotlinx.coroutines.flow.first
+import com.samarth.memesmagic.util.TokenHandler.dataStore
+import kotlinx.coroutines.flow.*
+import java.io.IOException
 import javax.inject.Inject
 
 object TokenHandler {
@@ -53,6 +56,20 @@ object TokenHandler {
         val preferences = context.dataStore.data.first()
         return preferences[dataStoreKey]
     }
+
+    suspend fun getLiveJwtToken(context:Context): Flow<String>{
+        val dataStoreKey = stringPreferencesKey(JWT_TOKEN_KEY)
+        return context.dataStore.data.catch { exception ->
+            if(exception is IOException){
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map {
+            it[dataStoreKey] ?: ""
+        }
+    }
+
     suspend fun getFcmToken(context: Context):String?{
         val dataStoreKey = stringPreferencesKey(FCM_TOKEN_KEY)
         val preferences = context.dataStore.data.first()
