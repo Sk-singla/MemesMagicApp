@@ -49,6 +49,19 @@ class MemeRepository(
         }
     }
 
+    override suspend fun registerWithGoogle(idToken: String): Resource<String> {
+        return try {
+            val response = memeApi.userRegisterWithGoogle(idToken)
+            if(response.success && response.data != null){
+                Resource.Success(response.data)
+            }  else {
+                Resource.Error(response.message)
+            }
+        } catch (e:Exception){
+            Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
+        }
+    }
+
 
     override suspend fun loginUser(loginRequest: LoginRequest): Resource<String> {
         return try{

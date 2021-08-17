@@ -1,8 +1,10 @@
 package com.samarth.memesmagic.ui.screens.chat
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -22,9 +24,12 @@ import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
 import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.CustomTopBar
+import com.samarth.memesmagic.ui.components.dialogs.ChatMessageLocalDeleteDialog
+import com.samarth.memesmagic.ui.components.dialogs.ChatMessageRemoteDeleteDialog
 import com.samarth.memesmagic.ui.theme.Green200
 import com.samarth.memesmagic.util.*
 
+@ExperimentalFoundationApi
 @Composable
 fun PrivateChatRoomScreen(
     navController: NavController,
@@ -33,14 +38,12 @@ fun PrivateChatRoomScreen(
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
 
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = Unit ){
         chatViewModel.createChatRoom()
         chatViewModel.currentUserEmail = TokenHandler.getEmail(context) ?: ""
         chatViewModel.observeSingleChatLocalDatabase()
-
-//        if(chatViewModel.chatRoomMessages.value[ChatUtils.currentChatRoom?.userEmail] == null){
-//            chatViewModel.chatRoomMessages.value[ChatUtils.currentChatRoom?.userEmail ?: ""] = listOf()
-//        }
     }
 
     Scaffold(
@@ -48,6 +51,26 @@ fun PrivateChatRoomScreen(
         topBar = {
             CustomTopBar(
                 title = ChatUtils.currentChatRoom?.name ?: "",
+                actions = {
+                    if(chatViewModel.chatRoomState.value is ChatViewModel.ChatRoomState.MessagesSelectedState){
+                        IconButton(
+                            onClick = {
+                                val senders = (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState)
+                                    .selectedMessages
+                                    .groupBy {
+                                        it.from
+                                    }
+                                if(senders.size == 1 && senders[chatViewModel.currentUserEmail] != null){
+                                    chatViewModel.isRemoteDeleteDialogVisible.value = true
+                                } else {
+                                    chatViewModel.isLocalDeleteDialogVisible.value = true
+                                }
+                            }
+                        ) {
+                            Icon(painter = painterResource(id = R.drawable.ic_baseline_delete_24), contentDescription = "Delete Message")
+                        }
+                    }
+                }
             )
         }
     ) {
@@ -73,8 +96,16 @@ fun PrivateChatRoomScreen(
                 }
 
                 itemsIndexed(
-                    chatViewModel.currentChatRoomMessages.value.reversed() ?: listOf()
+                    chatViewModel.currentChatRoomMessages.value.reversed() ?: listOf(),
+                    key = { _, msg ->
+                        msg.id
+                    }
                 ) {  index, privateChatMessage->
+
+
+                    var isMessageSelected by remember {
+                        mutableStateOf(false)
+                    }
 
                     val isReceived = privateChatMessage.to == chatViewModel.currentUserEmail
                     val isFirst = index == chatViewModel.currentChatRoomMessages.value.size -1 || chatViewModel.currentChatRoomMessages.value[index+1].from != chatViewModel.currentChatRoomMessages.value[index].from
@@ -95,7 +126,38 @@ fun PrivateChatRoomScreen(
                     PrivateChatMessageItem(
                         privateChatMessage = privateChatMessage,
                         isReceived = isReceived,
-                        isFirst = isFirst
+                        isFirst = isFirst,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .combinedClickable(
+                                onLongClick = {
+                                    isMessageSelected = !isMessageSelected
+                                    if (isMessageSelected) {
+                                        chatViewModel.onMessageSelection(
+                                            privateChatMessage
+                                        )
+                                    } else {
+                                        chatViewModel.onMessageDeselect(
+                                            privateChatMessage
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    if (chatViewModel.chatRoomState.value is ChatViewModel.ChatRoomState.MessagesSelectedState) {
+                                        isMessageSelected = !isMessageSelected
+                                        if (isMessageSelected) {
+                                            chatViewModel.onMessageSelection(
+                                                privateChatMessage
+                                            )
+                                        } else {
+                                            chatViewModel.onMessageDeselect(
+                                                privateChatMessage
+                                            )
+                                        }
+                                    }
+                                }
+                            ),
+                        isSelected = isMessageSelected
                     )
 
                 }
@@ -143,6 +205,60 @@ fun PrivateChatRoomScreen(
             }
 
 
+
+            if(chatViewModel.isLocalDeleteDialogVisible.value){
+                ChatMessageLocalDeleteDialog(
+                    title = "Delete Message",
+                    onDialogDismiss = {
+                                      chatViewModel.isLocalDeleteDialogVisible.value= false
+                    },
+                    onDelete = {
+
+                        // DELETED ALL SELECTED CHAT MESSAGES FROM LOCAL DATABASE AND COME BACK TO NORMAL STATE
+
+                        chatViewModel.deleteMessagesFromLocalDatabase(
+                            (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
+                                .map { it.id }
+                        )
+                        (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
+                        chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
+
+                    }
+                )
+            }
+
+            if(chatViewModel.isRemoteDeleteDialogVisible.value){
+                ChatMessageRemoteDeleteDialog(
+                    title = "Delete Message",
+                    onDialogDismiss = {
+                        chatViewModel.isRemoteDeleteDialogVisible.value= false
+                    },
+                    onLocalDelete = {
+
+                        // DELETED ALL SELECTED CHAT MESSAGES FROM LOCAL DATABASE AND COME BACK TO NORMAL STATE
+
+                        chatViewModel.deleteMessagesFromLocalDatabase(
+                            (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
+                                .map { it.id }
+                        )
+                        (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
+                        chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
+
+                    },
+                    onDeleteForEveryone = {
+
+                        // todo: Add Delete for everyone login in server
+                        chatViewModel.deleteMessagesFromLocalDatabase(
+                            (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
+                                .map { it.id }
+                        )
+                        (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
+                        chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
+                    }
+                )
+            }
+
+
         }
 
     }
@@ -153,11 +269,18 @@ fun PrivateChatRoomScreen(
 fun PrivateChatMessageItem(
     privateChatMessage: PrivateChatMessage,
     isReceived: Boolean,
-    isFirst: Boolean
+    isFirst: Boolean,
+    isSelected:Boolean = false,
+    modifier: Modifier = Modifier
 ) {
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = if(isSelected){
+            modifier
+                .background(color= MaterialTheme.colors.primary.copy(alpha = 0.6f))
+        } else {
+            modifier
+        }
     ) {
 
         if(isReceived){
@@ -168,6 +291,7 @@ fun PrivateChatMessageItem(
                     .align(Alignment.Start),
                 contentAlignment = Alignment.CenterStart
             ) {
+
                 Column(
                     modifier = Modifier
                         .shadow(
@@ -250,7 +374,6 @@ fun PrivateChatMessageItem(
                     }
 
                 }
-
             }
         }
 

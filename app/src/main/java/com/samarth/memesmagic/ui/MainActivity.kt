@@ -41,6 +41,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.data.remote.request.LoginRequest
+import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmFollowerAddedMessage
 import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
 import com.samarth.memesmagic.repository.MemeRepo
@@ -49,12 +51,16 @@ import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTE
 import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
 import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
+import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
+import com.samarth.memesmagic.util.TokenHandler
+import com.samarth.memesmagic.util.navigateWithPop
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 @ExperimentalAnimationApi
@@ -76,15 +82,14 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         Log.d("MyLog","came -> ${uri}")
     }
 
-    private val startActivityForResult = registerForActivityResult(
+    private val googleSignInIntent = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-
         if(it.data != null) {
             Toast.makeText(this, "Data is not null", Toast.LENGTH_SHORT).show()
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-            Toast.makeText(this, "${task}", Toast.LENGTH_SHORT).show()
-            Log.d("Task","$task")
+            Toast.makeText(this, "${task}, Sucess: ${task.isSuccessful}", Toast.LENGTH_SHORT).show()
+            Log.d("Task","Success: ${task.isSuccessful}")
             handleSignInResult(task)
         } else {
             Toast.makeText(this, "Data is Null", Toast.LENGTH_SHORT).show()
@@ -122,7 +127,11 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                     },
                     modifier = Modifier.fillMaxSize(),
                     navController = navController,
-                    chatViewModel = chatViewModel
+                    chatViewModel = chatViewModel,
+                    onSignUpWithGoogle = {
+                        configureGSI()
+                        signIn()
+                    }
                 )
             }
         }
@@ -163,7 +172,6 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         chatViewModel.listenToConnectionEvent()
         chatViewModel.observeWebSocketBaseModelEvents()
         chatViewModel.observeConnectionEvents()
-//        configureGSI()
     }
 
     private fun notificationIntentWork(intent: Intent?) {
@@ -190,7 +198,6 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         super.onResume()
         val filter = IntentFilter(INTENT_ACTION_SEND_MESSAGE)
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver,filter)
-
     }
 
     override fun onPause() {
@@ -203,15 +210,56 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         chatViewModel.disconnect()
     }
 
+    private fun handleSignInResult(task: Task<GoogleSignInAccount>?) {
+        lifecycleScope.launch {
+            try {
+                task?.result?.let {
+                    Log.d("TASK","Result entered, ${it.email}")
 
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-        try {
-            val account:GoogleSignInAccount? = completedTask.getResult(ApiException::class.java)
-            val accountLast = GoogleSignIn.getLastSignedInAccount(this)
-            updateUI(accountLast)
-        }catch (e:Exception){
-            Timber.d(e)
-            updateUI(null)
+
+                    val result = memeRepo.registerUser(
+                        userRegisterRequest = RegisterUserRequest(
+                            name = it.displayName ?: "",
+                            email = it.email ?: "",
+                            password = it.id ?: UUID.randomUUID().toString(),
+                            profilePic = it.photoUrl?.toString()
+                        )
+                    )
+
+                    if(result.data != null) {
+                        TokenHandler.saveJwtToken(
+                            this@MainActivity,
+                            result.data,
+                            it.email ?: ""
+                        )
+                        navController.popBackStack()
+                        navigateWithPop(navController, Screens.HOME_SCREEN)
+                    } else {
+                        val loginResult = memeRepo.loginUser(
+                            loginRequest = LoginRequest(
+                                email = it.email ?: "",
+                                password = it.id ?: ""
+                            )
+                        )
+                        if(loginResult.data != null) {
+                            TokenHandler.saveJwtToken(
+                                this@MainActivity,
+                                loginResult.data,
+                                it.email ?: ""
+                            )
+                            navController.popBackStack()
+                            navigateWithPop(navController, Screens.HOME_SCREEN)
+                        }
+
+                    }
+                    updateUI(it)
+                }
+            }catch (e:Exception){
+                Timber.d(e)
+                e.printStackTrace()
+                Log.d("EXC",e.message ?: "Exception Occrued!")
+                updateUI(null)
+            }
         }
     }
 
@@ -225,30 +273,31 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     }
 
 
+    override fun onStart() {
+        super.onStart()
+        val account = GoogleSignIn.getLastSignedInAccount(this)
+        updateUI(account)
+    }
+
+
     fun configureGSI(){
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(BuildConfig.API_KEY)
             .requestEmail()
             .requestProfile()
-            .requestIdToken(BuildConfig.API_KEY)
             .build()
 
         mGoogleSignInClient = GoogleSignIn.getClient(
             this,
             gso
         )
-        val account = GoogleSignIn.getLastSignedInAccount(
-            this
-        )
-        if(account != null)
-            updateUI(account)
-        else
-            signIn()
     }
 
 
     fun signIn(){
-        val signInIntent = mGoogleSignInClient.signInIntent
-        startActivityForResult.launch(signInIntent)
+        mGoogleSignInClient.signInIntent.also {
+            googleSignInIntent.launch(it)
+        }
     }
 
 

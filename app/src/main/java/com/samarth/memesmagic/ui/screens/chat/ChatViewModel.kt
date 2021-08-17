@@ -33,9 +33,17 @@ class ChatViewModel @Inject constructor(
 ): ViewModel() {
 
 
+    sealed class ChatRoomState{
+
+        object NormalState : ChatRoomState()
+        class MessagesSelectedState(var selectedMessages:List<PrivateChatMessage>):ChatRoomState()
+
+    }
+
     private val connectionEventChannel = Channel<WebSocket.Event>()
     val connectionEvent = connectionEventChannel.receiveAsFlow().flowOn(dispatchers.io)
 
+    val chatRoomState = mutableStateOf<ChatRoomState>(ChatRoomState.NormalState)
 
     val chatRooms = mutableStateOf(listOf<PrivateChatRoomWithPrivateChatMessages>())
     val currentChatRoomMessages = mutableStateOf(mutableListOf<PrivateChatMessage>())
@@ -43,7 +51,8 @@ class ChatViewModel @Inject constructor(
     val currentMessage = mutableStateOf("")
     var currentUserEmail = ""
     var unSeenMessagesCount = mutableStateOf(0)
-
+    val isLocalDeleteDialogVisible = mutableStateOf(false)
+    val isRemoteDeleteDialogVisible = mutableStateOf(false)
 
     fun observeConnectionEvents() = viewModelScope.launch(dispatchers.io){
         connectionEvent.collect { event ->
@@ -78,6 +87,40 @@ class ChatViewModel @Inject constructor(
         savePrivateChatMessageToLocalDatabase(privateChatMessage)
         clearChatMessageTextField()
     }
+
+    fun onMessageSelection (
+        privateChatMessage: PrivateChatMessage
+    ){
+        when(chatRoomState.value){
+            is ChatRoomState.NormalState -> {
+                chatRoomState.value = ChatRoomState.MessagesSelectedState(listOf(privateChatMessage))
+            }
+            is ChatRoomState.MessagesSelectedState -> {
+                (chatRoomState.value as ChatRoomState.MessagesSelectedState).selectedMessages += privateChatMessage
+            }
+        }
+    }
+
+    fun onMessageDeselect(
+        privateChatMessage: PrivateChatMessage
+    ) {
+        if(chatRoomState.value is ChatRoomState.MessagesSelectedState){
+            (chatRoomState.value as ChatRoomState.MessagesSelectedState).selectedMessages -= privateChatMessage
+            if((chatRoomState.value as ChatRoomState.MessagesSelectedState).selectedMessages.isEmpty()){
+                chatRoomState.value = ChatRoomState.NormalState
+            }
+        }
+    }
+
+
+    fun deleteMessagesFromLocalDatabase(
+        messageIdList: List<String>
+    ) = viewModelScope.launch(dispatchers.io) {
+        messageIdList.forEach {
+            memeDao.deletePrivateMessageWithId(it)
+        }
+    }
+
 
     fun listenToConnectionEvent() = viewModelScope.launch(dispatchers.io){
         webSocketApi.observeEvent().collect { event->

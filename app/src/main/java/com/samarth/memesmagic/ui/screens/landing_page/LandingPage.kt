@@ -29,7 +29,10 @@ import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import kotlinx.coroutines.launch
 
 @Composable
-fun LandingPage(navController: NavController) {
+fun LandingPage(
+    navController: NavController,
+    onSignUpWithGoogle: () -> Unit
+) {
 
 
     val scope = rememberCoroutineScope()
@@ -93,9 +96,7 @@ fun LandingPage(navController: NavController) {
                     .fillMaxWidth()
                     .padding(8.dp),
                 onSignUpWithGoogle = {
-                    scope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
-                    }
+                    onSignUpWithGoogle()
                 },
                 onSignUpWithEmail = {
                     navController.navigate(REGISTER_SCREEN)

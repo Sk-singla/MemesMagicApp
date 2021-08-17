@@ -56,6 +56,7 @@ import com.samarth.memesmagic.util.Screens.SPLASH_SCREEN
 @ExperimentalFoundationApi
 @Composable
 fun MainNavGraph(
+    onSignUpWithGoogle:()->Unit,
     startActivity:(Intent)->Unit,
     startActivityForResult:(String,(Uri?)->Unit)->Unit,
     updateOrRequestPermissions:()->Boolean,
@@ -84,7 +85,7 @@ fun MainNavGraph(
             BasicAnimation(
                 isVisible = navController.currentDestination?.route == LANDING_SCREEN
             ){
-                LandingPage(navController = navController)
+                LandingPage(navController = navController,onSignUpWithGoogle = onSignUpWithGoogle)
             }
         }
 

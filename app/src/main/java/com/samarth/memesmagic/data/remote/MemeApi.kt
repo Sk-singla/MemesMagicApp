@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.data.remote
 
+import com.google.android.gms.common.internal.safeparcel.SafeParcelable
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.PostRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
@@ -20,6 +21,12 @@ interface MemeApi {
     @POST("$USERS/register")
     suspend fun userRegister(
         @Body registerUserRequest: RegisterUserRequest
+    ): SimpleResponse<String>
+
+    @Headers("Content-Type: application/json")
+    @POST("$USERS/register/google")
+    suspend fun userRegisterWithGoogle(
+        @Query("idToken") idToken:String
     ): SimpleResponse<String>
 
     @Headers("Content-Type: application/json")

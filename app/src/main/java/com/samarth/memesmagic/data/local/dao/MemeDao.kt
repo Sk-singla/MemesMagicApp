@@ -14,6 +14,9 @@ interface MemeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun savePrivateMessage(message: PrivateChatMessage)
 
+    @Query("DELETE FROM PrivateChatMessage WHERE id = :messageId")
+    suspend fun deletePrivateMessageWithId(messageId: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPrivateChatRoom(room:PrivateChatRoom)
 

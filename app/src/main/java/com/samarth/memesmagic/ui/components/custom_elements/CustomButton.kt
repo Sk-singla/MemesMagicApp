@@ -71,3 +71,36 @@ fun CustomButton(
         }
     }
 }
+@Composable
+fun CustomSmallButton(
+    text:String,
+    modifier:Modifier = Modifier,
+    textColor:Color = MaterialTheme.colors.secondaryVariant,
+    textStyle: TextStyle = MaterialTheme.typography.h6,
+    backgroundColor:Color = MaterialTheme.colors.surface,
+    enabled: Boolean = true,
+    onclick:()->Unit
+){
+    Button(
+        onClick = onclick,
+        modifier = modifier
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(5.dp)
+            ),
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(backgroundColor = backgroundColor),
+        shape = RoundedCornerShape(5.dp)
+    ) {
+
+        Text(
+            text = text,
+            modifier = Modifier.padding(4.dp),
+            color = textColor,
+            style = textStyle,
+            textAlign = TextAlign.Center,
+            maxLines = 1
+        )
+
+    }
+}

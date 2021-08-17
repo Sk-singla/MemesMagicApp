@@ -22,7 +22,7 @@ fun CustomBottomNavBar(
     parentNavController:NavHostController,
     tabs: Array<HomeSections>,
 ) {
-    var currentRoute = currentRoute(navController = navController)
+    val currentRoute = currentRoute(navController = navController)
     val sections = remember {
         HomeSections.values()
     }
