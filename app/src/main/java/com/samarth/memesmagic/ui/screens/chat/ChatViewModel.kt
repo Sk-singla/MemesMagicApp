@@ -113,12 +113,10 @@ class ChatViewModel @Inject constructor(
     }
 
 
-    fun deleteMessagesFromLocalDatabase(
-        messageIdList: List<String>
+    fun deleteMessageFromLocalDatabase(
+        messageId: String
     ) = viewModelScope.launch(dispatchers.io) {
-        messageIdList.forEach {
-            memeDao.deletePrivateMessageWithId(it)
-        }
+        memeDao.deletePrivateMessageWithId(messageId)
     }
 
 
@@ -186,9 +184,22 @@ class ChatViewModel @Inject constructor(
                 is MessageSeen -> {
                     memeDao.updatePrivateChatMessageStatus(data.msgId,PrivateChatMessageStatus.SEEN.name)
                 }
+                is DeleteMessage -> {
+                    memeDao.deletePrivateMessageWithId(data.msgId)
+                }
                 else -> Unit
             }
         }
+    }
+
+    fun deleteMessageForAll(msgId: String,messageSender: String) = viewModelScope.launch(dispatchers.io) {
+        webSocketApi.sendBaseModel(
+            DeleteMessage(
+                msgId = msgId,
+                messageSender = messageSender
+            )
+        )
+        memeDao.deletePrivateMessageWithId(messageId = msgId)
     }
 
     fun messageSeen(msgId:String,messageSender:String) = viewModelScope.launch(dispatchers.io){

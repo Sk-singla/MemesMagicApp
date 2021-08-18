@@ -28,6 +28,7 @@ import com.samarth.memesmagic.ui.components.dialogs.ChatMessageLocalDeleteDialog
 import com.samarth.memesmagic.ui.components.dialogs.ChatMessageRemoteDeleteDialog
 import com.samarth.memesmagic.ui.theme.Green200
 import com.samarth.memesmagic.util.*
+import kotlinx.coroutines.launch
 
 @ExperimentalFoundationApi
 @Composable
@@ -50,7 +51,9 @@ fun PrivateChatRoomScreen(
         scaffoldState = scaffoldState,
         topBar = {
             CustomTopBar(
-                title = ChatUtils.currentChatRoom?.name ?: "",
+                title = if(ChatUtils.currentChatRoom != null && chatViewModel.chatRoomState.value == ChatViewModel.ChatRoomState.NormalState){
+                                    ChatUtils.currentChatRoom!!.name
+                         } else "",
                 actions = {
                     if(chatViewModel.chatRoomState.value is ChatViewModel.ChatRoomState.MessagesSelectedState){
                         IconButton(
@@ -77,6 +80,10 @@ fun PrivateChatRoomScreen(
 
         BackHandler {
             chatViewModel.currentChatRoomMessageJob?.cancel()
+            if(chatViewModel.chatRoomState.value is ChatViewModel.ChatRoomState.MessagesSelectedState){
+                (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = mutableListOf()
+                chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
+            }
             navController.popBackStack()
         }
 
@@ -213,16 +220,14 @@ fun PrivateChatRoomScreen(
                                       chatViewModel.isLocalDeleteDialogVisible.value= false
                     },
                     onDelete = {
-
-                        // DELETED ALL SELECTED CHAT MESSAGES FROM LOCAL DATABASE AND COME BACK TO NORMAL STATE
-
-                        chatViewModel.deleteMessagesFromLocalDatabase(
-                            (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
-                                .map { it.id }
-                        )
+                        (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
+                            .forEach {
+                                chatViewModel.deleteMessageFromLocalDatabase(
+                                    it.id
+                                )
+                            }
                         (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
                         chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
-
                     }
                 )
             }
@@ -234,24 +239,28 @@ fun PrivateChatRoomScreen(
                         chatViewModel.isRemoteDeleteDialogVisible.value= false
                     },
                     onLocalDelete = {
-
-                        // DELETED ALL SELECTED CHAT MESSAGES FROM LOCAL DATABASE AND COME BACK TO NORMAL STATE
-
-                        chatViewModel.deleteMessagesFromLocalDatabase(
-                            (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
-                                .map { it.id }
-                        )
+                        (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
+                            .forEach {
+                                chatViewModel.deleteMessageFromLocalDatabase(
+                                    it.id
+                                )
+                            }
                         (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
                         chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
 
                     },
                     onDeleteForEveryone = {
 
-                        // todo: Add Delete for everyone login in server
-                        chatViewModel.deleteMessagesFromLocalDatabase(
-                            (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
-                                .map { it.id }
-                        )
+                        (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages
+                            .forEach {
+                                chatViewModel.deleteMessageForAll(
+                                    it.id,
+                                    it.to
+                                )
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(it.message)
+                                }
+                            }
                         (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
                         chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
                     }
@@ -259,122 +268,6 @@ fun PrivateChatRoomScreen(
             }
 
 
-        }
-
-    }
-}
-
-
-@Composable
-fun PrivateChatMessageItem(
-    privateChatMessage: PrivateChatMessage,
-    isReceived: Boolean,
-    isFirst: Boolean,
-    isSelected:Boolean = false,
-    modifier: Modifier = Modifier
-) {
-
-    Column(
-        modifier = if(isSelected){
-            modifier
-                .background(color= MaterialTheme.colors.primary.copy(alpha = 0.6f))
-        } else {
-            modifier
-        }
-    ) {
-
-        if(isReceived){
-            Box(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth(0.75f)
-                    .align(Alignment.Start),
-                contentAlignment = Alignment.CenterStart
-            ) {
-
-                Column(
-                    modifier = Modifier
-                        .shadow(
-                            elevation = 2.dp,
-                            shape = if (isFirst) ReceivedFirstMessageShape
-                            else MiddleChatMessageShape
-                        )
-                        .background(
-                            color = MaterialTheme.colors.surface,
-                            shape = if (isFirst) ReceivedFirstMessageShape
-                            else MiddleChatMessageShape
-                        )
-                        .padding(vertical = 8.dp, horizontal = 16.dp)
-                ) {
-
-                    Text(
-                        text = privateChatMessage.message,
-                        color = MaterialTheme.colors.onSurface,
-                        fontSize = 16.sp
-                    )
-
-                    Text(
-                        text = getChatMessageTime(privateChatMessage.timeStamp),
-                        color = MaterialTheme.colors.onSurface.copy(0.65f),
-                        fontSize = 8.sp
-                    )
-
-                }
-
-            }
-
-        } else {
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.75f)
-                    .padding(vertical = 4.dp)
-                    .align(Alignment.End),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Column(
-                    modifier = Modifier
-                        .shadow(
-                            2.dp, shape = if (isFirst) SentFirstMessageShape
-                            else MiddleChatMessageShape
-                        )
-                        .background(
-                            color = Green200,
-                            shape = if (isFirst) SentFirstMessageShape
-                            else MiddleChatMessageShape
-                        )
-                        .padding(vertical = 8.dp, horizontal = 16.dp),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = privateChatMessage.message,
-                        color = MaterialTheme.colors.onSurface,
-                        fontSize = 16.sp
-                    )
-
-                    Row(
-                        modifier = Modifier.height(12.dp)
-                    ){
-                        Text(
-                            text = getChatMessageTime(privateChatMessage.timeStamp),
-                            color = MaterialTheme.colors.onSurface.copy(0.65f),
-                            fontSize = 8.sp
-                        )
-                        Spacer(modifier = Modifier.padding(4.dp))
-                        Image(
-                            painter = painterResource(
-                                id= getIconAccordingToMessageStatus(privateChatMessage.msgStatus)
-                            ),
-                            contentDescription = "Message Status",
-                            modifier = Modifier.fillMaxHeight(),
-                            colorFilter = ColorFilter.tint(
-                                MaterialTheme.colors.onSurface
-                            )
-                        )
-                    }
-
-                }
-            }
         }
 
     }

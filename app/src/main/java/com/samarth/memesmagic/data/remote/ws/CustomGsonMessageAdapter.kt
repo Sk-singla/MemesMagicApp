@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.samarth.data.models.webosocket_models.JoinServerHandshake
 import com.samarth.memesmagic.data.remote.ws.models.*
+import com.samarth.memesmagic.util.Constants.TYPE_DELETE_MESSAGE
 import com.samarth.memesmagic.util.Constants.TYPE_DISCONNECT_REQUEST
 import com.samarth.memesmagic.util.Constants.TYPE_JOIN_SERVER_HANDSHAKE
 import com.samarth.memesmagic.util.Constants.TYPE_LIKE_POST
@@ -36,6 +37,7 @@ class CustomGsonMessageAdapter<T> private constructor(
             TYPE_MESSAGE_RECEIVED -> MessageReceived::class.java
             TYPE_MESSAGE_SEEN -> MessageSeen::class.java
             TYPE_MESSAGE_RECEIVED_ON_SERVER_ACK -> MessageReachedServerAcknowledgement::class.java
+            TYPE_DELETE_MESSAGE -> DeleteMessage::class.java
             else -> BaseModel::class.java
         }
         val obj = gson.fromJson(stringValue,type)
@@ -52,6 +54,7 @@ class CustomGsonMessageAdapter<T> private constructor(
             TYPE_MESSAGE_SEEN -> convertedData as MessageSeen
             TYPE_MESSAGE_RECEIVED -> convertedData as MessageReceived
             TYPE_MESSAGE_RECEIVED_ON_SERVER_ACK -> convertedData as MessageReachedServerAcknowledgement
+            TYPE_DELETE_MESSAGE -> convertedData as DeleteMessage
             else -> convertedData
         }
 
