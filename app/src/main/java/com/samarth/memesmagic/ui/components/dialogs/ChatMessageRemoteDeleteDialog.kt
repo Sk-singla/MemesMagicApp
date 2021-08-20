@@ -45,7 +45,7 @@ fun ChatMessageRemoteDeleteDialog(
                       textStyle = MaterialTheme.typography.body2
                   )
                   CustomSmallButton(
-                      text = "Delete",
+                      text = "Delete For Me",
                       onclick = {
                                 onLocalDelete()
                                 onDialogDismiss()

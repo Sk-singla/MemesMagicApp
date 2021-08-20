@@ -21,12 +21,11 @@ fun SplashScreen(navController: NavController,testing:Boolean = false) {
 
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = Unit,) {
+    LaunchedEffect(key1 = Unit) {
         if(testing) {
             return@LaunchedEffect
         }
         if (TokenHandler.getJwtToken(context) != null) {
-
             navigateWithPop(navController, Screens.HOME_SCREEN)
         } else {
             navigateWithPop(navController,LANDING_SCREEN)

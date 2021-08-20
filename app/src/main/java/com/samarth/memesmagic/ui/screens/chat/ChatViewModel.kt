@@ -2,6 +2,7 @@ package com.samarth.memesmagic.ui.screens.chat
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,6 +54,8 @@ class ChatViewModel @Inject constructor(
     var unSeenMessagesCount = mutableStateOf(0)
     val isLocalDeleteDialogVisible = mutableStateOf(false)
     val isRemoteDeleteDialogVisible = mutableStateOf(false)
+    val isMessageSelected = mutableStateMapOf<String,Boolean>()
+
 
     fun observeConnectionEvents() = viewModelScope.launch(dispatchers.io){
         connectionEvent.collect { event ->
@@ -131,6 +134,11 @@ class ChatViewModel @Inject constructor(
             Log.d("local",it.message)
             webSocketApi.sendBaseModel(it)
         }
+        memeDao.getAllMessagesWhereStatus(PrivateChatMessageStatus.DELETE_FOR_ALL_REQUESTED_BUT_NOT_REACHED_SERVER.name).forEach{
+            webSocketApi.sendBaseModel(
+                DeleteMessage(it.id,it.to)
+            )
+        }
     }
 
     fun createChatRoom(
@@ -187,19 +195,22 @@ class ChatViewModel @Inject constructor(
                 is DeleteMessage -> {
                     memeDao.deletePrivateMessageWithId(data.msgId)
                 }
+                is MessageDeletionServerAcknowledgement -> {
+                    memeDao.deletePrivateMessageWithId(data.msgId)
+                }
                 else -> Unit
             }
         }
     }
 
     fun deleteMessageForAll(msgId: String,messageSender: String) = viewModelScope.launch(dispatchers.io) {
+        memeDao.updatePrivateChatMessageStatus(msgId,PrivateChatMessageStatus.DELETE_FOR_ALL_REQUESTED_BUT_NOT_REACHED_SERVER.name)
         webSocketApi.sendBaseModel(
             DeleteMessage(
                 msgId = msgId,
                 messageSender = messageSender
             )
         )
-        memeDao.deletePrivateMessageWithId(messageId = msgId)
     }
 
     fun messageSeen(msgId:String,messageSender:String) = viewModelScope.launch(dispatchers.io){

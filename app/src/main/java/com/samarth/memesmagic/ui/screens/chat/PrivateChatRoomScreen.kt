@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui.screens.chat
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -83,6 +84,7 @@ fun PrivateChatRoomScreen(
             if(chatViewModel.chatRoomState.value is ChatViewModel.ChatRoomState.MessagesSelectedState){
                 (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = mutableListOf()
                 chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
+                chatViewModel.isMessageSelected.clear()
             }
             navController.popBackStack()
         }
@@ -109,9 +111,8 @@ fun PrivateChatRoomScreen(
                     }
                 ) {  index, privateChatMessage->
 
-
-                    var isMessageSelected by remember {
-                        mutableStateOf(false)
+                    if(!chatViewModel.isMessageSelected.containsKey(privateChatMessage.id)){
+                        chatViewModel.isMessageSelected[privateChatMessage.id] = false
                     }
 
                     val isReceived = privateChatMessage.to == chatViewModel.currentUserEmail
@@ -138,8 +139,9 @@ fun PrivateChatRoomScreen(
                             .fillMaxWidth()
                             .combinedClickable(
                                 onLongClick = {
-                                    isMessageSelected = !isMessageSelected
-                                    if (isMessageSelected) {
+                                    chatViewModel.isMessageSelected[privateChatMessage.id] = !chatViewModel.isMessageSelected[privateChatMessage.id]!!
+//                                    isMessageSelected = !isMessageSelected
+                                    if (chatViewModel.isMessageSelected[privateChatMessage.id] == true) {
                                         chatViewModel.onMessageSelection(
                                             privateChatMessage
                                         )
@@ -151,8 +153,9 @@ fun PrivateChatRoomScreen(
                                 },
                                 onClick = {
                                     if (chatViewModel.chatRoomState.value is ChatViewModel.ChatRoomState.MessagesSelectedState) {
-                                        isMessageSelected = !isMessageSelected
-                                        if (isMessageSelected) {
+                                        chatViewModel.isMessageSelected[privateChatMessage.id] = !(chatViewModel.isMessageSelected[privateChatMessage.id] ?: false)
+//                                    isMessageSelected = !isMessageSelected
+                                        if (chatViewModel.isMessageSelected[privateChatMessage.id] == true) {
                                             chatViewModel.onMessageSelection(
                                                 privateChatMessage
                                             )
@@ -164,7 +167,7 @@ fun PrivateChatRoomScreen(
                                     }
                                 }
                             ),
-                        isSelected = isMessageSelected
+                        isSelected = chatViewModel.isMessageSelected[privateChatMessage.id] == true
                     )
 
                 }
@@ -211,8 +214,6 @@ fun PrivateChatRoomScreen(
                 }
             }
 
-
-
             if(chatViewModel.isLocalDeleteDialogVisible.value){
                 ChatMessageLocalDeleteDialog(
                     title = "Delete Message",
@@ -228,6 +229,7 @@ fun PrivateChatRoomScreen(
                             }
                         (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
                         chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
+                        chatViewModel.isMessageSelected.clear()
                     }
                 )
             }
@@ -247,7 +249,7 @@ fun PrivateChatRoomScreen(
                             }
                         (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
                         chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
-
+                        chatViewModel.isMessageSelected.clear()
                     },
                     onDeleteForEveryone = {
 
@@ -263,6 +265,7 @@ fun PrivateChatRoomScreen(
                             }
                         (chatViewModel.chatRoomState.value as ChatViewModel.ChatRoomState.MessagesSelectedState).selectedMessages = listOf()
                         chatViewModel.chatRoomState.value = ChatViewModel.ChatRoomState.NormalState
+                        chatViewModel.isMessageSelected.clear()
                     }
                 )
             }

@@ -8,6 +8,7 @@ import com.samarth.memesmagic.util.Constants.TYPE_DELETE_MESSAGE
 import com.samarth.memesmagic.util.Constants.TYPE_DISCONNECT_REQUEST
 import com.samarth.memesmagic.util.Constants.TYPE_JOIN_SERVER_HANDSHAKE
 import com.samarth.memesmagic.util.Constants.TYPE_LIKE_POST
+import com.samarth.memesmagic.util.Constants.TYPE_MESSAGE_DELETE_SERVER_ACK
 import com.samarth.memesmagic.util.Constants.TYPE_MESSAGE_RECEIVED
 import com.samarth.memesmagic.util.Constants.TYPE_MESSAGE_RECEIVED_ON_SERVER_ACK
 import com.samarth.memesmagic.util.Constants.TYPE_MESSAGE_SEEN
@@ -38,6 +39,7 @@ class CustomGsonMessageAdapter<T> private constructor(
             TYPE_MESSAGE_SEEN -> MessageSeen::class.java
             TYPE_MESSAGE_RECEIVED_ON_SERVER_ACK -> MessageReachedServerAcknowledgement::class.java
             TYPE_DELETE_MESSAGE -> DeleteMessage::class.java
+            TYPE_MESSAGE_DELETE_SERVER_ACK -> MessageDeletionServerAcknowledgement::class.java
             else -> BaseModel::class.java
         }
         val obj = gson.fromJson(stringValue,type)
@@ -55,6 +57,7 @@ class CustomGsonMessageAdapter<T> private constructor(
             TYPE_MESSAGE_RECEIVED -> convertedData as MessageReceived
             TYPE_MESSAGE_RECEIVED_ON_SERVER_ACK -> convertedData as MessageReachedServerAcknowledgement
             TYPE_DELETE_MESSAGE -> convertedData as DeleteMessage
+            TYPE_MESSAGE_DELETE_SERVER_ACK -> convertedData as MessageDeletionServerAcknowledgement
             else -> convertedData
         }
 

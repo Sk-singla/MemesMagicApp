@@ -38,6 +38,7 @@ fun getIconAccordingToMessageStatus(msgStatus:PrivateChatMessageStatus) = when(m
     PrivateChatMessageStatus.LOCAL -> R.drawable.ic_pending
     PrivateChatMessageStatus.SENT -> R.drawable.ic_done
     PrivateChatMessageStatus.RECEIVED -> R.drawable.ic_done_all
+    PrivateChatMessageStatus.DELETE_FOR_ALL_REQUESTED_BUT_NOT_REACHED_SERVER -> R.drawable.ic_baseline_delete_24
     else -> R.drawable.ic_done_outline
 }
 

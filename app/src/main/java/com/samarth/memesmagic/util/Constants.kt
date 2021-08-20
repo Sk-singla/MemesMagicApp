@@ -7,9 +7,10 @@ object Constants {
     const val MEME_GITHUB_API_BASE_URL = "https://meme-api.herokuapp.com"
     const val IMAGE_FLIP_BASE_URL = "https://api.imgflip.com"
     const val MEME_MAKER_BASE_URL = "http://alpha-meme-maker.herokuapp.com"
-    const val BASE_URL_DEPLOYMENT = "https://memesmagic.herokuapp.com"
+    const val BASE_URL_HEROKU = "https://memesmagic.herokuapp.com"
+    const val BASE_URL_AWS = "http://ec2-13-127-71-143.ap-south-1.compute.amazonaws.com"
     const val BASE_URL_LOCAL = "http://192.168.43.33:8081"
-    const val BASE_URL = BASE_URL_LOCAL                  //  <-------- change this
+    const val BASE_URL = BASE_URL_AWS                  //  <-------- change this
     const val BASE_URL_WS = "$BASE_URL$API_VERSION/ws"
     const val RECONNECT_INTERVAL = 3000L
 
@@ -46,6 +47,7 @@ object Constants {
     const val TYPE_MESSAGE_RECEIVED = "TYPE_MESSAGE_RECEIVED"
     const val TYPE_MESSAGE_SEEN = "TYPE_MESSAGE_SEEN"
     const val TYPE_MESSAGE_RECEIVED_ON_SERVER_ACK = "TYPE_MESSAGE_RECEIVED_ON_SERVER_ACK"
+    const val TYPE_MESSAGE_DELETE_SERVER_ACK = "TYPE_MESSAGE_DELETE_SERVER_ACK"
     const val TYPE_DELETE_MESSAGE = "TYPE_DELETE_MESSAGE"
 
 
