@@ -12,12 +12,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.util.Screens
+import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.navigateWithPop
 
 @Composable
-fun SplashScreen(navController: NavController,testing:Boolean = false) {
+fun SplashScreen(
+    navController: NavController,
+    anotherUserEmailFromNotification:String? = null,
+    testing:Boolean = false
+) {
 
     val context = LocalContext.current
 
@@ -27,6 +32,9 @@ fun SplashScreen(navController: NavController,testing:Boolean = false) {
         }
         if (TokenHandler.getJwtToken(context) != null) {
             navigateWithPop(navController, Screens.HOME_SCREEN)
+            anotherUserEmailFromNotification?.let {
+                navController.navigate("$ANOTHER_USER_PROFILE_SCREEN/$anotherUserEmailFromNotification")
+            }
         } else {
             navigateWithPop(navController,LANDING_SCREEN)
         }

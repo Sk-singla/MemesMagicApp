@@ -20,6 +20,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
@@ -34,7 +35,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -43,11 +43,12 @@ import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
-import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmFollowerAddedMessage
-import com.samarth.memesmagic.data.remote.response.fcm_messages.FcmMessageData
+import com.samarth.memesmagic.notification.models.BaseNotification
+import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_FOLLOWER
+import com.samarth.memesmagic.notification.models.NewFollowerNotification
 import com.samarth.memesmagic.repository.MemeRepo
+import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_FCM_MESSAGE
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_NEW_FOLLOWER
-import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_SEND_MESSAGE
 import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
 import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
@@ -81,6 +82,9 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         imageUri.value = uri
         Log.d("MyLog","came -> ${uri}")
     }
+
+    @Inject
+    lateinit var gson:Gson
 
     private val googleSignInIntent = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -131,41 +135,43 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                     onSignUpWithGoogle = {
                         configureGSI()
                         signIn()
+                    },
+                    anotherUserEmailFromNotification = {
+                        notificationIntentWork(intent)
                     }
                 )
             }
         }
-
-        notificationIntentWork(intent)
 
 
         receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val strMessage = intent!!.getStringExtra("message")
                 val messageObject = JsonParser.parseString(strMessage).asJsonObject
-                val message = when(messageObject.get("type").asString){
-                    FCM_TYPE_FOLLOWER_ADDED -> Gson().fromJson(strMessage, FcmFollowerAddedMessage::class.java)
-                    else -> Gson().fromJson(strMessage, FcmMessageData::class.java)
+                val type = when(messageObject.get("type").asString){
+                    NOTIFICATION_TYPE_NEW_FOLLOWER -> NewFollowerNotification::class.java
+                    else -> BaseNotification::class.java
                 }
-                when(message) {
-                    is FcmFollowerAddedMessage -> {
-                        Snackbar.make(
-                            this@MainActivity,
-                            View(this@MainActivity),
-                            message.message,
-                            Snackbar.LENGTH_LONG
-                        ).setAction(R.string.follow_back) {
-                            lifecycleScope.launch {
-                                memeRepo.followUser(
-                                    message.followerInfo.email
-                                )
-                            }
-                        }.show()
-                    }
-                    else -> {
-                        Toast.makeText(this@MainActivity, "Not fcm follower message", Toast.LENGTH_SHORT).show()
-                    }
-                }
+
+//                when(val message = gson.fromJson(strMessage,type)) {
+//                    is NewFollowerNotification -> {
+//                        Snackbar.make(
+//                            this@MainActivity,
+//                            View(this@MainActivity),
+//                            message.message,
+//                            Snackbar.LENGTH_LONG
+//                        ).setAction(R.string.follow_back) {
+//                            lifecycleScope.launch {
+//                                memeRepo.followUser(
+//                                    message.followerInfo.email
+//                                )
+//                            }
+//                        }.show()
+//                    }
+//                    else -> {
+//                        Toast.makeText(this@MainActivity, "Not fcm follower message", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
             }
         }
 
@@ -174,29 +180,21 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         chatViewModel.observeConnectionEvents()
     }
 
-    private fun notificationIntentWork(intent: Intent?) {
+    private fun notificationIntentWork(intent: Intent?): String? {
 
         Log.d("fcm_intent",intent?.action ?: "NULL")
-        Log.d("fcm Intent",intent?.getStringExtra("intentOfIntent") ?: "intent is null")
-        Log.d("fcm any Intent",intent?.extras?.get("intentOfIntent")?.toString() ?: "NULL")
-        when(intent?.getStringExtra("intentOfIntent")) {
+        return when(intent?.action) {
             INTENT_ACTION_NEW_FOLLOWER -> {
-                Timber.d("Intent reached!")
-                navController.navigate(
-                    "$ANOTHER_USER_PROFILE_SCREEN/${intent.getStringExtra("followerEmail") ?: ""}"
-                )
+//                Log.d("fcm",intent?.getStringExtra("follower") ?: "FOLLOWER INFORMATION NULL")
+                intent.getStringExtra("follower")
             }
-            else -> Unit
+            else -> null
         }
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        notificationIntentWork(intent)
     }
 
     override fun onResume() {
         super.onResume()
-        val filter = IntentFilter(INTENT_ACTION_SEND_MESSAGE)
+        val filter = IntentFilter(INTENT_ACTION_FCM_MESSAGE)
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver,filter)
     }
 
@@ -275,8 +273,8 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     override fun onStart() {
         super.onStart()
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        updateUI(account)
+//        val account = GoogleSignIn.getLastSignedInAccount(this)
+//        updateUI(account)
     }
 
 

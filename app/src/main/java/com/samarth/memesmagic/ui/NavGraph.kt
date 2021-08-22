@@ -60,6 +60,7 @@ fun MainNavGraph(
     startActivity:(Intent)->Unit,
     startActivityForResult:(String,(Uri?)->Unit)->Unit,
     updateOrRequestPermissions:()->Boolean,
+    anotherUserEmailFromNotification:()->String?,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     chatViewModel: ChatViewModel = hiltViewModel()
@@ -78,7 +79,10 @@ fun MainNavGraph(
                 }
             )
         ){
-            SplashScreen(navController = navController)
+            SplashScreen(
+                navController = navController,
+                anotherUserEmailFromNotification = anotherUserEmailFromNotification()
+            )
         }
 
         composable(LANDING_SCREEN){
