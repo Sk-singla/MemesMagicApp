@@ -37,7 +37,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(
     navController: NavController,
-    loginScreenViewModel: LoginScreenViewModel = hiltViewModel()
+    loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),
+    onSignUpWithGoogle:()->Unit
 ) {
 
     val scaffoldState = rememberScaffoldState()
@@ -195,9 +196,7 @@ fun LoginScreen(
                     textColor = MaterialTheme.colors.onSecondary
                 ) {
                     keyboardController?.hide()
-                    coroutineScope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
-                    }
+                    onSignUpWithGoogle()
                 }
 
 

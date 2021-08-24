@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.repository
 
 import android.content.Context
+import android.util.Log
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.StorageException
@@ -49,9 +50,10 @@ class MemeRepository(
         }
     }
 
-    override suspend fun registerWithGoogle(idToken: String): Resource<String> {
+    override suspend fun registerWithGoogle(registerUserRequest: RegisterUserRequest): Resource<String> {
         return try {
-            val response = memeApi.userRegisterWithGoogle(idToken)
+            Log.d("TASK","=====================")
+            val response = memeApi.userRegisterWithGoogle(registerUserRequest)
             if(response.success && response.data != null){
                 Resource.Success(response.data)
             }  else {

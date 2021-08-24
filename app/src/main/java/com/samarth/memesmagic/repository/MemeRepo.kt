@@ -18,7 +18,7 @@ interface MemeRepo {
     ):Resource<String>
 
     suspend fun registerWithGoogle(
-        idToken:String
+        registerUserRequest: RegisterUserRequest
     ): Resource<String>
 
     suspend fun loginUser(

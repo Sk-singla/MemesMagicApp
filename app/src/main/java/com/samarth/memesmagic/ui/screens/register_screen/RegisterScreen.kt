@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    registerScreenViewModel: RegisterScreenViewModel = hiltViewModel()
+    registerScreenViewModel: RegisterScreenViewModel = hiltViewModel(),
+    onSignUpWithGoogle:()->Unit
 ) {
 
     val scaffoldState = rememberScaffoldState()
@@ -243,9 +244,7 @@ fun RegisterScreen(
                     textColor = MaterialTheme.colors.onSecondary
                 ) {
                     keyboardController?.hide()
-                    coroutineScope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar("Feature is under Development!")
-                    }
+                    onSignUpWithGoogle()
                 }
 
 

@@ -60,7 +60,7 @@ fun MainNavGraph(
     startActivity:(Intent)->Unit,
     startActivityForResult:(String,(Uri?)->Unit)->Unit,
     updateOrRequestPermissions:()->Boolean,
-    anotherUserEmailFromNotification:()->String?,
+    anotherUserEmailFromNotification:String?,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     chatViewModel: ChatViewModel = hiltViewModel()
@@ -81,16 +81,15 @@ fun MainNavGraph(
         ){
             SplashScreen(
                 navController = navController,
-                anotherUserEmailFromNotification = anotherUserEmailFromNotification()
+                anotherUserEmailFromNotification = anotherUserEmailFromNotification
             )
         }
 
         composable(LANDING_SCREEN){
-            BasicAnimation(
-                isVisible = navController.currentDestination?.route == LANDING_SCREEN
-            ){
-                LandingPage(navController = navController,onSignUpWithGoogle = onSignUpWithGoogle)
-            }
+            LandingPage(
+                navController = navController,
+                onSignUpWithGoogle = onSignUpWithGoogle
+            )
         }
 
         composable(
@@ -101,7 +100,10 @@ fun MainNavGraph(
                 }
             )
         ){
-            RegisterScreen(navController = navController)
+            RegisterScreen(
+                navController = navController,
+                onSignUpWithGoogle = onSignUpWithGoogle
+            )
         }
 
         composable(HOME_SCREEN){
@@ -114,7 +116,10 @@ fun MainNavGraph(
         }
 
         composable(LOGIN_SCREEN){
-            LoginScreen(navController = navController)
+            LoginScreen(
+                navController = navController,
+                onSignUpWithGoogle = onSignUpWithGoogle
+            )
         }
 
 

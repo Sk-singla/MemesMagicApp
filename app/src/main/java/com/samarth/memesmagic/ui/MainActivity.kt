@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,7 +19,6 @@ import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
@@ -36,11 +34,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.samarth.memesmagic.BuildConfig
-import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.notification.models.BaseNotification
@@ -51,15 +47,16 @@ import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTE
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_NEW_FOLLOWER
 import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
-import com.samarth.memesmagic.util.Constants.FCM_TYPE_FOLLOWER_ADDED
+import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.Screens
-import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.navigateWithPop
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -90,13 +87,9 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         ActivityResultContracts.StartActivityForResult()
     ) {
         if(it.data != null) {
-            Toast.makeText(this, "Data is not null", Toast.LENGTH_SHORT).show()
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-            Toast.makeText(this, "${task}, Sucess: ${task.isSuccessful}", Toast.LENGTH_SHORT).show()
             Log.d("Task","Success: ${task.isSuccessful}")
             handleSignInResult(task)
-        } else {
-            Toast.makeText(this, "Data is Null", Toast.LENGTH_SHORT).show()
         }
     }
     lateinit var receiver: BroadcastReceiver
@@ -136,9 +129,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                         configureGSI()
                         signIn()
                     },
-                    anotherUserEmailFromNotification = {
-                        notificationIntentWork(intent)
-                    }
+                    anotherUserEmailFromNotification = notificationIntentWork(intent)
                 )
             }
         }
@@ -185,7 +176,6 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         Log.d("fcm_intent",intent?.action ?: "NULL")
         return when(intent?.action) {
             INTENT_ACTION_NEW_FOLLOWER -> {
-//                Log.d("fcm",intent?.getStringExtra("follower") ?: "FOLLOWER INFORMATION NULL")
                 intent.getStringExtra("follower")
             }
             else -> null
@@ -211,70 +201,50 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     private fun handleSignInResult(task: Task<GoogleSignInAccount>?) {
         lifecycleScope.launch {
             try {
-                task?.result?.let {
-                    Log.d("TASK","Result entered, ${it.email}")
-
-
+                if(task?.result != null){
+                    val taskResult = task.result
                     val result = memeRepo.registerUser(
                         userRegisterRequest = RegisterUserRequest(
-                            name = it.displayName ?: "",
-                            email = it.email ?: "",
-                            password = it.id ?: UUID.randomUUID().toString(),
-                            profilePic = it.photoUrl?.toString()
+                            name = taskResult.displayName ?: "",
+                            email = taskResult.email ?: "",
+                            password = taskResult.id ?: UUID.randomUUID().toString(),
+                            profilePic = taskResult.photoUrl?.toString()
                         )
                     )
 
-                    if(result.data != null) {
-                        TokenHandler.saveJwtToken(
-                            this@MainActivity,
-                            result.data,
-                            it.email ?: ""
-                        )
-                        navController.popBackStack()
-                        navigateWithPop(navController, Screens.HOME_SCREEN)
-                    } else {
-                        val loginResult = memeRepo.loginUser(
-                            loginRequest = LoginRequest(
-                                email = it.email ?: "",
-                                password = it.id ?: ""
-                            )
-                        )
-                        if(loginResult.data != null) {
-                            TokenHandler.saveJwtToken(
-                                this@MainActivity,
-                                loginResult.data,
-                                it.email ?: ""
-                            )
-                            navController.popBackStack()
-                            navigateWithPop(navController, Screens.HOME_SCREEN)
-                        }
-
-                    }
-                    updateUI(it)
+                    updateUi(result, taskResult.email ?: "")
+                } else {
+                    throw Exception("Task Result is NULL!")
                 }
             }catch (e:Exception){
                 Timber.d(e)
                 e.printStackTrace()
-                Log.d("EXC",e.message ?: "Exception Occrued!")
-                updateUI(null)
+                Toast.makeText(this@MainActivity, "Some Problem Occurred!", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun updateUI(account:GoogleSignInAccount?){
-        if(account != null){
-            Timber.d("${account.email}, ${account.displayName}")
-            Toast.makeText(this, "${account.email}", Toast.LENGTH_SHORT).show()
+    private suspend fun updateUi(
+        result: Resource<String>,
+        email:String
+    ) {
+        if (result.data != null) {
+            TokenHandler.saveJwtToken(
+                this@MainActivity,
+                result.data,
+                email
+            )
+            navController.popBackStack()
+            navigateWithPop(navController, Screens.HOME_SCREEN)
         } else {
-            Toast.makeText(this, "NULL NULL NULL", Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main){
+                Toast.makeText(this@MainActivity, result.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-
     override fun onStart() {
         super.onStart()
-//        val account = GoogleSignIn.getLastSignedInAccount(this)
-//        updateUI(account)
     }
 
 

@@ -26,7 +26,7 @@ interface MemeApi {
     @Headers("Content-Type: application/json")
     @POST("$USERS/register/google")
     suspend fun userRegisterWithGoogle(
-        @Query("idToken") idToken:String
+        @Body registerUserRequest: RegisterUserRequest,
     ): SimpleResponse<String>
 
     @Headers("Content-Type: application/json")
