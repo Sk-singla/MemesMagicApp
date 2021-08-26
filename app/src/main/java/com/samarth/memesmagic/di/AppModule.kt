@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
 import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.data.local.dao.MemeDao
@@ -49,8 +51,9 @@ object AppModule {
         imageFlipApi: ImageFlipApi,
         memeMakerApi: MemeMakerApi,
         memeGithubApi: MemeGithubApi,
-        @ApplicationContext context: Context
-    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi,memeGithubApi,context)
+        @ApplicationContext context: Context,
+        memeDao:MemeDao
+    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi,memeGithubApi,context,memeDao)
 
 
     @Singleton
@@ -136,11 +139,23 @@ object AppModule {
     fun provideMemeDatabase(
         @ApplicationContext context: Context
     ): MemeDatabase {
+        val MIGRATION_1_2 = object : Migration(1,2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `LocalNotification` (`notification` TEXT NOT NULL, `time` INTEGER NOT NULL, `seen` INTEGER NOT NULL, `notificationId` TEXT NOT NULL, PRIMARY KEY(`notificationId`))"
+                )
+            }
+        }
+
+
         return Room.databaseBuilder(
             context,
             MemeDatabase::class.java,
             "Meme_db"
-        ).build()
+        ).addMigrations(
+            MIGRATION_1_2
+        )
+            .build()
     }
 
 

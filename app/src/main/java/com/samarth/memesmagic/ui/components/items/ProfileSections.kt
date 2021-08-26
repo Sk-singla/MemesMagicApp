@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 fun FullProfileScreen(
     modifier:Modifier = Modifier,
     user:User?= null,
-    currentUser:User?= null,
+    currentLoggedInUser:User?= null,
     posts:List<Post>? = null,
     isLoading:Boolean = false,
     loadError:String = "",
@@ -74,7 +74,11 @@ fun FullProfileScreen(
         mutableStateOf(false)
     }
 
-    var isFollowersOrFollowingVisible by remember {
+    var isFollowersVisible by remember {
+        mutableStateOf(false)
+    }
+
+    var isFollowingsVisible by remember {
         mutableStateOf(false)
     }
     var otherUsers by remember {
@@ -116,11 +120,11 @@ fun FullProfileScreen(
                             .padding(16.dp),
                         showFollowers = {
                             otherUsers = curUser.followers
-                            isFollowersOrFollowingVisible = true
+                            isFollowersVisible = true
                         },
                         showFollowings = {
                             otherUsers = curUser.followings
-                            isFollowersOrFollowingVisible = true
+                            isFollowingsVisible = true
                         }
                     )
 
@@ -208,8 +212,8 @@ fun FullProfileScreen(
 
 
 
-                    AnimatedVisibility(
-                        isFollowersOrFollowingVisible,
+                    AnimatedVisibility (
+                        isFollowersVisible || isFollowingsVisible,
                         enter = expandIn(
                             expandFrom = Alignment.Center,
                             animationSpec = spring(
@@ -222,10 +226,12 @@ fun FullProfileScreen(
                         )
 
                     ) {
-                        FollowersOrFollowingDialogBox(
+                        FollowersOrFollowingDialogBox (
                             users = otherUsers,
+                            curLoggedInUserEmail = currentLoggedInUser?.userInfo?.email ?: "",
                             onDismiss = {
-                                isFollowersOrFollowingVisible = false
+                                isFollowersVisible = false
+                                isFollowingsVisible = false
                             },
                             isLoading = false,
                             modifier = Modifier
@@ -233,12 +239,11 @@ fun FullProfileScreen(
                                 .fillMaxHeight(0.6f),
                             isFollowingToUser = { followerEmail ->
                                 if(isItAnotherUserProfile) {
-                                    currentUser?.followings?.find { it.email == followerEmail } != null
+                                    currentLoggedInUser?.followings?.find { it.email == followerEmail } != null
                                 } else {
                                     curUser.followings.find {it.email == followerEmail } != null
                                 }
                             },
-
                             followUser = { emailOfUserToFollow: String, onSuccess: () -> Unit ->
 
                                 followUser?.invoke(
@@ -248,7 +253,7 @@ fun FullProfileScreen(
                                         if(!isItAnotherUserProfile && curUser.followings.find { it.email == emailOfUserToFollow } == null){
                                             curUser.followings.add(userInfo)
                                         } else if(isItAnotherUserProfile){
-                                            currentUser?.followings?.add(userInfo)
+                                            currentLoggedInUser?.followings?.add(userInfo)
                                         }
                                         coroutineScope.launch {
                                             scaffoldState.snackbarHostState.showSnackbar(
@@ -270,16 +275,14 @@ fun FullProfileScreen(
                                 unFollowUser?.invoke(
                                     emailOfUserToUnFollow,
                                     {
-
-
                                         onSuccess()
                                         curUser.followings.find { it.email == emailOfUserToUnFollow }
                                             ?.let {
                                                 if(!isItAnotherUserProfile){
-                                                    otherUsers -= it
+                                                    if(isFollowingsVisible)  otherUsers -= it
                                                     curUser.followings.remove(it)
                                                 } else {
-                                                    currentUser?.followings?.remove(it)
+                                                    currentLoggedInUser?.followings?.remove(it)
                                                 }
                                             }
                                         coroutineScope.launch {

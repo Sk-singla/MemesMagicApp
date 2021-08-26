@@ -37,6 +37,7 @@ import com.google.android.gms.tasks.Task
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.samarth.memesmagic.BuildConfig
+import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.notification.models.BaseNotification
@@ -174,6 +175,12 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     private fun notificationIntentWork(intent: Intent?): String? {
 
         Log.d("fcm_intent",intent?.action ?: "NULL")
+        val notificationId = intent?.getStringExtra("notificationId")
+        notificationId?.let { nId ->
+            lifecycleScope.launch {
+                memeRepo.seenNotification(nId)
+            }
+        }
         return when(intent?.action) {
             INTENT_ACTION_NEW_FOLLOWER -> {
                 intent.getStringExtra("follower")

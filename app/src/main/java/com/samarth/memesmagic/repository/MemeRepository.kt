@@ -6,6 +6,8 @@ import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.StorageException
 import com.amplifyframework.storage.options.StorageUploadFileOptions
+import com.samarth.memesmagic.data.local.dao.MemeDao
+import com.samarth.memesmagic.data.local.entities.models.LocalNotification
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.PostRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
@@ -34,7 +36,8 @@ class MemeRepository(
     val imageFlipApi: ImageFlipApi,
     val memeMakerApi: MemeMakerApi,
     val memeGithubApi: MemeGithubApi,
-    val context: Context
+    val context: Context,
+    val memeDao:MemeDao
 ): MemeRepo{
 
     override suspend fun registerUser(userRegisterRequest: RegisterUserRequest): Resource<String> {
@@ -397,6 +400,27 @@ class MemeRepository(
             }
         } catch (e:Exception){
             Resource.Error(e.message ?: NETWORK_UNKNOWN_PROBLEM)
+        }
+    }
+
+
+    override suspend fun saveNotification(localNotification: LocalNotification): Resource<String> {
+        return try {
+            memeDao.addNotification(localNotification)
+            Resource.Success("Notification Added to db!")
+        } catch (e:Exception){
+            e.printStackTrace()
+            Resource.Error("Exception: ${e.message}")
+        }
+    }
+
+    override suspend fun seenNotification(notificationId: String): Resource<String> {
+        return try {
+            memeDao.seenNotification(notificationId)
+            Resource.Success("Notification Updated(Seen)!")
+        } catch (e:Exception){
+            e.printStackTrace()
+            Resource.Error("Exception: ${e.message}")
         }
     }
 }

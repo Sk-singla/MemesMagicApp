@@ -20,6 +20,7 @@ import com.samarth.memesmagic.ui.theme.Green700
 fun UserSearchItem(
     userInfo: UserInfo,
     following: Boolean,
+    followUnfollowBtnVisible:Boolean = true,
     onFollowUnFollowBtnPressed: (onSuccess:()->Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -43,7 +44,7 @@ fun UserSearchItem(
                 name = userInfo.name,
                 imageUrl = userInfo.profilePic,
                 modifier = Modifier
-                    .padding(start = 8.dp,end = 16.dp)
+                    .padding(start = 8.dp, end = 16.dp)
                     .size(48.dp)
             )
 
@@ -57,21 +58,23 @@ fun UserSearchItem(
         }
 
 
-
-        OutlinedButton(onClick = {
-                onFollowUnFollowBtnPressed {
-                    isFollowingToUser = !isFollowingToUser
-                }
-            },
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .shadow(2.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = MaterialTheme.colors.surface,
-                contentColor = Green700
-            )
-        ) {
-            Text(text = if(isFollowingToUser) "Unfollow" else " Follow ")
+        if(followUnfollowBtnVisible){
+            OutlinedButton(
+                onClick = {
+                    onFollowUnFollowBtnPressed {
+                        isFollowingToUser = !isFollowingToUser
+                    }
+                },
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .shadow(2.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    contentColor = Green700
+                )
+            ) {
+                Text(text = if (isFollowingToUser) "Unfollow" else " Follow ")
+            }
         }
 
 

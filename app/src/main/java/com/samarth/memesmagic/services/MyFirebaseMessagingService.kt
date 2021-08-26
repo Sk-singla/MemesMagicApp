@@ -9,6 +9,8 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import com.google.gson.JsonParser
+import com.samarth.memesmagic.data.local.dao.MemeDao
+import com.samarth.memesmagic.data.local.entities.models.LocalNotification
 import com.samarth.memesmagic.notification.models.BaseNotification
 import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_FOLLOWER
 import com.samarth.memesmagic.notification.models.NewFollowerNotification
@@ -16,6 +18,9 @@ import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.saveFcmToken
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -46,10 +51,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-
-        // todo: when click on notification -> go to main activity and show alert box where written follow back or whatever else!
-        // todo: like post with websocket ( or real time ) and notification
-
         val strMessage = remoteMessage.data["message"]!!
         val jsonObject = JsonParser.parseString(strMessage).asJsonObject
         val type = when(jsonObject.get("type").asString){
@@ -59,9 +60,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
 
         Log.d("notification",type.toString())
         val notificationObj = gson.fromJson(strMessage,type)
-        notificationObj.showNotification(this)
+        val localNotification = LocalNotification(
+            notification = strMessage,
+            time = System.currentTimeMillis(),
+            seen = false
+        )
+        CoroutineScope(Dispatchers.IO).launch {
+            memeRepo.saveNotification(localNotification)
+        }
+        notificationObj.showNotification(this,localNotification.notificationId)
 
-//        passMessageToActivity(strMessage)
+
     }
 
     private fun passMessageToActivity(message: String) {

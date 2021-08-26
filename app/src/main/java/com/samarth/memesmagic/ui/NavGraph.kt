@@ -15,7 +15,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import com.samarth.memesmagic.ui.animations.BasicAnimation
 import com.samarth.memesmagic.ui.screens.another_user_profile.AnotherUserProfile
 import com.samarth.memesmagic.ui.screens.chat.ChatRoomsListScreen
 import com.samarth.memesmagic.ui.screens.chat.ChatViewModel

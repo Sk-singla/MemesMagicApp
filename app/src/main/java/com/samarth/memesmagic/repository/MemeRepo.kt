@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.repository
 
+import com.samarth.memesmagic.data.local.entities.models.LocalNotification
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.PostRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
@@ -61,6 +62,9 @@ interface MemeRepo {
     suspend fun deletePost(postId: String):Resource<String>
 
     suspend fun updateFcmToken(fcmToken:String): Resource<String>
+
+    suspend fun saveNotification(localNotification: LocalNotification):Resource<String>
+    suspend fun seenNotification(notificationId:String):Resource<String>
     /**
      * 1. Share meme on other platforms -> Done
      * 2. send friend request / follow , unfollow

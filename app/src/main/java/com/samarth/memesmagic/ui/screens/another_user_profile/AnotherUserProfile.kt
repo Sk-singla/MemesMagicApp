@@ -63,7 +63,7 @@ fun AnotherUserProfile(
             FullProfileScreen(
                 modifier = Modifier.fillMaxSize(),
                 user = anotherUserProfileViewModel.user.value,
-                currentUser = curUser,
+                currentLoggedInUser = curUser,
                 posts = anotherUserProfileViewModel.posts.value,
                 isLoading = anotherUserProfileViewModel.isLoading.value,
                 loadError = anotherUserProfileViewModel.loadError.value,

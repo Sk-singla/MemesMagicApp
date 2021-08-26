@@ -1,6 +1,7 @@
 package com.samarth.memesmagic.data.local.dao
 
 import androidx.room.*
+import com.samarth.memesmagic.data.local.entities.models.LocalNotification
 import com.samarth.memesmagic.data.local.entities.relations.PrivateChatRoomWithPrivateChatMessages
 import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
@@ -44,4 +45,13 @@ interface MemeDao {
 
     @Query("DELETE FROM PrivateChatMessage")
     suspend fun clearData()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addNotification(notification: LocalNotification)
+
+    @Query("SELECT * FROM LocalNotification ORDER BY time DESC")
+    fun getAllNotificationsOrderedByDate():Flow<List<LocalNotification>>
+
+    @Query("UPDATE LocalNotification SET seen = 1 WHERE notificationId = :id")
+    suspend fun seenNotification(id:String)
 }

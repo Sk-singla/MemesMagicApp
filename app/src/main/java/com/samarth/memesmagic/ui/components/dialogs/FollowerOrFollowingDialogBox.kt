@@ -21,6 +21,7 @@ import com.samarth.memesmagic.data.remote.response.UserInfo
 @Composable
 fun FollowersOrFollowingDialogBox(
     users: List<UserInfo>,
+    curLoggedInUserEmail:String,
     onDismiss:()->Unit,
     isLoading:Boolean,
     modifier: Modifier = Modifier,
@@ -76,7 +77,8 @@ fun FollowersOrFollowingDialogBox(
                                     },
                                     modifier = Modifier.fillMaxWidth()
                                         .clickable { onClick(user.email) }
-                                        .padding(vertical = 8.dp)
+                                        .padding(vertical = 8.dp),
+                                    followUnfollowBtnVisible = user.email != curLoggedInUserEmail
                                 )
                             }
                         }
