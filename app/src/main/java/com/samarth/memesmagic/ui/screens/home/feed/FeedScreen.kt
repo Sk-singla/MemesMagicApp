@@ -12,19 +12,24 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.ui.PlayerView
 import com.google.firebase.messaging.FirebaseMessaging
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.ui.components.AdvertiseDialogBox
 import com.samarth.memesmagic.ui.components.CongratsDialogBox
-import com.samarth.memesmagic.ui.components.PostItem
+import com.samarth.memesmagic.ui.components.items.PostItem
 import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
-import com.samarth.memesmagic.util.Screens.HOME_REWARDS
+import com.samarth.memesmagic.util.Screens.HOME_NOTIFICATIONS
 import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
 import com.samarth.memesmagic.util.TokenHandler.getEmail
@@ -50,6 +55,32 @@ fun FeedScreen(
     }
     var newReward:Reward? by remember {
         mutableStateOf(null)
+    }
+    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
+
+    DisposableEffect(lifecycleOwner){
+        val lifeCycle = lifecycleOwner.lifecycle
+        val observer = LifecycleEventObserver { _, event ->
+            when(event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    feedViewModel.player.playWhenReady = false
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    feedViewModel.player.playWhenReady = true
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    feedViewModel.player.run {
+                        stop()
+                        release()
+                    }
+                }
+            }
+
+        }
+        lifeCycle.addObserver(observer)
+        onDispose {
+            lifeCycle.removeObserver(observer)
+        }
     }
 
 
@@ -107,7 +138,6 @@ fun FeedScreen(
          * GET NEW FEED IF FEED SCREEN IS OPENED FIRST TIME
          */
         if(feedViewModel.firstTimeOpenedFeedScreen.value) {
-            feedViewModel.getFeedFromGithub()
             feedViewModel.getFeed(
                 onFail = {
                     coroutineScope.launch {
@@ -116,6 +146,7 @@ fun FeedScreen(
                     }
                 }
             )
+//            feedViewModel.getFeedFromGithub()
             feedViewModel.firstTimeOpenedFeedScreen.value = false
         }
 
@@ -172,7 +203,7 @@ fun FeedScreen(
                 },
                 it,
                 onClick = {
-                    currentNavController.navigate(HOME_REWARDS)
+                    currentNavController.navigate(HOME_NOTIFICATIONS)
                 }
             )
 
@@ -203,7 +234,20 @@ fun FeedScreen(
         /**
          * ===================== FEED =================
          */
-        val scrollState = rememberLazyListState()
+        val listState = remember {
+            feedViewModel.lazyListState
+        }
+
+        Log.d("video","${listState.firstVisibleItemIndex}, ${if(feedViewModel.posts.value.isNotEmpty()) feedViewModel.posts.value[listState.firstVisibleItemIndex].postType else ""}")
+        val currentlyPlayingItem = feedViewModel.determineCurrentlyPlayingItem(
+            listState,
+            feedViewModel.posts.value
+        )
+        UpdateCurrentlyPlayingItem(
+            exoPlayer = feedViewModel.player,
+            post = currentlyPlayingItem,
+            dataSourceFactory = feedViewModel.dataSourceFactory
+        )
 
         if(feedViewModel.isLoading.value){
             CircularProgressIndicator()
@@ -211,16 +255,17 @@ fun FeedScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            state = scrollState
+            state = listState
         ) {
 
             itemsIndexed(feedViewModel.posts.value) { pos, post ->
 
 
-                if(pos >= feedViewModel.posts.value.size - 10){
-                    feedViewModel.getFeedFromGithub()
-                }
+//                    if(pos >= feedViewModel.posts.value.size - 10){
+//                        feedViewModel.getFeedFromGithub()
+//                    }
 
+                val onScreen = currentlyPlayingItem?.id == post.id
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -270,8 +315,11 @@ fun FeedScreen(
                         },
                         modifier = Modifier.clickable {
                             CommentsUtil.post = post
-                            parentNavController.navigate(SINGLE_POST_SCREEN)
-                        }
+                            parentNavController.navigate("$SINGLE_POST_SCREEN/${1f}")
+                        },
+                        exoPlayer = feedViewModel.player,
+                        playerViewVisible = onScreen,
+                        thumbnail = feedViewModel.thumbnails[post.id]
                     )
 
                     if (!feedViewModel.isItLastItem(pos)) {
@@ -282,8 +330,6 @@ fun FeedScreen(
                 }
             }
         }
-
-
     }
 
 }

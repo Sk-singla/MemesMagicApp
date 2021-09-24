@@ -4,10 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -26,10 +28,7 @@ import com.samarth.memesmagic.ui.screens.register_screen.RegisterScreen
 import com.samarth.memesmagic.ui.screens.home.profile.SinglePostScreen
 import com.samarth.memesmagic.ui.screens.edit_profile.EditProfileScreen
 import com.samarth.memesmagic.ui.screens.home.HomeScreen
-import com.samarth.memesmagic.ui.screens.home.create.CreateViewModel
-import com.samarth.memesmagic.ui.screens.home.create.EditingScreen
-import com.samarth.memesmagic.ui.screens.home.create.NewPostDetailsScreen
-import com.samarth.memesmagic.ui.screens.home.create.TemplateSelectionScreen
+import com.samarth.memesmagic.ui.screens.home.create.*
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.screens.landing_page.LandingPage
 import com.samarth.memesmagic.ui.screens.landing_page.SplashScreen
@@ -50,19 +49,20 @@ import com.samarth.memesmagic.util.Screens.NEW_POST_DETAILS_AND_UPLOAD
 import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
 import com.samarth.memesmagic.util.Screens.SPLASH_SCREEN
 
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
 fun MainNavGraph(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    chatViewModel: ChatViewModel = hiltViewModel(),
     onSignUpWithGoogle:()->Unit,
     startActivity:(Intent)->Unit,
     startActivityForResult:(String,(Uri?)->Unit)->Unit,
     updateOrRequestPermissions:()->Boolean,
-    anotherUserEmailFromNotification:String?,
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
-    chatViewModel: ChatViewModel = hiltViewModel()
+    navigateWithNotification: ((NavController)->Unit)? = null,
 ){
     val feedViewModel:FeedViewModel = hiltViewModel()
     val createViewModel:CreateViewModel = hiltViewModel()
@@ -80,7 +80,7 @@ fun MainNavGraph(
         ){
             SplashScreen(
                 navController = navController,
-                anotherUserEmailFromNotification = anotherUserEmailFromNotification
+                navigateWithNotification = navigateWithNotification
             )
         }
 
@@ -110,7 +110,7 @@ fun MainNavGraph(
                 navController = navController,
                 startActivity = startActivity,
                 feedViewModel = feedViewModel,
-                chatViewModel = chatViewModel
+                chatViewModel = chatViewModel,
             )
         }
 
@@ -123,7 +123,12 @@ fun MainNavGraph(
 
 
         composable(HOME_CREATE){
-            TemplateSelectionScreen(navController = navController,createViewModel = createViewModel)
+            TemplateSelectionScreen(
+                navController = navController,
+                createViewModel = createViewModel,
+                startActivityForResult = startActivityForResult,
+                updateOrRequestPermissions = updateOrRequestPermissions
+            )
         }
 
         composable(
@@ -178,12 +183,21 @@ fun MainNavGraph(
             )
         }
 
-        composable(Screens.SINGLE_POST_SCREEN){
+        composable(
+            "${Screens.SINGLE_POST_SCREEN}/{ratio}",
+            arguments = listOf(
+                navArgument("ratio"){
+                    type = NavType.FloatType
+                    defaultValue = 1f
+                }
+            )
+        ){
 
             SinglePostScreen(
                 parentNavController = navController,
                 startActivity = startActivity,
-                feedViewModel = feedViewModel
+                feedViewModel = feedViewModel,
+                aspectRatio = it.arguments?.getFloat("ratio")
             )
         }
 

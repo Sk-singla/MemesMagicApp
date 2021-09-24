@@ -54,4 +54,7 @@ interface MemeDao {
 
     @Query("UPDATE LocalNotification SET seen = 1 WHERE notificationId = :id")
     suspend fun seenNotification(id:String)
+
+    @Query("SELECT COUNT(*) FROM LocalNotification WHERE seen =0")
+    fun getAllUnSeenNotificationCount():Flow<Int>
 }

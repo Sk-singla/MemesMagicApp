@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.notification
+package com.samarth.memesmagic.notification.notification_helpers
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -6,18 +6,21 @@ import android.app.NotificationManager.*
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.samarth.memesmagic.R
-import com.samarth.memesmagic.ui.MainActivity
 import kotlin.random.Random
 
 object NotificationHelper {
+
+
+
+    private val inboxStyles = hashMapOf<Int,NotificationCompat.InboxStyle>()
 
     @ExperimentalAnimationApi
     @ExperimentalFoundationApi
@@ -26,11 +29,14 @@ object NotificationHelper {
         title: String,
         body: String,
         intent:Intent,
-        channelName: String
+        channelName: String,
+        groupKey:String? = null,
+        notificationId:Int = Random.nextInt(),
+        largeIcon:Bitmap? = null
     ) {
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationId = Random.nextInt()
+
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createNotificationChannel(notificationManager,channelName)
@@ -43,9 +49,18 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.memes_magic_logo)
             .setAutoCancel(true)
             .setContentIntent(pi)
-            .build()
-        notificationManager.notify(notificationId,notification)
+            .setLargeIcon(largeIcon)
+            .setGroup(groupKey)
 
+
+        if(inboxStyles[notificationId] == null){
+            inboxStyles[notificationId] = NotificationCompat.InboxStyle()
+        }
+        inboxStyles[notificationId]!!.setBigContentTitle(title)
+        inboxStyles[notificationId]!!.addLine(body)
+        notification.setStyle(inboxStyles[notificationId])
+
+        notificationManager.notify(notificationId,notification.build())
     }
 
 

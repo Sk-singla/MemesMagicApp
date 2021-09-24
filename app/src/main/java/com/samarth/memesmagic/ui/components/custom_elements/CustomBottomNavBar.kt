@@ -15,12 +15,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.samarth.memesmagic.ui.screens.home.HomeSections
 import com.samarth.memesmagic.util.Screens.HOME_CREATE
+import com.samarth.memesmagic.util.Screens.HOME_NOTIFICATIONS
 
+@ExperimentalMaterialApi
 @Composable
 fun CustomBottomNavBar(
     navController: NavHostController,
     parentNavController:NavHostController,
     tabs: Array<HomeSections>,
+    notificationCount: Int
 ) {
     val currentRoute = currentRoute(navController = navController)
     val sections = remember {
@@ -46,7 +49,8 @@ fun CustomBottomNavBar(
                     section = section,
                     currentRoute = currentRoute,
                     parentNavController = parentNavController,
-                    navController = navController
+                    navController = navController,
+                    notificationCount = notificationCount
                 )
 
             }
@@ -93,6 +97,7 @@ fun CustomBottomNavigation(
 }
 
 
+@ExperimentalMaterialApi
 @Composable
 fun RowScope.CustomBottomNavigationItem(
     isSelected:Boolean,
@@ -100,6 +105,7 @@ fun RowScope.CustomBottomNavigationItem(
     currentRoute:String?,
     parentNavController: NavHostController,
     navController: NavHostController,
+    notificationCount: Int = 0
 ) {
 
     if(section.route == HOME_CREATE){
@@ -108,7 +114,9 @@ fun RowScope.CustomBottomNavigationItem(
                 Icon(
                     painter = painterResource(id = section.focusedIcon),
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp).padding(0.dp),
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(0.dp),
                     tint = Color.Unspecified
                 )
             },
@@ -129,14 +137,31 @@ fun RowScope.CustomBottomNavigationItem(
 
         BottomNavigationItem(
             icon = {
-                Icon(
-                    painter = painterResource(id = if (isSelected) section.focusedIcon else section.nonFocusIcon),
-                    contentDescription = null,
-                    modifier = Modifier.padding(0.dp)
-                )
-            },
-            label = {
-                Text(text = stringResource(id = section.title))
+
+                if(section.route == HOME_NOTIFICATIONS && notificationCount > 0){
+
+                    BadgeBox(
+                        backgroundColor = MaterialTheme.colors.primary,
+                        badgeContent = {
+                            Text(text = "$notificationCount")
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = if (isSelected) section.focusedIcon else section.nonFocusIcon),
+                            contentDescription = null,
+                            modifier = Modifier.padding(0.dp)
+                        )
+                    }
+                } else {
+                    Icon(
+                        painter = painterResource(id = if (isSelected) section.focusedIcon else section.nonFocusIcon),
+                        contentDescription = null,
+                        modifier = Modifier.padding(0.dp)
+                    )
+                }
+
+
+
             },
             selected = isSelected,
             onClick = {

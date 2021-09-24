@@ -1,5 +1,9 @@
 package com.samarth.memesmagic.ui.components
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Spring
@@ -18,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -25,8 +30,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.request.ImageRequest
+import coil.request.videoFrameMillis
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
@@ -35,6 +43,7 @@ import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.numberOfFollowersOrFollowings
 import com.samarth.memesmagic.util.numberOfPosts
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 
 @ExperimentalAnimationApi
@@ -52,7 +61,7 @@ fun FullProfileScreen(
     isFollowing: Boolean,
     onEditScreenPressed: () -> Unit,
     onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit,
-    detailView : ()->Unit,
+    detailView : (Float?)->Unit,
     onLogout: () -> Unit = {},
     messageUser: () -> Unit = {},
     followUser:( (
@@ -511,32 +520,57 @@ fun ProfileScreenButtons(
 
 @ExperimentalFoundationApi
 @Composable
-fun ProfilePostsSection(posts:List<Post>,detailView: () -> Unit) {
+fun ProfilePostsSection(posts:List<Post>,detailView: (Float?) -> Unit) {
+
+    val context = LocalContext.current
 
     LazyVerticalGrid(cells = GridCells.Fixed(3),contentPadding = PaddingValues(top = 8.dp,bottom = 60.dp,start = 16.dp,end = 16.dp)) {
 
         items(posts){ post ->
-
-            Image(
-                painter = rememberCoilPainter(
-                    request = ImageRequest.Builder(LocalContext.current)
-                        .data(post.mediaLink)
-                        .placeholder(R.drawable.blank_image)
-                        .error(R.drawable.blank_image)
-                        .build(),
-                    fadeIn = true,
-                ),
-                contentScale = ContentScale.Crop,
-                contentDescription = "User Image",
-                modifier = Modifier
-                    .padding(1.dp)
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .clickable {
-                        CommentsUtil.post = post
-                        detailView()
-                    },
-            )
+            if(post.postType == PostType.IMAGE){
+                Image(
+                    painter = rememberCoilPainter(
+                        request = ImageRequest.Builder(context)
+                            .data(post.mediaLink)
+                            .placeholder(R.drawable.blank_image)
+                            .error(R.drawable.blank_image)
+                            .build(),
+                        fadeIn = true,
+                    ),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "User Image",
+                    modifier = Modifier
+                        .padding(1.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .clickable {
+                            CommentsUtil.post = post
+                            detailView(null)
+                        },
+                )
+            } else {
+                val mmr = MediaMetadataRetriever()
+                mmr.setDataSource(post.mediaLink,HashMap<String,String>())
+                val bmp = mmr.getFrameAtTime(2, MediaMetadataRetriever.OPTION_CLOSEST)?.asImageBitmap()
+                Log.d("video","${bmp?.width} / ${bmp?.height}")
+                Image(
+                    bitmap =  bmp ?:
+                                BitmapFactory.decodeResource(
+                                    context.resources,
+                                    R.drawable.ic_image
+                                ).asImageBitmap(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "User Image",
+                    modifier = Modifier
+                        .padding(1.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .clickable {
+                            CommentsUtil.post = post
+                            detailView((bmp?.width?.div(bmp.height.toFloat())))
+                        },
+                )
+            }
 
         }
 

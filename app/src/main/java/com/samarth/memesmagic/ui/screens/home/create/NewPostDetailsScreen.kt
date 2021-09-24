@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.ui.components.CustomButton
 import com.samarth.memesmagic.ui.components.CustomTextField
 import com.samarth.memesmagic.ui.components.CustomTopBar
@@ -78,27 +79,53 @@ fun NewPostDetailsScreen(
                 ) {
 
                     keyboardController?.hide()
-                    createViewModel.uploadPost(
-                        context = context,
-                        onFail = {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    it
-                                )
+                    if(createViewModel.postType == PostType.IMAGE){
+                        createViewModel.uploadPost(
+                            context = context,
+                            onFail = {
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        it
+                                    )
+                                }
+                            },
+                            onSuccess = {
+                                coroutineScope.launch {
+                                    navController.popBackStack(
+                                        HOME_SCREEN,
+                                        inclusive = false,
+                                        saveState = true
+                                    )
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        "SuccessFully Posted!"
+                                    )
+                                }
                             }
-                        },
-                        onSuccess = {
-                            coroutineScope.launch {
-                                navController.popBackStack(HOME_SCREEN,
-                                    inclusive = false,
-                                    saveState = true
-                                )
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    "SuccessFully Posted!"
-                                )
-                            }
-                        }
-                    )
+                        )
+                    } else {
+                        createViewModel.uploadVideo(
+                            onFail = {
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        it
+                                    )
+                                }
+                            },
+                            onSuccess = {
+                                coroutineScope.launch {
+                                    navController.popBackStack(
+                                        HOME_SCREEN,
+                                        inclusive = false,
+                                        saveState = true
+                                    )
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        "SuccessFully Posted!"
+                                    )
+                                }
+                            },
+                            context = context
+                        )
+                    }
                 }
 
             }

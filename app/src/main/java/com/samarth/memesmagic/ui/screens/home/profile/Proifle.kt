@@ -51,7 +51,7 @@ fun ProfileScreen(
         },
         onFollowUnFollowBtnPressed = {},
         detailView  = {
-            parentNavController.navigate(Screens.SINGLE_POST_SCREEN)
+            parentNavController.navigate("${Screens.SINGLE_POST_SCREEN}/$it")
         },
         onLogout = {
             profileViewModel.logoutUser(context)

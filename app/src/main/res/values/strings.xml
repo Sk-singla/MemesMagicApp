@@ -4,7 +4,7 @@
     <string name="home_feed">Home</string>
     <string name="home_search">Search</string>
     <string name="home_create">Create</string>
-    <string name="home_rewards">Reward</string>
+    <string name="home_notifications">Notifications</string>
     <string name="home_profile">Profile</string>
     <string name="follow_back">Follow Back</string>
     <string name="default_toast_text">This is a toast.</string>

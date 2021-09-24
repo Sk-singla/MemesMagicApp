@@ -8,5 +8,5 @@ data class PrivateChatRoom(
     @PrimaryKey(autoGenerate = false)
     val userEmail:String,
     val name: String,
-    val profilePic: String?,
+    val profilePic: String?
 )

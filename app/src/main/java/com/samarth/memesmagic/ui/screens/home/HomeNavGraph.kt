@@ -16,13 +16,13 @@ import androidx.navigation.compose.rememberNavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.screens.home.feed.FeedScreen
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
+import com.samarth.memesmagic.ui.screens.home.notifications.NotificationsScreen
 import com.samarth.memesmagic.ui.screens.home.profile.ProfileScreen
-import com.samarth.memesmagic.ui.screens.home.notifications.RewardScreen
 import com.samarth.memesmagic.ui.screens.home.search.SearchScreen
 import com.samarth.memesmagic.util.Screens.HOME_CREATE
 import com.samarth.memesmagic.util.Screens.HOME_FEED
 import com.samarth.memesmagic.util.Screens.HOME_PROFILE
-import com.samarth.memesmagic.util.Screens.HOME_REWARDS
+import com.samarth.memesmagic.util.Screens.HOME_NOTIFICATIONS
 import com.samarth.memesmagic.util.Screens.HOME_SEARCH
 
 
@@ -35,7 +35,7 @@ enum class HomeSections(
     FEED(HOME_FEED,R.string.home_feed,R.drawable.ic_outline_home,R.drawable.ic_filled_home),
     SEARCH(HOME_SEARCH,R.string.home_search,R.drawable.ic_outline_search,R.drawable.ic_filled_search),
     CREATE(HOME_CREATE,R.string.home_create,R.drawable.ic_create_24, R.drawable.ic_create_24),
-    REWARDS(HOME_REWARDS,R.string.home_rewards,R.drawable.ic_reward,R.drawable.ic_filled_reward),
+    NOTIFICATIONS(HOME_NOTIFICATIONS,R.string.home_notifications,R.drawable.ic_notifcation_outline,R.drawable.ic_notification_filled),
     PROFILE(HOME_PROFILE,R.string.home_profile,R.drawable.ic_outline_person,R.drawable.ic_person),
 
 }
@@ -74,8 +74,8 @@ fun HomeNavGraph(
             )
         }
 
-        composable(HOME_REWARDS){
-            RewardScreen()
+        composable(HOME_NOTIFICATIONS){
+            NotificationsScreen(parentNavController = parentNavHostController)
         }
 
         composable(HOME_PROFILE){

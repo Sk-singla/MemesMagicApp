@@ -57,6 +57,16 @@ class ChatViewModel @Inject constructor(
     val isMessageSelected = mutableStateMapOf<String,Boolean>()
 
 
+    val notificationCount = mutableStateOf(0)
+
+    fun observeNotificationCount() = viewModelScope.launch {
+        memeRepo.getAllUnseenNotificationCount().collect {
+            Log.d("notifics","${it}")
+            notificationCount.value = it
+        }
+    }
+
+
     fun observeConnectionEvents() = viewModelScope.launch(dispatchers.io){
         connectionEvent.collect { event ->
             when(event){
@@ -87,7 +97,7 @@ class ChatViewModel @Inject constructor(
             otherUserEmail = ChatUtils.currentChatRoom!!.userEmail
         )
         webSocketApi.sendBaseModel(privateChatMessage)
-        savePrivateChatMessageToLocalDatabase(privateChatMessage)
+        memeRepo.savePrivateChatMessage(privateChatMessage)
         clearChatMessageTextField()
     }
 
@@ -146,6 +156,7 @@ class ChatViewModel @Inject constructor(
     ) = viewModelScope.launch(dispatchers.io){
         memeDao.insertPrivateChatRoom(privateChatRoom)
     }
+
     fun observeSingleChatLocalDatabase(
         userEmail: String = ChatUtils.currentChatRoom?.userEmail ?: ""
     ) {
@@ -161,26 +172,15 @@ class ChatViewModel @Inject constructor(
     fun observeLocalDatabase() = viewModelScope.launch(dispatchers.io){
 //        val curUserEmail = getEmail(context) ?: ""
         memeDao.getAllPrivateChatRooms()?.collect { privateChatRooms ->
-            chatRooms.value = privateChatRooms
+            chatRooms.value = privateChatRooms.filter { it.privateChatMessages.isNotEmpty() }
         }
-    }
-
-    suspend fun savePrivateChatMessageToLocalDatabase(data: PrivateChatMessage){
-        memeDao.savePrivateMessage(data)
-        memeDao.insertPrivateChatRoom(
-            PrivateChatRoom(
-                data.otherUserEmail,
-                data.name,
-                data.profilePic
-            )
-        )
     }
 
     fun observeWebSocketBaseModelEvents()  = viewModelScope.launch(dispatchers.io){
         webSocketApi.observeBaseModel().collect { data ->
             when(data){
                 is PrivateChatMessage -> {
-                    savePrivateChatMessageToLocalDatabase(data)
+                    memeRepo.savePrivateChatMessage(data)
                     messageReceived(data.id,data.from)
                 }
                 is MessageReachedServerAcknowledgement -> {

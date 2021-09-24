@@ -4,10 +4,20 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.util.Log
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.data.local.database.MemeDatabase
@@ -29,27 +39,33 @@ import com.samarth.memesmagic.util.TokenHandler.saveYearRewardId
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.lang.Exception
 import javax.inject.Inject
+import kotlin.math.abs
 
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     val memeRepo: MemeRepo,
     val memeDatabase: MemeDatabase,
-    val dispatcher: DispatcherProvider
+    val dispatcher: DispatcherProvider,
+    val player: SimpleExoPlayer,
+    val glide:RequestManager,
+    val dataSourceFactory: DefaultDataSourceFactory
 ):ViewModel() {
 
     val isLoading = mutableStateOf(true)
     val rewardWinner = mutableStateOf<UserInfo?>(null)
     val isFollowingToRewardyy = mutableStateOf(false)
     val firstTimeOpenedFeedScreen = mutableStateOf(true)
-
     val posts = mutableStateOf(listOf<Post>())
+    val thumbnails = mutableMapOf<String,Bitmap>()
+    val lazyListState = LazyListState()
 
     fun isItLastItem(itemNumber:Int):Boolean{
         return itemNumber == posts.value.size -1
@@ -152,11 +168,29 @@ class FeedViewModel @Inject constructor(
         val result = memeRepo.getFeed()
 
         if(result is Resource.Success){
-            posts.value += result.data!!.shuffled()
+            posts.value += result.data!!
+            generateThumbnails()
         } else {
             onFail(result.message ?: "Some Problem Occurred!")
         }
         isLoading.value = false
+    }
+
+    fun generateThumbnails() = viewModelScope.launch(Dispatchers.IO){
+        posts.value.filter { it.postType == PostType.VIDEO }.forEach { curPost ->
+            glide.asBitmap()
+                .load(curPost.mediaLink)
+                .into(object : CustomTarget<Bitmap>(){
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        thumbnails[curPost.id] = resource
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) =Unit
+                })
+        }
     }
 
     fun getFeedFromGithub() = viewModelScope.launch {
@@ -255,5 +289,66 @@ class FeedViewModel @Inject constructor(
             memeDatabase.clearAllTables()
         }
     }
+
+
+    fun setMediaItem(
+        itemUri:String
+    ){
+        player.let { exoPlayer ->
+            val mediaItem = MediaItem.fromUri(itemUri)
+            exoPlayer.setMediaItem(mediaItem)
+        }
+    }
+
+    fun releasePlayer(){
+        player.release()
+    }
+
+    fun determineCurrentlyPlayingItem(
+        lazyListSate: LazyListState,
+        posts: List<Post>
+    ): Post? {
+        val layoutInfo = lazyListSate.layoutInfo
+        val visiblePosts = layoutInfo.visibleItemsInfo.map { posts[it.index] }
+        val videoPosts = visiblePosts.filter { it.postType == PostType.VIDEO }
+
+        val lastVideo = videoPosts.lastOrNull()
+        if(lastVideo != null && posts.lastOrNull()?.id == lastVideo.id){
+            return lastVideo
+        }
+//        layoutInfo.visibleItemsInfo.forEach {
+//            it.
+//        }
+
+//        return videoPosts.firstOrNull()
+        return if(videoPosts.size == 1){
+            videoPosts.first()
+        } else {
+            val midPoint = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) /2
+            val itemsFromCenter =
+                layoutInfo.visibleItemsInfo.sortedBy {
+                    abs((it.offset + it.size/2) - midPoint)
+                }
+
+            itemsFromCenter.map { posts[it.index] }.firstOrNull{
+                it.postType == PostType.VIDEO
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

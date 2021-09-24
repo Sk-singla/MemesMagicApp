@@ -19,6 +19,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
@@ -27,6 +28,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -40,18 +42,21 @@ import com.samarth.memesmagic.BuildConfig
 import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
+import com.samarth.memesmagic.data.remote.response.UserInfo
+import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.notification.models.BaseNotification
 import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_FOLLOWER
 import com.samarth.memesmagic.notification.models.NewFollowerNotification
 import com.samarth.memesmagic.repository.MemeRepo
+import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_CHAT_MESSAGE
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_FCM_MESSAGE
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_NEW_FOLLOWER
 import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
-import com.samarth.memesmagic.util.Resource
-import com.samarth.memesmagic.util.Screens
-import com.samarth.memesmagic.util.TokenHandler
-import com.samarth.memesmagic.util.navigateWithPop
+import com.samarth.memesmagic.util.*
+import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
+import com.samarth.memesmagic.util.Screens.CHAT_ROOMS_LIST_SCREEN
+import com.samarth.memesmagic.util.Screens.CHAT_ROOM_SCREEN
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,7 +82,9 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     var imageUri = MutableStateFlow<Uri?>(null)
     val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()){ uri ->
-        imageUri.value = uri
+        lifecycleScope.launch{
+            imageUri.emit(uri)
+        }
         Log.d("MyLog","came -> ${uri}")
     }
 
@@ -100,6 +107,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     lateinit var memeRepo: MemeRepo
     private val chatViewModel:ChatViewModel by viewModels()
 
+    @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,7 +138,9 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                         configureGSI()
                         signIn()
                     },
-                    anotherUserEmailFromNotification = notificationIntentWork(intent)
+                    navigateWithNotification = {
+                        notificationIntentWork(intent,it)
+                    },
                 )
             }
         }
@@ -172,7 +182,8 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         chatViewModel.observeConnectionEvents()
     }
 
-    private fun notificationIntentWork(intent: Intent?): String? {
+    private fun notificationIntentWork(intent: Intent?,mNavController: NavController) {
+
 
         Log.d("fcm_intent",intent?.action ?: "NULL")
         val notificationId = intent?.getStringExtra("notificationId")
@@ -181,9 +192,23 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                 memeRepo.seenNotification(nId)
             }
         }
-        return when(intent?.action) {
+        when(intent?.action) {
             INTENT_ACTION_NEW_FOLLOWER -> {
-                intent.getStringExtra("follower")
+                val anotherUserEmailFromNotification = intent.getStringExtra("follower")
+                mNavController.navigate("${ANOTHER_USER_PROFILE_SCREEN}/$anotherUserEmailFromNotification")
+            }
+            INTENT_ACTION_CHAT_MESSAGE -> {
+                mNavController.navigate(CHAT_ROOMS_LIST_SCREEN)
+                val userInfoText = intent.getStringExtra("msgSenderUserInfo")
+                val userInfo = gson.fromJson(userInfoText,UserInfo::class.java)
+
+                ChatUtils.currentChatRoom = PrivateChatRoom(
+                    userEmail = userInfo.email,
+                    name = userInfo.name,
+                    profilePic = userInfo.profilePic
+                )
+                Log.d("notification","Sender: ${userInfo.email}, ${userInfo.name}")
+                mNavController.navigate(CHAT_ROOM_SCREEN)
             }
             else -> null
         }

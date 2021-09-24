@@ -10,7 +10,7 @@ object Constants {
     const val BASE_URL_HEROKU = "https://memesmagic.herokuapp.com"
     const val BASE_URL_AWS = "http://ec2-13-127-71-143.ap-south-1.compute.amazonaws.com"
     const val BASE_URL_LOCAL = "http://192.168.43.33:8081"
-    const val BASE_URL = BASE_URL_LOCAL                  //  <-------- change this
+    const val BASE_URL = BASE_URL_HEROKU                  //  <-------- change this
     const val BASE_URL_WS = "$BASE_URL$API_VERSION/ws"
     const val RECONNECT_INTERVAL = 3000L
 
@@ -71,7 +71,7 @@ object Screens{
     const val HOME_FEED = "$HOME_SCREEN/feed"
     const val HOME_SEARCH = "$HOME_SCREEN/search"
     const val HOME_CREATE = "$HOME_SCREEN/create"
-    const val HOME_REWARDS = "$HOME_SCREEN/rewards"
+    const val HOME_NOTIFICATIONS = "$HOME_SCREEN/notifications"
     const val HOME_PROFILE = "$HOME_SCREEN/profile"
 
     const val EDIT_SCREEN = "${HOME_CREATE}/edit"

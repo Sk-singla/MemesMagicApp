@@ -1,39 +1,53 @@
 package com.samarth.memesmagic.ui.screens.home.notifications
 
-import android.content.Context
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.samarth.memesmagic.data.remote.response.Reward
+import com.google.gson.Gson
+import com.google.gson.JsonParser
+import com.plcoding.doodlekong.util.DispatcherProvider
+import com.samarth.memesmagic.data.local.entities.models.LocalNotification
+import com.samarth.memesmagic.data.remote.ws.models.BaseModel
+import com.samarth.memesmagic.notification.models.BaseNotification
+import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_FOLLOWER
+import com.samarth.memesmagic.notification.models.NewFollowerNotification
 import com.samarth.memesmagic.repository.MemeRepo
-import com.samarth.memesmagic.util.Resource
-import com.samarth.memesmagic.util.TokenHandler.getEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
-    val memeRepo: MemeRepo
-) : ViewModel(){
+    val memeRepo:MemeRepo,
+    val dispatcherProvider: DispatcherProvider,
+):ViewModel(){
 
-    val isLoading = mutableStateOf(false)
-    val rewards = mutableStateOf(listOf<Reward>())
-    val loadError = mutableStateOf("")
+    val notifications = mutableStateListOf<LocalNotification>()
 
-    fun getRewards(context: Context) = viewModelScope.launch{
-        isLoading.value = true
-        val result = memeRepo.getRewards( getEmail(context)!!)
-        if(result is Resource.Success){
-            rewards.value = result.data!!
-            loadError.value = ""
-        } else{
-            loadError.value = result.message!!
+    init {
+        getAllNotifications()
+    }
+    fun getAllNotifications() = viewModelScope.launch(dispatcherProvider.io){
+        memeRepo.getAllNotifications().collect {
+            notifications.clear()
+            notifications.addAll(it)
         }
-        isLoading.value = false
     }
 
 
+    fun getOriginalNotification(notification: String):BaseNotification{
+        val jsonObj = JsonParser.parseString(notification).asJsonObject
+        val type = when(jsonObj.get("type").asString){
+            NOTIFICATION_TYPE_NEW_FOLLOWER -> NewFollowerNotification::class.java
+            else -> BaseNotification::class.java
+        }
+        return Gson().fromJson(notification,type)
+    }
 
+
+    fun notificationSeen(notificationId: String) = viewModelScope.launch(dispatcherProvider.io){
+        memeRepo.seenNotification(notificationId)
+    }
 
 }

@@ -16,18 +16,20 @@ import androidx.navigation.NavController
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.components.CustomTopBar
-import com.samarth.memesmagic.ui.components.PostItem
+import com.samarth.memesmagic.ui.components.items.PostItem
 import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Screens
 import kotlinx.coroutines.launch
 import com.samarth.memesmagic.R
+import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 
 @Composable
 fun SinglePostScreen(
     parentNavController:NavController,
     startActivity:(Intent)->Unit,
-    feedViewModel:FeedViewModel = hiltViewModel()
+    feedViewModel:FeedViewModel = hiltViewModel(),
+    aspectRatio:Float? = null
 ) {
 
     val context = LocalContext.current
@@ -43,6 +45,10 @@ fun SinglePostScreen(
 
     LaunchedEffect(key1 = Unit) {
         email = getEmail(context) ?: ""
+
+        if(CommentsUtil.post!!.postType == PostType.VIDEO || CommentsUtil.post!!.mediaLink.takeLast(3) == "mp4"){
+            feedViewModel.setMediaItem(CommentsUtil.post!!.mediaLink)
+        }
     }
 
     Scaffold(
@@ -121,7 +127,9 @@ fun SinglePostScreen(
                             }
                         },
                         onClick = {},
-                        isSinglePost = true
+                        isSinglePost = true,
+                        exoPlayer = feedViewModel.player,
+                        aspectRatio = aspectRatio
                     )
 
                     if (feedViewModel.isLoading.value) {

@@ -32,8 +32,10 @@ import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.util.Screens
+import com.samarth.memesmagic.util.Screens.HOME_NOTIFICATIONS
 import com.samarth.memesmagic.util.getMessageCount
 
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -47,12 +49,15 @@ fun HomeScreen(
 
 
     val homeNavController = rememberNavController()
-    val tabs = remember{ HomeSections.values() }
+    val tabs = remember{
+        HomeSections.values()
+    }
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
 
     LaunchedEffect(key1 = true){
         chatViewModel.observeUnseenMessages(context)
+        chatViewModel.observeNotificationCount()
     }
 
     Scaffold(
@@ -115,7 +120,12 @@ fun HomeScreen(
         },
 
         bottomBar = {
-            CustomBottomNavBar(navController = homeNavController,tabs = tabs,parentNavController = navController)
+            CustomBottomNavBar(
+                navController = homeNavController,
+                tabs = tabs,
+                parentNavController = navController,
+                notificationCount = chatViewModel.notificationCount.value
+            )
         }
     ) {
 

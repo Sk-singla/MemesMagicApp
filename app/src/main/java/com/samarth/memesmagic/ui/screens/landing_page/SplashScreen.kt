@@ -20,7 +20,7 @@ import com.samarth.memesmagic.util.navigateWithPop
 @Composable
 fun SplashScreen(
     navController: NavController,
-    anotherUserEmailFromNotification:String? = null,
+    navigateWithNotification: ((NavController)-> Unit)? = null,
     testing:Boolean = false
 ) {
 
@@ -32,9 +32,7 @@ fun SplashScreen(
         }
         if (TokenHandler.getJwtToken(context) != null) {
             navigateWithPop(navController, Screens.HOME_SCREEN)
-            anotherUserEmailFromNotification?.let {
-                navController.navigate("$ANOTHER_USER_PROFILE_SCREEN/$anotherUserEmailFromNotification")
-            }
+            navigateWithNotification?.invoke(navController)
         } else {
             navigateWithPop(navController,LANDING_SCREEN)
         }

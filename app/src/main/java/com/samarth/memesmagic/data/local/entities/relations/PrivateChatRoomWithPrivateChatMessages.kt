@@ -8,7 +8,7 @@ import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 data class PrivateChatRoomWithPrivateChatMessages(
     @Embedded
     val privateChatRoom: PrivateChatRoom,
-    @Relation(
+    @Relation (
         parentColumn = "userEmail",
         entityColumn = "otherUserEmail"
     )

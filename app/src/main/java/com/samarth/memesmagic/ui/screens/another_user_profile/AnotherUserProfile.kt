@@ -17,6 +17,7 @@ import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.ui.components.FullProfileScreen
 import com.samarth.memesmagic.util.ChatUtils
+import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.CHAT_ROOM_SCREEN
 import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
@@ -88,7 +89,7 @@ fun AnotherUserProfile(
                     }
                 },
                 detailView = {
-                    navController.navigate(SINGLE_POST_SCREEN)
+                    navController.navigate("$SINGLE_POST_SCREEN/$it")
                 },
                 messageUser = {
                     ChatUtils.currentChatRoom = PrivateChatRoom(

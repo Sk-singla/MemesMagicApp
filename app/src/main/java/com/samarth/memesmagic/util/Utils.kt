@@ -108,6 +108,14 @@ fun getChatMessageTime(time: Long): String{
     return stf.format(date)
 }
 
+fun getNotificationTime(time:Long):String {
+    //8 aug, 08:28 PM
+    val date = Date(time)
+    val stf = SimpleDateFormat("dd MMM, hh:mm aaa")
+    return stf.format(date)
+
+}
+
 fun lastChatMessageTime(time:Long) : String {
     val cal = Calendar.getInstance()
     cal.timeInMillis = time

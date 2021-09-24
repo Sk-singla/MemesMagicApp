@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -28,11 +29,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 import kotlin.Exception
 import java.lang.NumberFormatException
+import com.samarth.memesmagic.util.getFileName
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 
 @HiltViewModel
@@ -45,6 +50,7 @@ class CreateViewModel  @Inject constructor(
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
+    var postType: PostType = PostType.IMAGE
 
     private var curPage = 0
     private var pagesLeft = (0..Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER).toList()
@@ -79,6 +85,20 @@ class CreateViewModel  @Inject constructor(
         }
     }
 
+
+    var mediaUri: Uri? = null
+    fun chooseVideo(
+        startActivityForResult:(String,(Uri?)->Unit)->Unit,
+        onPickingFile:()->Unit
+    ){
+        startActivityForResult("video/*"){
+            mediaUri = it
+            postType = PostType.VIDEO
+            mediaUri?.let {
+                onPickingFile()
+            }
+        }
+    }
 
 
     // FOR EDITING SCREEN ->
@@ -351,7 +371,81 @@ class CreateViewModel  @Inject constructor(
         }
     }
 
+    fun uploadVideo(
+        context:Context,
+        onSuccess: () -> Unit,
+        onFail: (String) -> Unit
+    ) {
 
+        Log.d("video","$mediaUri")
+        if(mediaUri == null){
+            onFail("Please Select a File!")
+            return
+        }
+
+        try {
+            isLoading.value = true
+            val fd = context.contentResolver.openFileDescriptor(mediaUri!!, "r", null)!!
+            val inputStream = FileInputStream(fd.fileDescriptor)
+            val file = File(
+                context.cacheDir,
+                context.contentResolver.getFileName(mediaUri!!)
+            )
+            val outputStream = FileOutputStream(file)
+            inputStream.copyTo(outputStream)
+            // Use the file
+            uploadVideoFile(file.name,file, onSuccess, onFail)
+
+        } catch (e:Exception){
+            e.printStackTrace()
+            onFail(e.message ?: "Exception Occurred!")
+        }
+        isLoading.value = false
+    }
+
+    private fun uploadVideoFile(
+        fileName:String,
+        file: File,
+        onSuccess: () -> Unit,
+        onFail: (String) -> Unit
+    ) = viewModelScope.launch {
+
+        isLoading.value = true
+        memeRepo.uploadFileOnAwsS3(
+            fileName = fileName,
+            file = file,
+            onSuccess = { awsKey ->
+                viewModelScope.launch {
+
+                    isLoading.value = true
+
+                    val result = memeRepo.uploadPost(
+                        postRequest = PostRequest(
+                            PostType.VIDEO,
+                            System.currentTimeMillis(),
+                            tags = listOf(),
+                            mediaLink = BUCKET_OBJECT_URL_PREFIX + awsKey,
+                            description = caption.value
+                        )
+                    )
+
+                    when (result) {
+                        is Resource.Success -> {
+                            caption.value = ""
+                            onSuccess()
+                            isLoading.value = false
+                        }
+                        else -> {
+                            onFail(result.message ?: "Some Problem Occurred!!")
+                            isLoading.value = false
+                        }
+                    }
+                }
+            },
+            onFail = onFail
+        )
+        isLoading.value = false
+    }
 
     fun saveImageToInternalStorage(context: Context,bmp:Bitmap,filename:String = UUID.randomUUID().toString()):Boolean{
         return try{

@@ -9,7 +9,9 @@ import com.samarth.memesmagic.data.remote.request.CommentRequest
 import com.samarth.memesmagic.data.remote.request.UserInfoRequest
 import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.data.remote.response.meme_api_github.MemeApiGithub
+import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
 import com.samarth.memesmagic.util.Resource
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 interface MemeRepo {
@@ -39,9 +41,10 @@ interface MemeRepo {
     suspend fun uploadFileOnAwsS3(fileName:String,file:File?, onSuccess:(String)->Unit, onFail:(String)->Unit)
 
     suspend fun uploadPost(postRequest: PostRequest):Resource<String>
-
     suspend fun likePost(postId:String):Resource<UserInfo>
     suspend fun dislikePost(postId:String):Resource<UserInfo>
+    suspend fun deletePost(postId: String):Resource<String>
+
 
     suspend fun findUsers( searchKeyWord:String):Resource<List<UserInfo>>
 
@@ -59,12 +62,15 @@ interface MemeRepo {
 
     suspend fun getMemesFromGithubApi():Resource<MemeApiGithub>
 
-    suspend fun deletePost(postId: String):Resource<String>
-
     suspend fun updateFcmToken(fcmToken:String): Resource<String>
 
     suspend fun saveNotification(localNotification: LocalNotification):Resource<String>
     suspend fun seenNotification(notificationId:String):Resource<String>
+    fun getAllNotifications(): Flow<List<LocalNotification>>
+    fun getAllUnseenNotificationCount():Flow<Int>
+
+    suspend fun savePrivateChatMessage(message:PrivateChatMessage)
+    suspend fun messageReceived(msgId:String,messageSender:String)
     /**
      * 1. Share meme on other platforms -> Done
      * 2. send friend request / follow , unfollow

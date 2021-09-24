@@ -1,5 +1,7 @@
-package com.samarth.memesmagic.ui.components
+package com.samarth.memesmagic.ui.components.items
 
+import android.graphics.Bitmap
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,15 +22,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.request.ImageRequest
 import com.google.accompanist.coil.rememberCoilPainter
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ui.PlayerView
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
+import com.samarth.memesmagic.ui.components.ProfileImage
 import com.samarth.memesmagic.ui.theme.Green500
 
 @Composable
@@ -40,7 +48,11 @@ fun PostItem(
     onCommentIconPressed: (post:Post) -> Unit,
     onShareIconPressed: (post:Post) -> Unit,
     onClick:()->Unit,
-    isSinglePost:Boolean = false
+    isSinglePost:Boolean = false,
+    exoPlayer: SimpleExoPlayer? = null,
+    aspectRatio:Float? = null,
+    playerViewVisible:Boolean = true,
+    thumbnail:Bitmap? =null
 ) {
 
     var isPostLiked by remember {
@@ -87,8 +99,7 @@ fun PostItem(
 
 
             // Post Content ->
-            when (post.postType) {
-                PostType.IMAGE -> {
+            if (post.postType == PostType.IMAGE && post.mediaLink.takeLast(3) != "mp4") {
 
 
                     Image(
@@ -113,9 +124,40 @@ fun PostItem(
                     )
 
                 }
-                else -> {
+                else {
 
-                }
+
+                    exoPlayer?.let{
+                        ExoPlayerCompose(
+                            exoPlayer = it,
+                            modifier =  if(isSinglePost){
+                                Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(aspectRatio ?: 1f)
+                            } else {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                            },
+                            mediaUri = post.mediaLink,
+                            playerViewVisible = playerViewVisible,
+                            thumbnail = thumbnail
+                        )
+                    } ?: kotlin.run {
+                        Text(
+                            text = "Something Went Wrong!",
+                            fontWeight = FontWeight.Bold,
+                            modifier = if(isSinglePost){
+                                Modifier
+                                    .fillMaxWidth()
+                            } else {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                            },
+                            textAlign = TextAlign.Center
+                        )
+                    }
             }
 
 

@@ -6,8 +6,14 @@ import android.util.Log
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.gson.Gson
 import com.plcoding.doodlekong.util.DispatcherProvider
+import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.local.database.MemeDatabase
 import com.samarth.memesmagic.data.remote.*
@@ -52,8 +58,35 @@ object AppModule {
         memeMakerApi: MemeMakerApi,
         memeGithubApi: MemeGithubApi,
         @ApplicationContext context: Context,
-        memeDao:MemeDao
-    ):MemeRepo = MemeRepository(api,imageFlipApi,memeMakerApi,memeGithubApi,context,memeDao)
+        memeDao:MemeDao,
+        webSocketApi: WebSocketApi
+    ):MemeRepo = MemeRepository(
+        api,
+        imageFlipApi,
+        memeMakerApi,
+        memeGithubApi,
+        webSocketApi,
+        context,
+        memeDao
+    )
+
+    @Singleton
+    @Provides
+    fun provideGlideRequestManager(
+        @ApplicationContext appContext:Context
+    ): RequestManager {
+        return Glide.with(appContext)
+            .setDefaultRequestOptions(
+                RequestOptions()
+                    .placeholder(R.drawable.blank_image)
+                    .error(R.drawable.ic_error)
+                    .diskCacheStrategy(DiskCacheStrategy.DATA)
+            )
+    }
+
+
+
+
 
 
     @Singleton

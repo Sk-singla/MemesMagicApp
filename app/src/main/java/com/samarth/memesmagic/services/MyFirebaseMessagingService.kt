@@ -12,7 +12,9 @@ import com.google.gson.JsonParser
 import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.local.entities.models.LocalNotification
 import com.samarth.memesmagic.notification.models.BaseNotification
+import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_CHAT_MESSAGE
 import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_FOLLOWER
+import com.samarth.memesmagic.notification.models.ChatNotification
 import com.samarth.memesmagic.notification.models.NewFollowerNotification
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.util.Resource
@@ -30,6 +32,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
 
     @Inject
     lateinit var memeRepo: MemeRepo
+
 
     @Inject
     lateinit var gson:Gson
@@ -55,6 +58,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
         val jsonObject = JsonParser.parseString(strMessage).asJsonObject
         val type = when(jsonObject.get("type").asString){
             NOTIFICATION_TYPE_NEW_FOLLOWER -> NewFollowerNotification::class.java
+            NOTIFICATION_TYPE_NEW_CHAT_MESSAGE -> ChatNotification::class.java
             else -> BaseNotification::class.java
         }
 
@@ -65,10 +69,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
             time = System.currentTimeMillis(),
             seen = false
         )
-        CoroutineScope(Dispatchers.IO).launch {
-            memeRepo.saveNotification(localNotification)
+        if(notificationObj.shouldSaveLocally){
+            CoroutineScope(Dispatchers.IO).launch {
+                memeRepo.saveNotification(localNotification)
+            }
         }
-        notificationObj.showNotification(this,localNotification.notificationId)
+        notificationObj.showNotification(this,localNotification.notificationId,gson,memeRepo)
 
 
     }
@@ -85,6 +91,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
         const val INTENT_ACTION_FCM_MESSAGE = "INTENT_ACTION_FCM_MESSAGE"
 
         const val INTENT_ACTION_NEW_FOLLOWER = "INTENT_ACTION_NEW_FOLLOWER"
+        const val INTENT_ACTION_CHAT_MESSAGE = "INTENT_ACTION_CHAT_MESSAGE"
     }
 
 

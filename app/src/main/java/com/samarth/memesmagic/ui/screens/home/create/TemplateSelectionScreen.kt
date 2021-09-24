@@ -1,5 +1,7 @@
 package com.samarth.memesmagic.ui.screens.home.create
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -21,13 +23,17 @@ import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.CustomButton
 import com.samarth.memesmagic.ui.components.CustomTopBar
+import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.EDIT_SCREEN
+import com.samarth.memesmagic.util.Screens.NEW_POST_DETAILS_AND_UPLOAD
 
 @ExperimentalFoundationApi
 @Composable
 fun TemplateSelectionScreen(
     navController:NavHostController,
-    createViewModel: CreateViewModel = hiltViewModel()
+    createViewModel: CreateViewModel = hiltViewModel(),
+    startActivityForResult:(String,(Uri?)->Unit)->Unit,
+    updateOrRequestPermissions:()->Boolean
 ) {
 
 
@@ -57,6 +63,28 @@ fun TemplateSelectionScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
 
+                item {
+
+                    Box(
+                        modifier = Modifier
+                            .padding(1.dp)
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clickable {
+                                if(updateOrRequestPermissions()){
+                                    createViewModel.chooseVideo(
+                                        startActivityForResult = startActivityForResult,
+                                        onPickingFile = {
+                                            navController.navigate(NEW_POST_DETAILS_AND_UPLOAD)
+                                        }
+                                    )
+                                }
+                            }
+                    ) {
+                        Text(text = "Video")
+                    }
+
+                }
 
                 items(templateList.size) {
 

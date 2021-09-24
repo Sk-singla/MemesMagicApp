@@ -8,18 +8,19 @@ import com.amplifyframework.storage.StorageException
 import com.amplifyframework.storage.options.StorageUploadFileOptions
 import com.samarth.memesmagic.data.local.dao.MemeDao
 import com.samarth.memesmagic.data.local.entities.models.LocalNotification
+import com.samarth.memesmagic.data.remote.*
 import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.PostRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
-import com.samarth.memesmagic.data.remote.ImageFlipApi
-import com.samarth.memesmagic.data.remote.MemeApi
-import com.samarth.memesmagic.data.remote.MemeGithubApi
-import com.samarth.memesmagic.data.remote.MemeMakerApi
 import com.samarth.memesmagic.data.remote.models.MemeTemplate
+import com.samarth.memesmagic.data.remote.models.PrivateChatMessageStatus
 import com.samarth.memesmagic.data.remote.request.CommentRequest
 import com.samarth.memesmagic.data.remote.request.UserInfoRequest
 import com.samarth.memesmagic.data.remote.response.*
 import com.samarth.memesmagic.data.remote.response.meme_api_github.MemeApiGithub
+import com.samarth.memesmagic.data.remote.ws.models.MessageReceived
+import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
+import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.util.Constants.BEARER
 import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
 import com.samarth.memesmagic.util.Constants.NETWORK_UNKNOWN_PROBLEM
@@ -27,6 +28,7 @@ import com.samarth.memesmagic.util.Constants.NO_MEME
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler.getJwtToken
 import dagger.hilt.android.scopes.ActivityScoped
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 
@@ -36,6 +38,7 @@ class MemeRepository(
     val imageFlipApi: ImageFlipApi,
     val memeMakerApi: MemeMakerApi,
     val memeGithubApi: MemeGithubApi,
+    val webSocketApi: WebSocketApi,
     val context: Context,
     val memeDao:MemeDao
 ): MemeRepo{
@@ -235,7 +238,7 @@ class MemeRepository(
         onFail: (String) -> Unit
     ){
         try {
-
+            Log.d("video",fileName)
 
             if(file == null){
                 onFail("File Not Found!")
@@ -246,7 +249,6 @@ class MemeRepository(
                 .accessLevel(StorageAccessLevel.PUBLIC)
                 .targetIdentityId("Posts")
                 .build()
-
 
             Amplify.Storage.uploadFile(
                 fileName,
@@ -422,5 +424,32 @@ class MemeRepository(
             e.printStackTrace()
             Resource.Error("Exception: ${e.message}")
         }
+    }
+
+    override fun getAllNotifications(): Flow<List<LocalNotification>> =
+        memeDao.getAllNotificationsOrderedByDate()
+
+    override fun getAllUnseenNotificationCount(): Flow<Int> =
+        memeDao.getAllUnSeenNotificationCount()
+
+    override suspend fun savePrivateChatMessage(message: PrivateChatMessage) {
+        memeDao.savePrivateMessage(message)
+        memeDao.insertPrivateChatRoom(
+            PrivateChatRoom(
+                message.otherUserEmail,
+                message.name,
+                message.profilePic
+            )
+        )
+    }
+
+    override suspend fun messageReceived(msgId: String, messageSender: String) {
+        webSocketApi.sendBaseModel(
+            MessageReceived(
+                msgId = msgId,
+                msgSender = messageSender
+            )
+        )
+        memeDao.updatePrivateChatMessageStatus(msgId, PrivateChatMessageStatus.RECEIVED.name)
     }
 }
