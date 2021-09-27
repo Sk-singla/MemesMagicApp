@@ -1,11 +1,13 @@
 package com.samarth.memesmagic.ui.screens.home.feed
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
@@ -16,6 +18,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.plcoding.doodlekong.util.DispatcherProvider
@@ -56,7 +59,8 @@ class FeedViewModel @Inject constructor(
     val dispatcher: DispatcherProvider,
     val player: SimpleExoPlayer,
     val glide:RequestManager,
-    val dataSourceFactory: DefaultDataSourceFactory
+    val dataSourceFactory: DefaultDataSourceFactory,
+    val trackSelector: DefaultTrackSelector,
 ):ViewModel() {
 
     val isLoading = mutableStateOf(true)
@@ -64,8 +68,9 @@ class FeedViewModel @Inject constructor(
     val isFollowingToRewardyy = mutableStateOf(false)
     val firstTimeOpenedFeedScreen = mutableStateOf(true)
     val posts = mutableStateOf(listOf<Post>())
-    val thumbnails = mutableMapOf<String,Bitmap>()
+    val thumbnails = mutableStateMapOf<String,Bitmap>()
     val lazyListState = LazyListState()
+    var playWhenReady = false
 
     fun isItLastItem(itemNumber:Int):Boolean{
         return itemNumber == posts.value.size -1
@@ -169,28 +174,28 @@ class FeedViewModel @Inject constructor(
 
         if(result is Resource.Success){
             posts.value += result.data!!
-            generateThumbnails()
+            posts.value.filter { it.postType == PostType.VIDEO }.forEach { curPost ->
+                generateThumbnail(curPost)
+            }
         } else {
             onFail(result.message ?: "Some Problem Occurred!")
         }
         isLoading.value = false
     }
 
-    fun generateThumbnails() = viewModelScope.launch(Dispatchers.IO){
-        posts.value.filter { it.postType == PostType.VIDEO }.forEach { curPost ->
-            glide.asBitmap()
-                .load(curPost.mediaLink)
-                .into(object : CustomTarget<Bitmap>(){
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        thumbnails[curPost.id] = resource
-                    }
+    fun generateThumbnail(curPost:Post) = viewModelScope.launch(Dispatchers.IO) {
+        glide.asBitmap()
+            .load(curPost.mediaLink)
+            .into(object : CustomTarget<Bitmap>(){
+                override fun onResourceReady(
+                    resource: Bitmap,
+                    transition: Transition<in Bitmap>?
+                ) {
+                    thumbnails[curPost.id] = resource
+                }
 
-                    override fun onLoadCleared(placeholder: Drawable?) =Unit
-                })
-        }
+                override fun onLoadCleared(placeholder: Drawable?) =Unit
+            })
     }
 
     fun getFeedFromGithub() = viewModelScope.launch {

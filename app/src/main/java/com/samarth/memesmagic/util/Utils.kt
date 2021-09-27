@@ -133,6 +133,21 @@ fun lastChatMessageTime(time:Long) : String {
 }
 
 
+
+fun videoTime(time: Long):String{
+
+    val totalSeconds = time / 1000
+    val sec = totalSeconds % 60
+    val min = (totalSeconds / 60 ) % 60
+    val hour = totalSeconds / 3600
+    return if(hour > 0){
+        "$hour:${if(min < 10) "0" else ""}$min:${if(sec < 10) "0" else ""}$sec"
+    } else {
+        "$min:${if(sec < 10) "0" else ""}$sec"
+    }
+}
+
+
 // =========================== DATE FORMAT ================================
 
 fun ContentResolver.getFileName(uri: Uri):String{

@@ -31,6 +31,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -52,6 +53,7 @@ import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTE
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_FCM_MESSAGE
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_NEW_FOLLOWER
 import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
+import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.theme.MemesMagicTheme
 import com.samarth.memesmagic.util.*
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
@@ -105,7 +107,10 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     @Inject
     lateinit var memeRepo: MemeRepo
+
+
     private val chatViewModel:ChatViewModel by viewModels()
+    private val feedViewModel:FeedViewModel by viewModels()
 
     @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
@@ -115,6 +120,8 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
             MemesMagicTheme {
                 navController = rememberNavController()
                 MainNavGraph(
+                    chatViewModel = chatViewModel,
+                    feedViewModel = feedViewModel,
                     startActivity = { intent ->
                         startActivity(intent)
                     },
@@ -133,7 +140,6 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                     },
                     modifier = Modifier.fillMaxSize(),
                     navController = navController,
-                    chatViewModel = chatViewModel,
                     onSignUpWithGoogle = {
                         configureGSI()
                         signIn()
@@ -218,11 +224,23 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         super.onResume()
         val filter = IntentFilter(INTENT_ACTION_FCM_MESSAGE)
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver,filter)
+        feedViewModel.player.playWhenReady = feedViewModel.playWhenReady
     }
 
     override fun onPause() {
         super.onPause()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        feedViewModel.playWhenReady = feedViewModel.player.playWhenReady
+        feedViewModel.player.playWhenReady = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        feedViewModel.player.run {
+            Log.d("video","======================================================Hi")
+            stop()
+            release()
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)

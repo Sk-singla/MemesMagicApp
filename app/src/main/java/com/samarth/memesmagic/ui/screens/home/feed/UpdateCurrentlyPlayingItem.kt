@@ -7,7 +7,9 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
 import com.samarth.memesmagic.data.remote.response.Post
@@ -39,8 +41,19 @@ fun UpdateCurrentlyPlayingItem(
 
 
                 Log.d("video","=========================")
+
+                // ======= FOR DASH FILE ===============
+//                 DashMediaSource.Factory(DefaultHttpDataSource.Factory())
+//                    .createMediaSource(
+//                        MediaItem.fromUri(
+//                        "http://rdmedia.bbc.co.uk/dash/ondemand/bbb/2/client_manifest-separate_init.mpd"
+//                        )
+//                    )
+
                 val source = ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(MediaItem.fromUri(post.mediaLink))
+                    .createMediaSource(MediaItem.fromUri(
+                        post.mediaLink
+                    ))
                 setMediaSource(source)
                 if(postPlaybackDetails[post.id] == null){
                     postPlaybackDetails[post.id] = ExoplayerStateProps(0,0)

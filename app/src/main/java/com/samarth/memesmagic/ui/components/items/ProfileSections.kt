@@ -2,6 +2,7 @@ package com.samarth.memesmagic.ui.components
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -25,13 +26,17 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.request.ImageRequest
 import coil.request.videoFrameMillis
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.accompanist.coil.rememberCoilPainter
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.PostType
@@ -61,7 +66,7 @@ fun FullProfileScreen(
     isFollowing: Boolean,
     onEditScreenPressed: () -> Unit,
     onFollowUnFollowBtnPressed: (onSuccess: () -> Unit) -> Unit,
-    detailView : (Float?)->Unit,
+    detailView : ()->Unit,
     onLogout: () -> Unit = {},
     messageUser: () -> Unit = {},
     followUser:( (
@@ -75,7 +80,7 @@ fun FullProfileScreen(
         onFail:(String)->Unit
     )->Unit)? = null,
     scaffoldState:ScaffoldState = rememberScaffoldState(),
-    navigateToAnotherUserProfile:(String)->Unit
+    navigateToAnotherUserProfile:(String)->Unit,
 ) {
 
 
@@ -93,8 +98,35 @@ fun FullProfileScreen(
     var otherUsers by remember {
         mutableStateOf(listOf<UserInfo>())
     }
+    val thumbnails = remember {
+        mutableStateMapOf<String,Bitmap>()
+    }
+    val context = LocalContext.current
+    val glide = remember {
+        Glide.with(context)
+    }
 
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(thumbnails,posts){
+        posts?.filter {
+            it.postType == PostType.VIDEO
+        }?.forEach { curPost ->
+            glide.asBitmap()
+                .load(curPost.mediaLink)
+                .into(object : CustomTarget<Bitmap>(){
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        thumbnails[curPost.id] = resource
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) =Unit
+                })
+
+        }
+    }
 
 
     Column(modifier = modifier) {
@@ -174,7 +206,8 @@ fun FullProfileScreen(
                         } else {
                             ProfilePostsSection(
                                 posts = postsList.sortedByDescending { it.time },
-                                detailView = detailView
+                                detailView = detailView,
+                                thumbnails = thumbnails
                             )
                         }
 
@@ -520,10 +553,13 @@ fun ProfileScreenButtons(
 
 @ExperimentalFoundationApi
 @Composable
-fun ProfilePostsSection(posts:List<Post>,detailView: (Float?) -> Unit) {
+fun ProfilePostsSection(
+    posts:List<Post>,
+    thumbnails:Map<String,Bitmap>,
+    detailView: () -> Unit
+) {
 
     val context = LocalContext.current
-
     LazyVerticalGrid(cells = GridCells.Fixed(3),contentPadding = PaddingValues(top = 8.dp,bottom = 60.dp,start = 16.dp,end = 16.dp)) {
 
         items(posts){ post ->
@@ -545,31 +581,40 @@ fun ProfilePostsSection(posts:List<Post>,detailView: (Float?) -> Unit) {
                         .aspectRatio(1f)
                         .clickable {
                             CommentsUtil.post = post
-                            detailView(null)
+                            detailView()
                         },
                 )
             } else {
-                val mmr = MediaMetadataRetriever()
-                mmr.setDataSource(post.mediaLink,HashMap<String,String>())
-                val bmp = mmr.getFrameAtTime(2, MediaMetadataRetriever.OPTION_CLOSEST)?.asImageBitmap()
-                Log.d("video","${bmp?.width} / ${bmp?.height}")
-                Image(
-                    bitmap =  bmp ?:
-                                BitmapFactory.decodeResource(
-                                    context.resources,
-                                    R.drawable.ic_image
-                                ).asImageBitmap(),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "User Image",
-                    modifier = Modifier
-                        .padding(1.dp)
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .clickable {
-                            CommentsUtil.post = post
-                            detailView((bmp?.width?.div(bmp.height.toFloat())))
-                        },
-                )
+
+                if(thumbnails[post.id] != null){
+                    Image(
+                        bitmap = thumbnails[post.id]!!.asImageBitmap(),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "User Image",
+                        modifier = Modifier
+                            .padding(1.dp)
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clickable {
+                                CommentsUtil.post = post
+                                detailView()
+                            },
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_image),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "User Image",
+                        modifier = Modifier
+                            .padding(1.dp)
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clickable {
+                                CommentsUtil.post = post
+                                detailView()
+                            },
+                    )
+                }
             }
 
         }

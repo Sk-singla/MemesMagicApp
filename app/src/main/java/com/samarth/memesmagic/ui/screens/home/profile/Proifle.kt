@@ -25,7 +25,6 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-
     DisposableEffect(key1 = Unit) {
         profileViewModel.getUser(context)
         profileViewModel.getPosts(context)
@@ -51,7 +50,7 @@ fun ProfileScreen(
         },
         onFollowUnFollowBtnPressed = {},
         detailView  = {
-            parentNavController.navigate("${Screens.SINGLE_POST_SCREEN}/$it")
+            parentNavController.navigate(Screens.SINGLE_POST_SCREEN)
         },
         onLogout = {
             profileViewModel.logoutUser(context)

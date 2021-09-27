@@ -30,6 +30,7 @@ class AnotherUserProfileViewModel @Inject constructor(
     val rewards = mutableStateOf(listOf<Reward>())
     val isLoadingRewards = mutableStateOf(false)
 
+
     fun getUser(
         email:String,
         onSuccess: (user:User) -> Unit

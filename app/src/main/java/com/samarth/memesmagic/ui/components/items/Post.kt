@@ -2,6 +2,7 @@ package com.samarth.memesmagic.ui.components.items
 
 import android.graphics.Bitmap
 import android.media.MediaPlayer
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,8 +38,10 @@ import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.models.PostType
 import com.samarth.memesmagic.data.remote.response.Post
 import com.samarth.memesmagic.ui.components.ProfileImage
+import com.samarth.memesmagic.ui.exoplayer.VideoQuality
 import com.samarth.memesmagic.ui.theme.Green500
 
+@ExperimentalAnimationApi
 @Composable
 fun PostItem(
     post: Post,
@@ -50,9 +53,9 @@ fun PostItem(
     onClick:()->Unit,
     isSinglePost:Boolean = false,
     exoPlayer: SimpleExoPlayer? = null,
-    aspectRatio:Float? = null,
     playerViewVisible:Boolean = true,
-    thumbnail:Bitmap? =null
+    thumbnail:Bitmap? =null,
+    changeVideoQuality:()->Unit = {}
 ) {
 
     var isPostLiked by remember {
@@ -60,59 +63,94 @@ fun PostItem(
     }
 
 
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp),
 //            .shadow(4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        // Top -> Image + Name
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // Top -> Image + Name
-            Row(
+            ProfileImage(
+                name = post.createdBy.name,
+                imageUrl = post.createdBy.profilePic,
                 modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                    .size(32.dp)
+                    .clickable {
+                        onClick()
+                    }
+            )
 
-                ProfileImage(
-                    name = post.createdBy.name,
-                    imageUrl = post.createdBy.profilePic,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clickable {
-                            onClick()
-                        }
-                )
+            Text(
+                text = post.createdBy.name,
+                style = MaterialTheme.typography.body1,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .clickable { onClick() }
+            )
 
-                Text(
-                    text = post.createdBy.name,
-                    style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .clickable { onClick() }
+        }
+
+
+        // Post Content ->
+        if (post.postType == PostType.IMAGE && post.mediaLink.takeLast(3) != "mp4") {
+
+
+                Image(
+                    painter = rememberCoilPainter(
+                        request = ImageRequest.Builder(LocalContext.current)
+                            .data(post.mediaLink)
+                            .placeholder(R.drawable.blank_image)
+                            .error(R.drawable.ic_error)
+                            .build(),
+                        fadeIn = true,
+                    ),
+                    contentScale = ContentScale.FillWidth,
+                    contentDescription = "Post",
+                    modifier = if(isSinglePost){
+                        Modifier
+                            .fillMaxWidth()
+                    } else {
+                        Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                    },
                 )
 
             }
+            else {
 
 
-            // Post Content ->
-            if (post.postType == PostType.IMAGE && post.mediaLink.takeLast(3) != "mp4") {
-
-
-                    Image(
-                        painter = rememberCoilPainter(
-                            request = ImageRequest.Builder(LocalContext.current)
-                                .data(post.mediaLink)
-                                .placeholder(R.drawable.blank_image)
-                                .error(R.drawable.ic_error)
-                                .build(),
-                            fadeIn = true,
-                        ),
-                        contentScale = ContentScale.FillWidth,
-                        contentDescription = "Post",
+                exoPlayer?.let{ player ->
+                    ExoPlayerCompose(
+                        exoPlayer = player,
+                        modifier =  if(isSinglePost){
+                            Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                        } else {
+                            Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                        },
+                        playerViewVisible = playerViewVisible,
+                        thumbnail = thumbnail,
+                        isFeedScreen = !isSinglePost,
+                        changeVideoQuality = changeVideoQuality
+                    )
+                } ?: kotlin.run {
+                    Text(
+                        text = "Something Went Wrong!",
+                        fontWeight = FontWeight.Bold,
                         modifier = if(isSinglePost){
                             Modifier
                                 .fillMaxWidth()
@@ -121,130 +159,96 @@ fun PostItem(
                                 .fillMaxWidth()
                                 .aspectRatio(1f)
                         },
+                        textAlign = TextAlign.Center
                     )
-
                 }
-                else {
+        }
 
 
-                    exoPlayer?.let{
-                        ExoPlayerCompose(
-                            exoPlayer = it,
-                            modifier =  if(isSinglePost){
-                                Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(aspectRatio ?: 1f)
-                            } else {
-                                Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                            },
-                            mediaUri = post.mediaLink,
-                            playerViewVisible = playerViewVisible,
-                            thumbnail = thumbnail
-                        )
-                    } ?: kotlin.run {
-                        Text(
-                            text = "Something Went Wrong!",
-                            fontWeight = FontWeight.Bold,
-                            modifier = if(isSinglePost){
-                                Modifier
-                                    .fillMaxWidth()
-                            } else {
-                                Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                            },
-                            textAlign = TextAlign.Center
-                        )
+        // Icons -> like, comment, share
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+
+            IconButton(
+                onClick = {
+                    onLikeIconPressed(post, isPostLiked) {
+                        isPostLiked = !isPostLiked
                     }
+                },
+                modifier = Modifier
+                    .padding(start = 2.dp)
+                    .background(color = Color.Transparent, shape = CircleShape)
+            ) {
+                Icon(
+                    painter = painterResource(id = if(isPostLiked) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
+                    contentDescription = "Like",
+                    tint = if(isPostLiked) Green500 else LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+                )
             }
 
-
-            // Icons -> like, comment, share
-            Row(
+            IconButton(
+                onClick = {
+                    onCommentIconPressed(post)
+                },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .padding(start = 8.dp)
+                    .background(color = Color.Transparent, shape = CircleShape),
+
             ) {
 
-                IconButton(
-                    onClick = {
-                        onLikeIconPressed(post, isPostLiked) {
-                            isPostLiked = !isPostLiked
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(start = 2.dp)
-                        .background(color = Color.Transparent, shape = CircleShape)
-                ) {
-                    Icon(
-                        painter = painterResource(id = if(isPostLiked) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
-                        contentDescription = "Like",
-                        tint = if(isPostLiked) Green500 else LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-                    )
-                }
-
-                IconButton(
-                    onClick = {
-                        onCommentIconPressed(post)
-                    },
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .background(color = Color.Transparent, shape = CircleShape),
-
-                ) {
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_comment_24),
-                        contentDescription = "Comment"
-                    )
-                }
-
-                IconButton(
-                    onClick = {
-                        onShareIconPressed(post)
-                    },
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .background(color = Color.Transparent, shape = CircleShape),
-
-                    ) {
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_share_24),
-                        contentDescription = "Share"
-                    )
-                }
-            }
-
-            // Caption ->
-
-
-            if(post.postResource != PostResource.GITHUB_API) {
-
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
-                        ) {
-                            append(post.createdBy.name + ":  ")
-                        }
-                        post.description?.let { description ->
-                            withStyle(style = SpanStyle(fontSize = 16.sp)) {
-                                append(description)
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_comment_24),
+                    contentDescription = "Comment"
                 )
-
             }
 
+            IconButton(
+                onClick = {
+                    onShareIconPressed(post)
+                },
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .background(color = Color.Transparent, shape = CircleShape),
+
+                ) {
+
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_share_24),
+                    contentDescription = "Share"
+                )
+            }
+        }
+
+        // Caption ->
+
+
+        if(post.postResource != PostResource.GITHUB_API) {
+
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    ) {
+                        append(post.createdBy.name + ":  ")
+                    }
+                    post.description?.let { description ->
+                        withStyle(style = SpanStyle(fontSize = 16.sp)) {
+                            append(description)
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
 
         }
+
+
+    }
 }

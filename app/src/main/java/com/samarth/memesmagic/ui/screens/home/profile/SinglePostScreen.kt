@@ -1,6 +1,9 @@
 package com.samarth.memesmagic.ui.screens.home.profile
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -10,8 +13,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
@@ -22,14 +28,16 @@ import com.samarth.memesmagic.util.Screens
 import kotlinx.coroutines.launch
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.PostType
+import com.samarth.memesmagic.ui.exoplayer.provideTrackSelectorDialog
+import com.samarth.memesmagic.ui.screens.home.feed.UpdateCurrentlyPlayingItem
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 
+@ExperimentalAnimationApi
 @Composable
 fun SinglePostScreen(
     parentNavController:NavController,
     startActivity:(Intent)->Unit,
-    feedViewModel:FeedViewModel = hiltViewModel(),
-    aspectRatio:Float? = null
+    feedViewModel:FeedViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
@@ -43,11 +51,34 @@ fun SinglePostScreen(
         mutableStateOf(false)
     }
 
+    var isExoplayerViewVisible by remember {
+        mutableStateOf(true)
+    }
+
     LaunchedEffect(key1 = Unit) {
         email = getEmail(context) ?: ""
+        if(feedViewModel.thumbnails[CommentsUtil.post!!.id] == null){
+            feedViewModel.generateThumbnail(CommentsUtil.post!!)
+        }
+    }
+    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
 
-        if(CommentsUtil.post!!.postType == PostType.VIDEO || CommentsUtil.post!!.mediaLink.takeLast(3) == "mp4"){
-            feedViewModel.setMediaItem(CommentsUtil.post!!.mediaLink)
+    DisposableEffect(lifecycleOwner) {
+        val lifeCycle = lifecycleOwner.lifecycle
+        val observer = LifecycleEventObserver { _, event ->
+            when(event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    feedViewModel.player.playWhenReady = false
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    feedViewModel.player.playWhenReady = true
+                }
+            }
+
+        }
+        lifeCycle.addObserver(observer)
+        onDispose {
+            lifeCycle.removeObserver(observer)
         }
     }
 
@@ -87,59 +118,74 @@ fun SinglePostScreen(
 
 
 
+
+        if(CommentsUtil.post!!.postType == PostType.VIDEO){
+            UpdateCurrentlyPlayingItem(
+                exoPlayer = feedViewModel.player,
+                post = CommentsUtil.post!!,
+                dataSourceFactory = feedViewModel.dataSourceFactory
+            )
+        }
+
+
+
         if(CommentsUtil.post != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
 
+                PostItem(
+                    post = CommentsUtil.post!!,
+                    isLiked = feedViewModel.isPostLiked(CommentsUtil.post!!, context),
+                    onLikeIconPressed = { post, isPostLiked, onSuccess ->
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                ) {
-
-                    PostItem(
-                        post = CommentsUtil.post!!,
-                        isLiked = feedViewModel.isPostLiked(CommentsUtil.post!!, context),
-                        onLikeIconPressed = { post, isPostLiked, onSuccess ->
-
-                            if (post.postResource == PostResource.GITHUB_API) {
-                                onSuccess()
+                        if (post.postResource == PostResource.GITHUB_API) {
+                            onSuccess()
+                        } else {
+                            if (isPostLiked) {
+                                feedViewModel.dislikePost(post, onSuccess)
                             } else {
-                                if (isPostLiked) {
-                                    feedViewModel.dislikePost(post, onSuccess)
-                                } else {
-                                    feedViewModel.likePost(post, onSuccess)
-                                }
+                                feedViewModel.likePost(post, onSuccess)
                             }
-                        },
-                        onCommentIconPressed = {
-                            CommentsUtil.post = it
-                            parentNavController.navigate(Screens.COMMENT_SCREEN)
-                        },
-                        onShareIconPressed = {
-                            feedViewModel.shareImage(
-                                context,
-                                it.mediaLink,
-                                startActivity
-                            ) {
-                                coroutineScope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar(it)
-                                }
+                        }
+                    },
+                    onCommentIconPressed = {
+                        CommentsUtil.post = it
+                        parentNavController.navigate(Screens.COMMENT_SCREEN)
+                    },
+                    onShareIconPressed = {
+                        feedViewModel.shareImage(
+                            context,
+                            it.mediaLink,
+                            startActivity
+                        ) {
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(it)
                             }
-                        },
-                        onClick = {},
-                        isSinglePost = true,
-                        exoPlayer = feedViewModel.player,
-                        aspectRatio = aspectRatio
-                    )
-
-                    if (feedViewModel.isLoading.value) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    },
+                    onClick = {},
+                    isSinglePost = true,
+                    exoPlayer = feedViewModel.player,
+                    playerViewVisible = isExoplayerViewVisible,
+                    thumbnail = feedViewModel.thumbnails[CommentsUtil.post!!.id],
+                    changeVideoQuality = {
+                        Log.d("video quality","${feedViewModel.player.videoSize.width}/${feedViewModel.trackSelector.parameters.maxVideoHeight}, ${feedViewModel.player.videoSize.height}")
+                        provideTrackSelectorDialog(
+                            context = context,
+                            trackSelector = feedViewModel.trackSelector,
+                            exoplayer = feedViewModel.player
+                        ).show()
                     }
+                )
 
+                if (feedViewModel.isLoading.value) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
-
-
+            }
         }
 
     }

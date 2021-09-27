@@ -2,11 +2,11 @@ package com.samarth.memesmagic.ui.screens.home.feed
 
 import android.content.Intent
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,9 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.firebase.messaging.FirebaseMessaging
 import com.samarth.memesmagic.data.remote.models.PostResource
 import com.samarth.memesmagic.data.remote.response.Reward
@@ -36,6 +34,7 @@ import com.samarth.memesmagic.util.TokenHandler.getEmail
 import com.samarth.memesmagic.util.TokenHandler.logout
 import kotlinx.coroutines.launch
 
+@ExperimentalAnimationApi
 @Composable
 fun FeedScreen(
     scaffoldState: ScaffoldState,
@@ -58,7 +57,7 @@ fun FeedScreen(
     }
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
 
-    DisposableEffect(lifecycleOwner){
+    DisposableEffect(lifecycleOwner) {
         val lifeCycle = lifecycleOwner.lifecycle
         val observer = LifecycleEventObserver { _, event ->
             when(event) {
@@ -67,12 +66,6 @@ fun FeedScreen(
                 }
                 Lifecycle.Event.ON_RESUME -> {
                     feedViewModel.player.playWhenReady = true
-                }
-                Lifecycle.Event.ON_DESTROY -> {
-                    feedViewModel.player.run {
-                        stop()
-                        release()
-                    }
                 }
             }
 
@@ -265,7 +258,7 @@ fun FeedScreen(
 //                        feedViewModel.getFeedFromGithub()
 //                    }
 
-                val onScreen = currentlyPlayingItem?.id == post.id
+                val isPlayerViewVisible = currentlyPlayingItem?.id == post.id && feedViewModel.player.isPlaying
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -315,10 +308,10 @@ fun FeedScreen(
                         },
                         modifier = Modifier.clickable {
                             CommentsUtil.post = post
-                            parentNavController.navigate("$SINGLE_POST_SCREEN/${1f}")
+                            parentNavController.navigate(SINGLE_POST_SCREEN)
                         },
                         exoPlayer = feedViewModel.player,
-                        playerViewVisible = onScreen,
+                        playerViewVisible = isPlayerViewVisible,
                         thumbnail = feedViewModel.thumbnails[post.id]
                     )
 

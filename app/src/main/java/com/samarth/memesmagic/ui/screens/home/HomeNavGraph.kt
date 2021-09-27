@@ -37,7 +37,6 @@ enum class HomeSections(
     CREATE(HOME_CREATE,R.string.home_create,R.drawable.ic_create_24, R.drawable.ic_create_24),
     NOTIFICATIONS(HOME_NOTIFICATIONS,R.string.home_notifications,R.drawable.ic_notifcation_outline,R.drawable.ic_notification_filled),
     PROFILE(HOME_PROFILE,R.string.home_profile,R.drawable.ic_outline_person,R.drawable.ic_person),
-
 }
 
 

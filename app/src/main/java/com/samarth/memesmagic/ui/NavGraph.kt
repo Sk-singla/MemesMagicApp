@@ -58,13 +58,13 @@ fun MainNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     chatViewModel: ChatViewModel = hiltViewModel(),
+    feedViewModel: FeedViewModel = hiltViewModel(),
     onSignUpWithGoogle:()->Unit,
     startActivity:(Intent)->Unit,
     startActivityForResult:(String,(Uri?)->Unit)->Unit,
     updateOrRequestPermissions:()->Boolean,
     navigateWithNotification: ((NavController)->Unit)? = null,
 ){
-    val feedViewModel:FeedViewModel = hiltViewModel()
     val createViewModel:CreateViewModel = hiltViewModel()
 
     NavHost(navController = navController, startDestination = SPLASH_SCREEN,modifier =modifier){
@@ -184,20 +184,12 @@ fun MainNavGraph(
         }
 
         composable(
-            "${Screens.SINGLE_POST_SCREEN}/{ratio}",
-            arguments = listOf(
-                navArgument("ratio"){
-                    type = NavType.FloatType
-                    defaultValue = 1f
-                }
-            )
+            Screens.SINGLE_POST_SCREEN
         ){
-
             SinglePostScreen(
                 parentNavController = navController,
                 startActivity = startActivity,
                 feedViewModel = feedViewModel,
-                aspectRatio = it.arguments?.getFloat("ratio")
             )
         }
 

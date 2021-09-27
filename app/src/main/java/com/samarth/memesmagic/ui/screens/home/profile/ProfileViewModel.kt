@@ -24,7 +24,6 @@ class ProfileViewModel @Inject constructor(
     val dispatcher: DispatcherProvider
 ):ViewModel() {
 
-
     val user = mutableStateOf<User?>(null)
     val posts = mutableStateOf<List<Post>>(listOf())
     val isLoading = mutableStateOf(false)

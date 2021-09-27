@@ -89,7 +89,7 @@ fun AnotherUserProfile(
                     }
                 },
                 detailView = {
-                    navController.navigate("$SINGLE_POST_SCREEN/$it")
+                    navController.navigate(SINGLE_POST_SCREEN)
                 },
                 messageUser = {
                     ChatUtils.currentChatRoom = PrivateChatRoom(
