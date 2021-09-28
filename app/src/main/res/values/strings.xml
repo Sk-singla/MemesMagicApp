@@ -9,6 +9,7 @@
     <string name="follow_back">Follow Back</string>
     <string name="default_toast_text">This is a toast.</string>
     <string name="default_toast_button_text">Click here</string>
+    <string name="pick_video">Video</string>
 
 
     <string-array name="photo_editor_emoji">

@@ -11,9 +11,11 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -70,8 +72,9 @@ fun TemplateSelectionScreen(
                             .padding(1.dp)
                             .fillMaxWidth()
                             .aspectRatio(1f)
+                            .shadow(1.dp)
                             .clickable {
-                                if(updateOrRequestPermissions()){
+                                if (updateOrRequestPermissions()) {
                                     createViewModel.chooseVideo(
                                         startActivityForResult = startActivityForResult,
                                         onPickingFile = {
@@ -79,9 +82,13 @@ fun TemplateSelectionScreen(
                                         }
                                     )
                                 }
-                            }
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Video")
+                        Text(
+                            text = stringResource(id = R.string.pick_video),
+                            style = MaterialTheme.typography.h5
+                        )
                     }
 
                 }

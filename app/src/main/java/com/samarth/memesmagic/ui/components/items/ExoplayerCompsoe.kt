@@ -94,30 +94,30 @@ fun ExoPlayerCompose(
                 else  AspectRatioFrameLayout.RESIZE_MODE_FIT
 
                 it.player = exoPlayer
-                it.hideController()
+                it.useController = false
             }
 
-            if(isFeedScreen){
-                if (exoPlayer.isPlaying) {
-                    IconButton(
-                        onClick = {
-                            exoPlayer.pause()
-                        },
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                    ) {
-                        Icon(imageVector = Icons.Default.Pause, contentDescription = "Pause")
-                    }
-                } else {
-                    IconButton(
-                        onClick = {
-                            exoPlayer.playWhenReady = true
-                        },
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                    ) {
-                        Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
-                    }
+            if (exoPlayer.isPlaying) {
+                IconButton(
+                    onClick = {
+
+                        exoPlayer.pause()
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                ) {
+                    Icon(imageVector = Icons.Default.Pause, contentDescription = "Pause")
+                }
+            } else {
+                IconButton(
+                    onClick = {
+                        exoPlayer.playWhenReady = true
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                ) {
+                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
                 }
             }
+
 
             AnimatedVisibility(
                 visible = durationVisible,

@@ -21,7 +21,7 @@ abstract class BaseNotification(
         const val NOTIFICATION_TYPE_NEW_CHAT_MESSAGE = "NOTIFICATION_TYPE_NEW_CHAT_MESSAGE"
     }
 
-    abstract fun showNotification(context: Context,notificationId:String,gson: Gson,memeRepo:MemeRepo)
+    abstract fun showNotification(context: Context,localNotification: LocalNotification,gson: Gson,memeRepo:MemeRepo)
 
 
 }

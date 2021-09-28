@@ -33,10 +33,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
     @Inject
     lateinit var memeRepo: MemeRepo
 
-
     @Inject
     lateinit var gson:Gson
-
 
     override fun onNewToken(token: String) {
         runBlocking {
@@ -69,12 +67,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
             time = System.currentTimeMillis(),
             seen = false
         )
-        if(notificationObj.shouldSaveLocally){
-            CoroutineScope(Dispatchers.IO).launch {
-                memeRepo.saveNotification(localNotification)
-            }
-        }
-        notificationObj.showNotification(this,localNotification.notificationId,gson,memeRepo)
+        notificationObj.showNotification(this,localNotification,gson,memeRepo)
 
 
     }

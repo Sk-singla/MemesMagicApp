@@ -1,4 +1,4 @@
-package com.samarth.memesmagic.notification.notification_helpers
+package com.samarth.memesmagic.notification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -20,7 +20,7 @@ object NotificationHelper {
 
 
 
-    private val inboxStyles = hashMapOf<Int,NotificationCompat.InboxStyle>()
+    val inboxStyles = hashMapOf<Int,NotificationCompat.InboxStyle>()
 
     @ExperimentalAnimationApi
     @ExperimentalFoundationApi

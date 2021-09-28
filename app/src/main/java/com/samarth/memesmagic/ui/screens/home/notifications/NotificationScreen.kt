@@ -47,9 +47,7 @@ fun NotificationsScreen(
 
                 NotificationItem(
                     localNotification = notificationViewModel.notifications[it],
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    modifier = Modifier,
                     getOriginalNotification = notificationViewModel::getOriginalNotification,
                     navController = parentNavController
                 )

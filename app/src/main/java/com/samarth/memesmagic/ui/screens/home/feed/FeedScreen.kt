@@ -82,7 +82,6 @@ fun FeedScreen(
         /**
          *  GET FIREBASE MESSAGING TOKEN AND UPDATE IT ON SERVER IF IT IS NEW.
          */
-
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             val token = task.result ?: ""
             feedViewModel.updateFcmToken(

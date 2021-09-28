@@ -64,7 +64,7 @@ fun ChatRoomsListScreen(
             Box(
                 modifier = Modifier
                     .padding(16.dp)
-                    .size(48.dp)
+                    .size(56.dp)
                     .shadow(
                         4.dp,
                         shape = CircleShape

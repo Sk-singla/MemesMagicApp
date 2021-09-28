@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -45,6 +46,7 @@ import com.samarth.memesmagic.data.remote.request.LoginRequest
 import com.samarth.memesmagic.data.remote.request.RegisterUserRequest
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
+import com.samarth.memesmagic.notification.NotificationHelper
 import com.samarth.memesmagic.notification.models.BaseNotification
 import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_FOLLOWER
 import com.samarth.memesmagic.notification.models.NewFollowerNotification
@@ -208,6 +210,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                 val userInfoText = intent.getStringExtra("msgSenderUserInfo")
                 val userInfo = gson.fromJson(userInfoText,UserInfo::class.java)
 
+                NotificationHelper.inboxStyles[userInfo.email.hashCode()] = NotificationCompat.InboxStyle()
                 ChatUtils.currentChatRoom = PrivateChatRoom(
                     userEmail = userInfo.email,
                     name = userInfo.name,

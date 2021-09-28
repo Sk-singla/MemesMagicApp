@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.samarth.memesmagic.util.Constants.DATA_PREFERENCES_NAME_FOR_TOKEN
 import com.samarth.memesmagic.util.Constants.EMAIL_KEY
 import com.samarth.memesmagic.util.Constants.FCM_TOKEN_KEY
@@ -45,7 +46,9 @@ object TokenHandler {
             it.remove(emailKey)
             it.remove(monthRewardKey)
             it.remove(yearRewardKey)
+            it.clear()
         }
+        FirebaseMessaging.getInstance().deleteToken()
     }
 
     suspend fun getJwtToken(context: Context):String?{
