@@ -221,6 +221,18 @@ fun PostItem(
             }
         }
 
+        // Like Count
+
+        Text(
+            text = "${post.likedBy.size} Like${if(post.likedBy.size > 1)"s" else ""}",
+            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.body2,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp)
+        )
+
+
         // Caption ->
 
 

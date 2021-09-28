@@ -228,7 +228,7 @@ class FeedViewModel @Inject constructor(
 
         val result = memeRepo.dislikePost(post.id)
         if(result is Resource.Success){
-            post.likedBy.add(result.data!!)
+            post.likedBy.remove(result.data!!)
             onSuccess()
         }
     }
