@@ -5,13 +5,10 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -19,6 +16,9 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -458,6 +458,7 @@ fun ProfileTopSection(
 
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun ProfileScreenButtons(
     isItAnotherUserProfile: Boolean,
@@ -473,95 +474,148 @@ fun ProfileScreenButtons(
     var isFollowingToUser by remember {
         mutableStateOf(isFollowing)
     }
-    Row(
+    var isAllButtonsVisible by remember {
+        mutableStateOf(false)
+    }
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
-    ){
-        OutlinedButton(
-            onClick = {
-                if (isItAnotherUserProfile) {
-                    onFollowUnFollowBtnPressed {
-                        isFollowingToUser = !isFollowingToUser
+            .padding(16.dp)
+    ) {
+
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ){
+            OutlinedButton(
+                onClick = {
+                    if (isItAnotherUserProfile) {
+                        onFollowUnFollowBtnPressed {
+                            isFollowingToUser = !isFollowingToUser
+                        }
+                    } else {
+                        onEditScreenPressed()
                     }
-                } else {
-                    onEditScreenPressed()
+                },
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .weight(5f)
+                    .shadow(2.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    contentColor = Green700
+                )
+            ) {
+                Text(
+                    text = if (isItAnotherUserProfile && isFollowingToUser)
+                        "Unfollow" else if (isItAnotherUserProfile && !isFollowingToUser)
+                        " Follow  " else "Edit Profile"
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+                    isAllButtonsVisible = ! isAllButtonsVisible
+                },
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .weight(1f)
+                    .shadow(2.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    contentColor = Green700
+                )
+            ) {
+                Icon(
+                    imageVector = if(isAllButtonsVisible){
+                        Icons.Default.ArrowUpward
+                    } else {
+                        Icons.Default.ArrowDownward
+                    },
+                    contentDescription = "Show/Hide All buttons",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+
+        AnimatedVisibility(
+            isAllButtonsVisible,
+            enter = fadeIn() + slideInVertically(),
+            exit = slideOutVertically() + fadeOut()
+        ){
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if(isItAnotherUserProfile){
+                    OutlinedButton(
+                        onClick = {
+                            messageUser()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp,start = 4.dp,end = 4.dp)
+                            .shadow(2.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colors.surface,
+                            contentColor = Green700
+                        )
+                    ) {
+                        Text(
+                            text = "Message"
+                        )
+                    }
                 }
-            },
-            modifier = Modifier
-                .padding(horizontal = 4.dp)
-                .shadow(2.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = MaterialTheme.colors.surface,
-                contentColor = Green700
-            )
-        ) {
-            Text(
-                text = if (isItAnotherUserProfile && isFollowingToUser)
-                    "Unfollow" else if (isItAnotherUserProfile && !isFollowingToUser)
-                    " Follow  " else "Edit Profile"
-            )
-        }
 
-        if(isItAnotherUserProfile){
-            OutlinedButton(
-                onClick = {
-                      messageUser()
-                },
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .shadow(2.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    backgroundColor = MaterialTheme.colors.surface,
-                    contentColor = Green700
-                )
-            ) {
-                Text(
-                    text = "Message"
-                )
+
+                OutlinedButton(
+                    onClick = {
+                        badgesClick()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp,start = 4.dp,end = 4.dp)
+                        .shadow(2.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        backgroundColor = MaterialTheme.colors.surface,
+                        contentColor = Green700
+                    )
+                ) {
+                    Text(
+                        text = "$numberOfRewards Badge${if(numberOfRewards>1) "s" else ""}",
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                if(!isItAnotherUserProfile){
+                    OutlinedButton(
+                        onClick = {
+                            onLogout()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp,start = 4.dp,end = 4.dp)
+                            .shadow(2.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colors.surface,
+                            contentColor = Green700
+                        )
+                    ) {
+                        Text(
+                            text = "   Logout   ",
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
+
         }
 
 
-        OutlinedButton(
-                onClick = {
-                    badgesClick()
-                },
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .shadow(2.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = MaterialTheme.colors.surface,
-                contentColor = Green700
-                )
-        ) {
-            Text(
-                text = "$numberOfRewards Badge${if(numberOfRewards>1) "s" else ""}",
-                textAlign = TextAlign.Center
-            )
-        }
 
-        if(!isItAnotherUserProfile){
-            OutlinedButton(
-                onClick = {
-                    onLogout()
-                },
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .shadow(2.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    backgroundColor = MaterialTheme.colors.surface,
-                    contentColor = Green700
-                )
-            ) {
-                Text(
-                    text = "   Logout   ",
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
 
 
 

@@ -70,146 +70,151 @@ fun LoginScreen(
                     .fillMaxSize()
                     .verticalScroll(colScrollState)
                     .padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
 
-                if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp)
-                    )
-                }
-
-                CustomTextField(
-                    value = loginScreenViewModel.email.value,
-                    onValueChange = {
-                        loginScreenViewModel.email.value = it
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .fillMaxWidth(),
-                    placeholder = "Email",
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_email),
-                            contentDescription = null
+                Column {
+                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp)
                         )
                     }
 
-                )
-
-                CustomTextField(
-                    value = loginScreenViewModel.password.value,
-                    onValueChange = {
-                        loginScreenViewModel.password.value = it
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .fillMaxWidth(),
-                    placeholder = "Password",
-                    leadingIcon ={
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_outline_lock),
-                            contentDescription = null
-                        )
-                    } ,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = passwordVisual,
-                    trailingIcon ={
-                        IconButton(
-                            onClick = {
-                                if (passwordTrailingIcon == R.drawable.ic_eye) {
-                                    passwordVisual = VisualTransformation.None
-                                    passwordTrailingIcon = R.drawable.ic_visibility_off
-                                } else {
-                                    passwordVisual = PasswordVisualTransformation()
-                                    passwordTrailingIcon = R.drawable.ic_eye
-                                }
-                            },
-                            modifier = Modifier
-                                .background(color = Color.Transparent)
-                                .clip(CircleShape)
-                        ){
+                    CustomTextField(
+                        value = loginScreenViewModel.email.value,
+                        onValueChange = {
+                            loginScreenViewModel.email.value = it
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth(),
+                        placeholder = "Email",
+                        leadingIcon = {
                             Icon(
-                                painter = painterResource(id = passwordTrailingIcon),
+                                painter = painterResource(id = R.drawable.ic_email),
                                 contentDescription = null
                             )
                         }
-                    }
-                )
 
-
-                if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp)
                     )
-                }
 
-                CustomButton(
-                    text = "Login",
-                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
-                    enabled = !loginScreenViewModel.isLoading.value
-                ) {
-                    keyboardController?.hide()
-                    loginScreenViewModel.loginUser(
-                        onSuccess = { token ->
-                            coroutineScope.launch {
-                                TokenHandler.saveJwtToken(
-                                    context,
-                                    token,
-                                    loginScreenViewModel.email.value
-                                )
-                                navController.popBackStack()
-                                navigateWithPop(navController,HOME_SCREEN)
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    "Login Successful!"
-                                )
-                            }
+                    CustomTextField(
+                        value = loginScreenViewModel.password.value,
+                        onValueChange = {
+                            loginScreenViewModel.password.value = it
                         },
-                        onFail = { errorMsg ->
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    errorMsg ?: "Error!!"
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth(),
+                        placeholder = "Password",
+                        leadingIcon ={
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_outline_lock),
+                                contentDescription = null
+                            )
+                        } ,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        visualTransformation = passwordVisual,
+                        trailingIcon ={
+                            IconButton(
+                                onClick = {
+                                    if (passwordTrailingIcon == R.drawable.ic_eye) {
+                                        passwordVisual = VisualTransformation.None
+                                        passwordTrailingIcon = R.drawable.ic_visibility_off
+                                    } else {
+                                        passwordVisual = PasswordVisualTransformation()
+                                        passwordTrailingIcon = R.drawable.ic_eye
+                                    }
+                                },
+                                modifier = Modifier
+                                    .background(color = Color.Transparent)
+                                    .clip(CircleShape)
+                            ){
+                                Icon(
+                                    painter = painterResource(id = passwordTrailingIcon),
+                                    contentDescription = null
                                 )
                             }
                         }
                     )
+
+                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp)
+                        )
+                    }
+
+                    CustomButton(
+                        text = "Login",
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                        enabled = !loginScreenViewModel.isLoading.value
+                    ) {
+                        keyboardController?.hide()
+                        loginScreenViewModel.loginUser(
+                            onSuccess = { token ->
+                                coroutineScope.launch {
+                                    TokenHandler.saveJwtToken(
+                                        context,
+                                        token,
+                                        loginScreenViewModel.email.value
+                                    )
+                                    navController.popBackStack()
+                                    navigateWithPop(navController,HOME_SCREEN)
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        "Login Successful!"
+                                    )
+                                }
+                            },
+                            onFail = { errorMsg ->
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        errorMsg ?: "Error!!"
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
 
 
                 if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    OrText(Modifier.padding(horizontal = 16.dp, vertical = 64.dp))
+                    OrText(Modifier.padding(horizontal = 16.dp))
                 } else {
-                    OrText(Modifier.padding(horizontal = 16.dp, vertical = 32.dp))
+                    OrText(Modifier.padding(horizontal = 16.dp))
                 }
 
-                CustomButton(
-                    text = "Login with Google",
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                        .fillMaxWidth(),
-                    icon = R.drawable.ic_google,
-                    backgroundColor = MaterialTheme.colors.secondaryVariant,
-                    textColor = MaterialTheme.colors.onSecondary
-                ) {
-                    keyboardController?.hide()
-                    onSignUpWithGoogle()
-                }
+                Column {
+                    CustomButton(
+                        text = "Login with Google",
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                            .fillMaxWidth(),
+                        icon = R.drawable.ic_google,
+                        backgroundColor = MaterialTheme.colors.secondaryVariant,
+                        textColor = MaterialTheme.colors.onSecondary,
+                        enabled = !loginScreenViewModel.isLoading.value
+                    ) {
+                        keyboardController?.hide()
+                        onSignUpWithGoogle()
+                    }
 
 
-                PartiallyClickableText(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .align(Alignment.CenterHorizontally),
-                    nonClickableText = "Don't have an Account?",
-                    clickableText = " Sign up here"
-                ) {
-                    loginScreenViewModel.clearAllTextFields()
-                    navigateWithPop(navController,REGISTER_SCREEN)
+                    PartiallyClickableText(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                            .align(Alignment.CenterHorizontally),
+                        nonClickableText = "Don't have an Account?",
+                        clickableText = " Sign up here"
+                    ) {
+                        loginScreenViewModel.clearAllTextFields()
+                        navigateWithPop(navController,REGISTER_SCREEN)
+                    }
                 }
             }
 

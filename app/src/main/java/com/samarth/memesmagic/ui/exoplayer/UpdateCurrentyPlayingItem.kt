@@ -21,7 +21,7 @@ fun UpdateCurrentlyPlayingItem(
     dataSourceFactory:DefaultDataSourceFactory,
 
 ){
-    LaunchedEffect(key1 = Unit){
+    LaunchedEffect(key1 = post){
         player.apply {
             if(post != null){
 

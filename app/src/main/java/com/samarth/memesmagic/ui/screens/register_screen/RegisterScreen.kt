@@ -80,184 +80,194 @@ fun RegisterScreen(
                     .fillMaxSize()
                     .verticalScroll(colScrollState)
                     .padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
 
 
-                CustomTextField(
-                    value = registerScreenViewModel.name.value,
-                    onValueChange = {
-                        registerScreenViewModel.name.value = it
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .fillMaxWidth(),
-                    placeholder = "Name",
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_person),
-                            contentDescription = null
-                        )
-                    }
-                )
-
-                CustomTextField(
-                    value = registerScreenViewModel.email.value,
-                    onValueChange = {
-                        registerScreenViewModel.email.value = it
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .fillMaxWidth(),
-                    placeholder = "Email",
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_email),
-                            contentDescription = null
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-                )
-
-                CustomTextField(
-                    value = registerScreenViewModel.password.value,
-                    onValueChange = {
-                        registerScreenViewModel.password.value = it
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .fillMaxWidth(),
-                    placeholder = "Password",
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_outline_lock),
-                            contentDescription = null
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    trailingIcon = {
-
-                        IconButton(
-                            onClick = {
-                                if(passwordTrailingIcon == R.drawable.ic_eye) {
-                                    passwordVisual = VisualTransformation.None
-                                    passwordTrailingIcon = R.drawable.ic_visibility_off
-                                } else{
-                                    passwordVisual = PasswordVisualTransformation()
-                                    passwordTrailingIcon = R.drawable.ic_eye
-                                }
-                            },
-                            modifier = Modifier
-                                .background(color = Color.Transparent)
-                                .clip(
-                                    CircleShape
-                                )
-                        ){
+                Column {
+                    CustomTextField(
+                        value = registerScreenViewModel.name.value,
+                        onValueChange = {
+                            registerScreenViewModel.name.value = it
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth(),
+                        placeholder = "Name",
+                        leadingIcon = {
                             Icon(
-                                painter = painterResource(id = passwordTrailingIcon),
+                                painter = painterResource(id = R.drawable.ic_person),
                                 contentDescription = null
                             )
                         }
-                    } ,
-                    visualTransformation = passwordVisual
-                )
+                    )
 
-                CustomTextField(
-                    value = registerScreenViewModel.confirmPassword.value,
-                    onValueChange = {
-                        registerScreenViewModel.confirmPassword.value = it
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .fillMaxWidth(),
-                    placeholder = "Confirm Password",
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_lock),
-                            contentDescription = null
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                if(confirmPasswordTrailingIcon == R.drawable.ic_eye) {
-                                    confirmPasswordVisual = VisualTransformation.None
-                                    confirmPasswordTrailingIcon = R.drawable.ic_visibility_off
-                                } else{
-                                    confirmPasswordVisual = PasswordVisualTransformation()
-                                    confirmPasswordTrailingIcon = R.drawable.ic_eye
-                                }
-                            },
-                            modifier = Modifier
-                                .background(color = Color.Transparent)
-                                .clip(
-                                    CircleShape
-                                )
-                        ){
+                    CustomTextField(
+                        value = registerScreenViewModel.email.value,
+                        onValueChange = {
+                            registerScreenViewModel.email.value = it
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth(),
+                        placeholder = "Email",
+                        leadingIcon = {
                             Icon(
-                                painter = painterResource(id = confirmPasswordTrailingIcon),
+                                painter = painterResource(id = R.drawable.ic_email),
                                 contentDescription = null
                             )
-                        }
-                    } ,
-                    visualTransformation = confirmPasswordVisual
-                )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                    )
 
-                CustomButton(
-                    text = "Create Account",
-                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
-                    enabled = !registerScreenViewModel.isLoading.value
-                ) {
-                    keyboardController?.hide()
-                    registerScreenViewModel.registerUser(
-                        onSuccess = { token ->
-                            scope.launch {
-                                saveJwtToken(context,token,registerScreenViewModel.email.value)
-                                navController.popBackStack()
-                                navigateWithPop(navController,HOME_SCREEN)
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    "Account Created!"
+                    CustomTextField(
+                        value = registerScreenViewModel.password.value,
+                        onValueChange = {
+                            registerScreenViewModel.password.value = it
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth(),
+                        placeholder = "Password",
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_outline_lock),
+                                contentDescription = null
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+
+                            IconButton(
+                                onClick = {
+                                    if (passwordTrailingIcon == R.drawable.ic_eye) {
+                                        passwordVisual = VisualTransformation.None
+                                        passwordTrailingIcon = R.drawable.ic_visibility_off
+                                    } else {
+                                        passwordVisual = PasswordVisualTransformation()
+                                        passwordTrailingIcon = R.drawable.ic_eye
+                                    }
+                                },
+                                modifier = Modifier
+                                    .background(color = Color.Transparent)
+                                    .clip(
+                                        CircleShape
+                                    )
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = passwordTrailingIcon),
+                                    contentDescription = null
                                 )
                             }
                         },
-                        onFail = { errorMsg ->
-                            scope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    errorMsg ?: "Error"
+                        visualTransformation = passwordVisual
+                    )
+
+                    CustomTextField(
+                        value = registerScreenViewModel.confirmPassword.value,
+                        onValueChange = {
+                            registerScreenViewModel.confirmPassword.value = it
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth(),
+                        placeholder = "Confirm Password",
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_lock),
+                                contentDescription = null
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    if (confirmPasswordTrailingIcon == R.drawable.ic_eye) {
+                                        confirmPasswordVisual = VisualTransformation.None
+                                        confirmPasswordTrailingIcon = R.drawable.ic_visibility_off
+                                    } else {
+                                        confirmPasswordVisual = PasswordVisualTransformation()
+                                        confirmPasswordTrailingIcon = R.drawable.ic_eye
+                                    }
+                                },
+                                modifier = Modifier
+                                    .background(color = Color.Transparent)
+                                    .clip(
+                                        CircleShape
+                                    )
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = confirmPasswordTrailingIcon),
+                                    contentDescription = null
                                 )
                             }
-                        }
+                        },
+                        visualTransformation = confirmPasswordVisual
                     )
+
+                    CustomButton(
+                        text = "Create Account",
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                        enabled = !registerScreenViewModel.isLoading.value
+                    ) {
+                        keyboardController?.hide()
+                        registerScreenViewModel.registerUser(
+                            onSuccess = { token ->
+                                scope.launch {
+                                    saveJwtToken(
+                                        context,
+                                        token,
+                                        registerScreenViewModel.email.value
+                                    )
+                                    navController.popBackStack()
+                                    navigateWithPop(navController, HOME_SCREEN)
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        "Account Created!"
+                                    )
+                                }
+                            },
+                            onFail = { errorMsg ->
+                                scope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        errorMsg ?: "Error"
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
 
 
-                OrText(Modifier.padding(horizontal = 16.dp, vertical = 32.dp))
+                OrText(Modifier.padding(horizontal = 16.dp))
 
-                CustomButton(
-                    text = "Sign up with Google",
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                        .fillMaxWidth(),
-                    icon = R.drawable.ic_google,
-                    backgroundColor = MaterialTheme.colors.secondaryVariant,
-                    textColor = MaterialTheme.colors.onSecondary
-                ) {
-                    keyboardController?.hide()
-                    onSignUpWithGoogle()
-                }
+                Column{
+                    CustomButton(
+                        text = "Sign up with Google",
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                            .fillMaxWidth(),
+                        icon = R.drawable.ic_google,
+                        backgroundColor = MaterialTheme.colors.secondaryVariant,
+                        textColor = MaterialTheme.colors.onSecondary,
+                        enabled = !registerScreenViewModel.isLoading.value
+                    ) {
+                        keyboardController?.hide()
+                        onSignUpWithGoogle()
+                    }
 
 
-                PartiallyClickableText(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .align(Alignment.CenterHorizontally),
-                    nonClickableText = "Already have an Account?",
-                    clickableText = " Login here"
-                ) {
-                    registerScreenViewModel.clearAllTextFields()
-                    navigateWithPop(navController,LOGIN_SCREEN)
+                    PartiallyClickableText(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                            .align(Alignment.CenterHorizontally),
+                        nonClickableText = "Already have an Account?",
+                        clickableText = " Login here"
+                    ) {
+                        registerScreenViewModel.clearAllTextFields()
+                        navigateWithPop(navController, LOGIN_SCREEN)
+                    }
                 }
             }
 

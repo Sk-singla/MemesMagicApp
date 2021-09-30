@@ -35,7 +35,6 @@ fun LandingPage(
 ) {
 
 
-    val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(
@@ -46,50 +45,41 @@ fun LandingPage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
 
             // App Name
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
-                        append("Meme's")
-                    }
-                    withStyle(style = SpanStyle(color = MaterialTheme.colors.secondary)) {
-                        append(" Magic")
-                    }
+            Column {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
+                            append("Meme's")
+                        }
+                        withStyle(style = SpanStyle(color = MaterialTheme.colors.secondary)) {
+                            append(" Magic")
+                        }
 
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .padding(24.dp),
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                fontSize = 34.sp
-            )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                        .padding(24.dp),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    fontSize = 34.sp
+                )
 
-            // Rest Illustration
-            Image(
-                painter = painterResource(id = R.drawable.rest_illustration),
-                contentDescription = "Illustration",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
+                // Rest Illustration
+                Image(
+                    painter = painterResource(id = R.drawable.rest_illustration),
+                    contentDescription = "Illustration",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
 
-
-
-
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp)
-            )
-
-
-
-
+            }
 
             SignUp_Login_Buttons(
                 modifier = Modifier
@@ -100,11 +90,22 @@ fun LandingPage(
                 },
                 onSignUpWithEmail = {
                     navController.navigate(REGISTER_SCREEN)
-                },
-                onLogin = {
-                    navController.navigate(LOGIN_SCREEN)
                 }
             )
+
+
+
+            // Login
+            PartiallyClickableText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+                    .align(Alignment.CenterHorizontally),
+                nonClickableText = "Already have an Account?",
+                clickableText = " Login here"
+            ) {
+                navController.navigate(LOGIN_SCREEN)
+            }
 
         }
 
@@ -118,8 +119,7 @@ fun LandingPage(
 fun SignUp_Login_Buttons(
     modifier: Modifier = Modifier,
     onSignUpWithGoogle:()->Unit,
-    onSignUpWithEmail:()->Unit,
-    onLogin:()->Unit
+    onSignUpWithEmail:()->Unit
 ) {
 
     Column(
@@ -147,18 +147,6 @@ fun SignUp_Login_Buttons(
                 .fillMaxWidth(),
         ) {
             onSignUpWithEmail()
-        }
-
-        // Login
-        PartiallyClickableText(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .align(Alignment.CenterHorizontally),
-            nonClickableText = "Already have an Account?",
-            clickableText = " Login here"
-        ) {
-            onLogin()
         }
     }
 

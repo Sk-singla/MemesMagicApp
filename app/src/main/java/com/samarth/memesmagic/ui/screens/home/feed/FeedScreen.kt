@@ -174,13 +174,6 @@ fun FeedScreen(
         }
 
 
-        /**
-         * Update currently playing item
-         */
-
-        feedViewModel.updateCurrentlyPlayingItem(
-            post = feedViewModel.currentlyPlayingItem.value
-        )
 
 
     }
@@ -251,6 +244,12 @@ fun FeedScreen(
             feedViewModel.posts.value
         )
         Log.d("current video","${feedViewModel.currentlyPlayingItem.value?.mediaLink}")
+        UpdateCurrentlyPlayingItem(
+            player = feedViewModel.player,
+            post = feedViewModel.currentlyPlayingItem.value,
+            dataSourceFactory = feedViewModel.dataSourceFactory
+        )
+
 
         if(feedViewModel.isLoading.value){
             CircularProgressIndicator()

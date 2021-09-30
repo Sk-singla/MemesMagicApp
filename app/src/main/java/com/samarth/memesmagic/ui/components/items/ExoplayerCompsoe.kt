@@ -100,7 +100,6 @@ fun ExoPlayerCompose(
             if (exoPlayer.isPlaying) {
                 IconButton(
                     onClick = {
-
                         exoPlayer.pause()
                     },
                     modifier = Modifier.align(Alignment.BottomEnd)
