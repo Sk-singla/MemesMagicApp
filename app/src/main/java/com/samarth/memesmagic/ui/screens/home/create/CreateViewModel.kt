@@ -400,7 +400,6 @@ class CreateViewModel  @Inject constructor(
             e.printStackTrace()
             onFail(e.message ?: "Exception Occurred!")
         }
-        isLoading.value = false
     }
 
     private fun uploadVideoFile(
@@ -444,7 +443,6 @@ class CreateViewModel  @Inject constructor(
             },
             onFail = onFail
         )
-        isLoading.value = false
     }
 
     fun saveImageToInternalStorage(context: Context,bmp:Bitmap,filename:String = UUID.randomUUID().toString()):Boolean{

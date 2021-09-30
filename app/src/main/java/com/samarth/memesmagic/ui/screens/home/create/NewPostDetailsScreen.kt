@@ -105,6 +105,7 @@ fun NewPostDetailsScreen(
                     } else {
                         createViewModel.uploadVideo(
                             onFail = {
+                                createViewModel.isLoading.value = false
                                 coroutineScope.launch {
                                     scaffoldState.snackbarHostState.showSnackbar(
                                         it
