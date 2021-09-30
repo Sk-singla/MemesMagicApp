@@ -2,6 +2,7 @@ package com.samarth.memesmagic.ui.screens.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -47,13 +48,14 @@ fun PrivateChatMessageItem(
 
                 Column(
                     modifier = Modifier
-                        .shadow(
-                            elevation = 2.dp,
+                        .background(
+                            color = MaterialTheme.colors.surface,
                             shape = if (isFirst) ReceivedFirstMessageShape
                             else MiddleChatMessageShape
                         )
-                        .background(
-                            color = MaterialTheme.colors.surface,
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colors.primary,
                             shape = if (isFirst) ReceivedFirstMessageShape
                             else MiddleChatMessageShape
                         )

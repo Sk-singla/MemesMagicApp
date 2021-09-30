@@ -48,7 +48,9 @@ import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.notification.NotificationHelper
 import com.samarth.memesmagic.notification.models.BaseNotification
+import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_CHAT_MESSAGE
 import com.samarth.memesmagic.notification.models.BaseNotification.Companion.NOTIFICATION_TYPE_NEW_FOLLOWER
+import com.samarth.memesmagic.notification.models.ChatNotification
 import com.samarth.memesmagic.notification.models.NewFollowerNotification
 import com.samarth.memesmagic.repository.MemeRepo
 import com.samarth.memesmagic.services.MyFirebaseMessagingService.Companion.INTENT_ACTION_CHAT_MESSAGE
@@ -160,28 +162,26 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                 val messageObject = JsonParser.parseString(strMessage).asJsonObject
                 val type = when(messageObject.get("type").asString){
                     NOTIFICATION_TYPE_NEW_FOLLOWER -> NewFollowerNotification::class.java
+                    NOTIFICATION_TYPE_NEW_CHAT_MESSAGE -> ChatNotification::class.java
                     else -> BaseNotification::class.java
                 }
 
-//                when(val message = gson.fromJson(strMessage,type)) {
-//                    is NewFollowerNotification -> {
-//                        Snackbar.make(
-//                            this@MainActivity,
-//                            View(this@MainActivity),
-//                            message.message,
-//                            Snackbar.LENGTH_LONG
-//                        ).setAction(R.string.follow_back) {
-//                            lifecycleScope.launch {
-//                                memeRepo.followUser(
-//                                    message.followerInfo.email
-//                                )
-//                            }
-//                        }.show()
-//                    }
-//                    else -> {
-//                        Toast.makeText(this@MainActivity, "Not fcm follower message", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
+                when(val message = gson.fromJson(strMessage,type)) {
+                    is NewFollowerNotification -> {
+
+                    }
+                    is ChatNotification -> {
+                        Log.d("notification broadcast","${navController.currentDestination?.route}")
+                        val shouldCancel = navController.currentDestination?.route == Screens.CHAT_ROOMS_LIST_SCREEN || navController.currentDestination?.route == Screens.CHAT_ROOM_SCREEN
+                        Log.d("notification broadcast","${shouldCancel}")
+                        if(shouldCancel){
+                            NotificationHelper.inboxStyles[message.privateChatMessage.from.hashCode()] = NotificationCompat.InboxStyle()
+                        }
+                    }
+                    else -> {
+                        Toast.makeText(this@MainActivity, "Not fcm follower message", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
 

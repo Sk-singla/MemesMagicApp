@@ -114,9 +114,9 @@ fun ChatRoomsListScreen(
                             onChatRoomClick = {
                                 ChatUtils.currentChatRoom = chatRoom.privateChatRoom
                                 navController.navigate(CHAT_ROOM_SCREEN)
-                                coroutineScope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar("Clicked!")
-                                }
+//                                coroutineScope.launch {
+//                                    scaffoldState.snackbarHostState.showSnackbar("Clicked!")
+//                                }
                             },
                             currentUserEmail = chatViewModel.currentUserEmail
                         )

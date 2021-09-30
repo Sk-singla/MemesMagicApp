@@ -24,18 +24,21 @@
 -keep class com.samarth.memesmagic.data.local.dao.** { *; }
 -keep class com.samarth.memesmagic.data.local.database.** { *; }
 -keep class com.samarth.memesmagic.data.local.entities.relations.** { *; }
+-keep class com.samarth.memesmagic.data.local.entities.models.** { *; }
 
 
 -keep class com.samarth.memesmagic.data.remote.models.** { *; }
 -keep class com.samarth.memesmagic.data.remote.request.** { *; }
 -keep class com.samarth.memesmagic.data.remote.response.** { *; }
--keep class com.samarth.memesmagic.data.remote.response.fcm_messages.** { *; }
 -keep class com.samarth.memesmagic.data.remote.response.imageflip.** { *; }
 -keep class com.samarth.memesmagic.data.remote.response.meme_api_github.** { *; }
 -keep class com.samarth.memesmagic.data.remote.response.meme_maker.** { *; }
-
 -keep class com.samarth.memesmagic.data.remote.ws.models.** { *; }
 -keep class com.samarth.memesmagic.data.remote.ws.** { *; }
+
+
+-keep class com.samarth.memesmagic.notification.models.** { *; }
+-keep class com.samarth.memesmagic.notification.** { *; }
 
 
 -keep class com.samarth.memesmagic.data.remote.** { *; }
