@@ -28,8 +28,8 @@ import com.samarth.memesmagic.util.Screens
 import kotlinx.coroutines.launch
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.data.remote.models.PostType
+import com.samarth.memesmagic.ui.exoplayer.UpdateCurrentlyPlayingItem
 import com.samarth.memesmagic.ui.exoplayer.provideTrackSelectorDialog
-import com.samarth.memesmagic.ui.screens.home.feed.UpdateCurrentlyPlayingItem
 import com.samarth.memesmagic.util.TokenHandler.getEmail
 
 @ExperimentalAnimationApi
@@ -121,9 +121,9 @@ fun SinglePostScreen(
 
         if(CommentsUtil.post!!.postType == PostType.VIDEO){
             UpdateCurrentlyPlayingItem(
-                exoPlayer = feedViewModel.player,
                 post = CommentsUtil.post!!,
-                dataSourceFactory = feedViewModel.dataSourceFactory
+                player = feedViewModel.player,
+                dataSourceFactory = feedViewModel.dataSourceFactory,
             )
         }
 
@@ -166,7 +166,9 @@ fun SinglePostScreen(
                             }
                         }
                     },
-                    onClick = {},
+                    onClick = {
+                        parentNavController.navigate("${Screens.ANOTHER_USER_PROFILE_SCREEN}/${CommentsUtil.post!!.createdBy.email}")
+                    },
                     isSinglePost = true,
                     exoPlayer = feedViewModel.player,
                     playerViewVisible = isExoplayerViewVisible,

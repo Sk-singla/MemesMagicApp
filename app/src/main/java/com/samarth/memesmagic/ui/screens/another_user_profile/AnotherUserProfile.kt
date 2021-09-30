@@ -108,7 +108,8 @@ fun AnotherUserProfile(
                 scaffoldState = scaffoldState,
                 navigateToAnotherUserProfile = { email ->
                     navController.navigate("$ANOTHER_USER_PROFILE_SCREEN/$email")
-                }
+                },
+                navController = navController
             )
 
         }

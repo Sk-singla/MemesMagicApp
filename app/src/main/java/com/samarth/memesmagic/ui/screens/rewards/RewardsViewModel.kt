@@ -21,9 +21,12 @@ class RewardsViewModel @Inject constructor(
     val rewards = mutableStateOf(listOf<Reward>())
     val loadError = mutableStateOf("")
 
-    fun getRewards(context: Context) = viewModelScope.launch{
+    fun getRewards(
+        context: Context,
+        userEmail:String?
+    ) = viewModelScope.launch{
         isLoading.value = true
-        val result = memeRepo.getRewards( getEmail(context)!!)
+        val result = memeRepo.getRewards( userEmail ?: getEmail(context)!!)
         if(result is Resource.Success){
             rewards.value = result.data!!
             loadError.value = ""

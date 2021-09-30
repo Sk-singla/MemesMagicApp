@@ -66,7 +66,8 @@ fun ProfileScreen(
         scaffoldState = parentScaffoldState,
         navigateToAnotherUserProfile = { email ->
             parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/$email")
-        }
+        },
+        navController = parentNavController
     )
 }
 

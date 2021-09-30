@@ -166,13 +166,20 @@ fun ExoPlayerCompose(
                 modifier = Modifier.matchParentSize()
             )
 
-            Icon(
-                imageVector = Icons.Outlined.PlayCircleOutline,
-                contentDescription = "PlayIcon",
+            IconButton(
+                onClick = {
+                          exoPlayer.playWhenReady = true
+                },
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(32.dp)
-            )
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.PlayCircleOutline,
+                    contentDescription = "PlayIcon",
+                    modifier = Modifier
+                        .size(32.dp)
+                )
+            }
         }
     }
 

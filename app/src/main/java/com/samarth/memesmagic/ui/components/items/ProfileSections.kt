@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.request.ImageRequest
 import coil.request.videoFrameMillis
 import com.bumptech.glide.Glide
@@ -81,6 +82,7 @@ fun FullProfileScreen(
     )->Unit)? = null,
     scaffoldState:ScaffoldState = rememberScaffoldState(),
     navigateToAnotherUserProfile:(String)->Unit,
+    navController:NavController
 ) {
 
 
@@ -178,7 +180,8 @@ fun FullProfileScreen(
                         onEditScreenPressed = onEditScreenPressed,
                         onLogout = onLogout,
                         badgesClick = {
-                              isBadgesVisible = true
+                              navController.navigate("rewards?userEmail=${user.userInfo.email}")
+//                              isBadgesVisible = true
                         },
                         numberOfRewards = curUser.rewards.size,
                         messageUser = messageUser
@@ -224,31 +227,31 @@ fun FullProfileScreen(
 
 
 
-                    AnimatedVisibility(
-                        isBadgesVisible,
-                        enter = expandIn(
-                            expandFrom = Alignment.Center,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                visibilityThreshold = IntSize.VisibilityThreshold
-                            )
-                        ),
-                        exit = shrinkOut(
-                            shrinkTowards = Alignment.Center
-                        )
-
-                    ) {
-                        RewardsDialogBox(
-                            rewards = curUser.rewards,
-                            onDismiss = {
-                                isBadgesVisible = false
-                            },
-                            isLoading = false,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.4f)
-                        )
-                    }
+//                    AnimatedVisibility(
+//                        isBadgesVisible,
+//                        enter = expandIn(
+//                            expandFrom = Alignment.Center,
+//                            animationSpec = spring(
+//                                dampingRatio = Spring.DampingRatioMediumBouncy,
+//                                visibilityThreshold = IntSize.VisibilityThreshold
+//                            )
+//                        ),
+//                        exit = shrinkOut(
+//                            shrinkTowards = Alignment.Center
+//                        )
+//
+//                    ) {
+//                        RewardsDialogBox(
+//                            rewards = curUser.rewards,
+//                            onDismiss = {
+//                                isBadgesVisible = false
+//                            },
+//                            isLoading = false,
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .fillMaxHeight(0.4f)
+//                        )
+//                    }
 
 
 
@@ -524,11 +527,7 @@ fun ProfileScreenButtons(
 
         OutlinedButton(
                 onClick = {
-                    if(isItAnotherUserProfile){
-                        badgesClick()
-                    } else {
-                        onLogout()
-                    }
+                    badgesClick()
                 },
                 modifier = Modifier
                     .padding(horizontal = 4.dp)
@@ -539,12 +538,32 @@ fun ProfileScreenButtons(
                 )
         ) {
             Text(
-                text = if (isItAnotherUserProfile)
-                    "$numberOfRewards Badge${if(numberOfRewards>1) "s" else ""}"
-                else "   Logout   ",
+                text = "$numberOfRewards Badge${if(numberOfRewards>1) "s" else ""}",
                 textAlign = TextAlign.Center
             )
         }
+
+        if(!isItAnotherUserProfile){
+            OutlinedButton(
+                onClick = {
+                    onLogout()
+                },
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .shadow(2.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    contentColor = Green700
+                )
+            ) {
+                Text(
+                    text = "   Logout   ",
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+
 
 
     }

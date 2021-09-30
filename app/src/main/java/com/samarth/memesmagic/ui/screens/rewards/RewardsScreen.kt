@@ -8,70 +8,79 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.samarth.memesmagic.ui.components.CustomTopBar
 import com.samarth.memesmagic.ui.components.RetryView
 import com.samarth.memesmagic.ui.components.RewardItem
 
 
 @Composable
 fun RewardScreen(
+    userEmail:String?,
     rewardsViewModel: RewardsViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
 
-    DisposableEffect(key1 = Unit) {
-        rewardsViewModel.getRewards(context)
-        onDispose {  }
+    LaunchedEffect(key1 = true) {
+        rewardsViewModel.getRewards(context,userEmail)
     }
 
-    when {
-        rewardsViewModel.isLoading.value -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+    Scaffold(
+        topBar = {
+            CustomTopBar(title = "Rewards")
         }
-        rewardsViewModel.loadError.value.isNotEmpty() -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-                RetryView(loadError = rewardsViewModel.loadError.value) {
-                    rewardsViewModel.getRewards(context)
+    ) {
+        when {
+            rewardsViewModel.isLoading.value -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
             }
+            rewardsViewModel.loadError.value.isNotEmpty() -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-        }
-        rewardsViewModel.rewards.value.isEmpty() -> {
+                    RetryView(loadError = rewardsViewModel.loadError.value) {
+                        rewardsViewModel.getRewards(context,userEmail)
+                    }
+                }
 
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "Sorry! You don't have any Badge!",
-                    style = MaterialTheme.typography.h5,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
             }
+            rewardsViewModel.rewards.value.isEmpty() -> {
 
-        }
-        else -> {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                items(rewardsViewModel.rewards.value){ reward ->
-                    RewardItem(
-                        reward = reward,
-                        modifier = Modifier.padding(8.dp)
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No Badge!",
+                        style = MaterialTheme.typography.h5,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
                 }
 
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    items(rewardsViewModel.rewards.value){ reward ->
+                        RewardItem(
+                            reward = reward,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.samarth.memesmagic.ui.screens.home.feed
 
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -16,10 +15,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.plcoding.doodlekong.util.DispatcherProvider
 import com.samarth.memesmagic.BuildConfig
@@ -31,6 +31,9 @@ import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.data.remote.response.User
 import com.samarth.memesmagic.data.remote.response.UserInfo
 import com.samarth.memesmagic.repository.MemeRepo
+import com.samarth.memesmagic.ui.exoplayer.ExoplayerStateProps
+import com.samarth.memesmagic.ui.exoplayer.lastPlayingPost
+import com.samarth.memesmagic.ui.exoplayer.postPlaybackDetails
 import com.samarth.memesmagic.util.Resource
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.TokenHandler.getEmail
@@ -71,6 +74,9 @@ class FeedViewModel @Inject constructor(
     val thumbnails = mutableStateMapOf<String,Bitmap>()
     val lazyListState = LazyListState()
     var playWhenReady = false
+    val currentlyPlayingItem = mutableStateOf<Post?>(null)
+
+
 
     fun isItLastItem(itemNumber:Int):Boolean{
         return itemNumber == posts.value.size -1
@@ -168,7 +174,10 @@ class FeedViewModel @Inject constructor(
 
 
 
-    fun getFeed(onFail: (String) -> Unit) = viewModelScope.launch{
+    fun getFeed(
+        onSuccess: () -> Unit,
+        onFail: (String) -> Unit
+    ) = viewModelScope.launch{
         isLoading.value = true
         val result = memeRepo.getFeed()
 
@@ -177,6 +186,7 @@ class FeedViewModel @Inject constructor(
             posts.value.filter { it.postType == PostType.VIDEO }.forEach { curPost ->
                 generateThumbnail(curPost)
             }
+            onSuccess()
         } else {
             onFail(result.message ?: "Some Problem Occurred!")
         }
@@ -295,62 +305,76 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-
-    fun setMediaItem(
-        itemUri:String
-    ){
-        player.let { exoPlayer ->
-            val mediaItem = MediaItem.fromUri(itemUri)
-            exoPlayer.setMediaItem(mediaItem)
-        }
-    }
-
-    fun releasePlayer(){
-        player.release()
-    }
-
     fun determineCurrentlyPlayingItem(
         lazyListSate: LazyListState,
         posts: List<Post>
-    ): Post? {
+    ) {
         val layoutInfo = lazyListSate.layoutInfo
         val visiblePosts = layoutInfo.visibleItemsInfo.map { posts[it.index] }
         val videoPosts = visiblePosts.filter { it.postType == PostType.VIDEO }
 
-        val lastVideo = videoPosts.lastOrNull()
-        if(lastVideo != null && posts.lastOrNull()?.id == lastVideo.id){
-            return lastVideo
-        }
-//        layoutInfo.visibleItemsInfo.forEach {
-//            it.
-//        }
 
-//        return videoPosts.firstOrNull()
-        return if(videoPosts.size == 1){
-            videoPosts.first()
+        Log.d("video size","Video size: ${videoPosts.size}")
+        if(videoPosts.size == 1){
+            currentlyPlayingItem.value = videoPosts.first()
         } else {
             val midPoint = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) /2
             val itemsFromCenter =
                 layoutInfo.visibleItemsInfo.sortedBy {
                     abs((it.offset + it.size/2) - midPoint)
                 }
-
             itemsFromCenter.map { posts[it.index] }.firstOrNull{
                 it.postType == PostType.VIDEO
             }
+
         }
+
+
     }
 
 
+    fun updateCurrentlyPlayingItem(post:Post?){
+        player.apply {
+            if(post != null){
+
+                if(lastPlayingPost != null)
+                    postPlaybackDetails[lastPlayingPost!!.id] = ExoplayerStateProps(player.currentPosition,player.currentWindowIndex)
 
 
 
+                Log.d("current video","=========================")
 
+                // ======= FOR DASH FILE ===============
+                //                 DashMediaSource.Factory(DefaultHttpDataSource.Factory())
+                //                    .createMediaSource(
+                //                        MediaItem.fromUri(
+                //                        "http://rdmedia.bbc.co.uk/dash/ondemand/bbb/2/client_manifest-separate_init.mpd"
+                //                        )
+                //                    )
 
+                val source = ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(
+                        MediaItem.fromUri(
+                            post.mediaLink
+                        ))
+                setMediaSource(source)
+                if(postPlaybackDetails[post.id] == null){
+                    postPlaybackDetails[post.id] = ExoplayerStateProps(0,0)
+                }
 
+                seekTo(postPlaybackDetails[post.id]!!.windowIndex, postPlaybackDetails[post.id]!!.position)
+                prepare()
+                playWhenReady = true
+                repeatMode = ExoPlayer.REPEAT_MODE_ALL
 
-
-
+                lastPlayingPost = post
+            } else {
+                if(lastPlayingPost != null)
+                    postPlaybackDetails[lastPlayingPost!!.id] = ExoplayerStateProps(player.currentPosition,player.currentWindowIndex)
+                stop()
+            }
+        }
+    }
 
 
 

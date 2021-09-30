@@ -3,6 +3,7 @@ package com.samarth.memesmagic.ui.screens.home.notifications
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -51,13 +52,17 @@ fun NotificationsScreen(
                     getOriginalNotification = notificationViewModel::getOriginalNotification,
                     navController = parentNavController
                 )
+
+                if(notificationViewModel.notifications.size-1 > it){
+                    Divider()
+                }
             }
             
-            item { 
+            item {
                 Spacer(
                     modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(64.dp)
+                        .fillMaxWidth()
+                        .padding(64.dp)
                 )
             }
         }

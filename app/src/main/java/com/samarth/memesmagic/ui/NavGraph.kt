@@ -32,6 +32,7 @@ import com.samarth.memesmagic.ui.screens.home.create.*
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.screens.landing_page.LandingPage
 import com.samarth.memesmagic.ui.screens.landing_page.SplashScreen
+import com.samarth.memesmagic.ui.screens.rewards.RewardScreen
 import com.samarth.memesmagic.util.Constants.BASE_URL
 import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
@@ -202,6 +203,22 @@ fun MainNavGraph(
         
         composable(FIND_ANOTHER_USER_FOR_CHAT) {
             FindUserForChat(navController = navController)
+        }
+
+        composable(
+            "rewards?userEmail={userEmail}",
+            arguments = listOf(
+                navArgument("userEmail"){
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ){
+            val userEmail = it.arguments?.getString("userEmail")
+            RewardScreen(
+                userEmail = userEmail
+            )
         }
 
 

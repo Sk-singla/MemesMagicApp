@@ -24,10 +24,10 @@ import com.samarth.memesmagic.data.remote.response.Reward
 import com.samarth.memesmagic.ui.components.AdvertiseDialogBox
 import com.samarth.memesmagic.ui.components.CongratsDialogBox
 import com.samarth.memesmagic.ui.components.items.PostItem
+import com.samarth.memesmagic.ui.exoplayer.UpdateCurrentlyPlayingItem
 import com.samarth.memesmagic.util.CommentsUtil
 import com.samarth.memesmagic.util.Screens.ANOTHER_USER_PROFILE_SCREEN
 import com.samarth.memesmagic.util.Screens.COMMENT_SCREEN
-import com.samarth.memesmagic.util.Screens.HOME_NOTIFICATIONS
 import com.samarth.memesmagic.util.Screens.LANDING_SCREEN
 import com.samarth.memesmagic.util.Screens.SINGLE_POST_SCREEN
 import com.samarth.memesmagic.util.TokenHandler.getEmail
@@ -100,6 +100,34 @@ fun FeedScreen(
             )
         }
 
+
+
+        /**
+         * GET CURRENT USER AND LOGOUT ON FAIL IF ERROR CODE IS NOT TIMEOUT
+         */
+
+        feedViewModel.getUser(
+            getEmail(context)!!,
+            onFail = {
+                Log.d("MyLog","User ------------> $it")
+                if(!it.contains("timeout")){
+                    coroutineScope.launch{
+                        logout(context)
+                        feedViewModel.clearLocalData()
+                        parentNavController.popBackStack()
+                        parentNavController.navigate(LANDING_SCREEN)
+                    }
+                } else {
+                    coroutineScope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("Heroku Dyno is Down. Please Try Again. After 1-2 request it will Awake.")
+                    }
+                }
+
+            },
+            onSuccess = {}
+        )
+
+
         /**
          *  GET REWARDS AND SHOW IN DIALOG BOXES IF IT IS NEW REWARD
          */
@@ -130,7 +158,12 @@ fun FeedScreen(
          * GET NEW FEED IF FEED SCREEN IS OPENED FIRST TIME
          */
         if(feedViewModel.firstTimeOpenedFeedScreen.value) {
+            feedViewModel.getFeedFromGithub()
             feedViewModel.getFeed(
+                onSuccess = {
+                    feedViewModel.posts.value = feedViewModel.posts.value.shuffled()
+                    feedViewModel.firstTimeOpenedFeedScreen.value = false
+                },
                 onFail = {
                     coroutineScope.launch {
                         Log.d("MyLog", "Feed ------------> $it")
@@ -138,35 +171,18 @@ fun FeedScreen(
                     }
                 }
             )
-//            feedViewModel.getFeedFromGithub()
-            feedViewModel.firstTimeOpenedFeedScreen.value = false
         }
 
 
         /**
-         * GET CURRENT USER AND LOGOUT ON FAIL IF ERROR CODE IS NOT TIMEOUT
+         * Update currently playing item
          */
 
-        feedViewModel.getUser(
-            getEmail(context)!!,
-            onFail = {
-                Log.d("MyLog","User ------------> $it")
-                 if(!it.contains("timeout")){
-                     coroutineScope.launch{
-                         logout(context)
-                         feedViewModel.clearLocalData()
-                         parentNavController.popBackStack()
-                         parentNavController.navigate(LANDING_SCREEN)
-                     }
-                 } else {
-                     coroutineScope.launch {
-                         scaffoldState.snackbarHostState.showSnackbar("Heroku Dyno is Down. Please Try Again. After 1-2 request it will Awake.")
-                     }
-                 }
-
-            },
-            onSuccess = {}
+        feedViewModel.updateCurrentlyPlayingItem(
+            post = feedViewModel.currentlyPlayingItem.value
         )
+
+
     }
 
 
@@ -195,7 +211,7 @@ fun FeedScreen(
                 },
                 it,
                 onClick = {
-                    currentNavController.navigate(HOME_NOTIFICATIONS)
+                    currentNavController.navigate("rewards")
                 }
             )
 
@@ -230,16 +246,11 @@ fun FeedScreen(
             feedViewModel.lazyListState
         }
 
-        Log.d("video","${listState.firstVisibleItemIndex}, ${if(feedViewModel.posts.value.isNotEmpty()) feedViewModel.posts.value[listState.firstVisibleItemIndex].postType else ""}")
-        val currentlyPlayingItem = feedViewModel.determineCurrentlyPlayingItem(
+        feedViewModel.determineCurrentlyPlayingItem(
             listState,
             feedViewModel.posts.value
         )
-        UpdateCurrentlyPlayingItem(
-            exoPlayer = feedViewModel.player,
-            post = currentlyPlayingItem,
-            dataSourceFactory = feedViewModel.dataSourceFactory
-        )
+        Log.d("current video","${feedViewModel.currentlyPlayingItem.value?.mediaLink}")
 
         if(feedViewModel.isLoading.value){
             CircularProgressIndicator()
@@ -257,7 +268,7 @@ fun FeedScreen(
 //                        feedViewModel.getFeedFromGithub()
 //                    }
 
-                val isPlayerViewVisible = currentlyPlayingItem?.id == post.id && feedViewModel.player.isPlaying
+                val isPlayerViewVisible = feedViewModel.currentlyPlayingItem.value?.id == post.id && feedViewModel.player.isPlaying
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
