@@ -60,11 +60,7 @@ fun EditingScreen(
                     IconButton(
                         onClick = {
                             if (createViewModel.textMode.value) {
-                                if (createViewModel.selectedTextView.value == null) {
-                                    createViewModel.addText()
-                                } else {
-                                    createViewModel.editText()
-                                }
+                                createViewModel.addText()
                             } else {
                                 navController.navigate(NEW_POST_DETAILS_AND_UPLOAD)
                             }
@@ -97,7 +93,10 @@ fun EditingScreen(
         ){
 
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxWidth()
+                    .fillMaxHeight(0.65f)
+                    .align(Alignment.TopCenter),
+                verticalArrangement = Arrangement.Center
             ){
 
 
@@ -108,7 +107,6 @@ fun EditingScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.65f)
                 ) {
 
                     coroutineScope.launch{
@@ -131,73 +129,76 @@ fun EditingScreen(
                         .align(Alignment.BottomCenter)
                 ) {
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp, end = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row{
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(start = 8.dp, end = 8.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        Row{
+//
+//                            IconButton(
+//                                onClick = {
+//                                    createViewModel.undo()
+//                                },
+//                                modifier = Modifier.clip(CircleShape).background(Color.Transparent)
+//                            ) {
+//                                Icon(
+//                                    painter = painterResource(id = R.drawable.ic_baseline_undo_24),
+//                                    contentDescription = "Undo"
+//                                )
+//                            }
+//
+//                            Spacer(modifier = Modifier.padding(16.dp))
+//
+//                            IconButton(
+//                                onClick = {
+//                                    createViewModel.redo()
+//                                },
+//                                modifier = Modifier.clip(CircleShape).background(Color.Transparent)
+//                            ) {
+//                                Icon(
+//                                    painter = painterResource(id = R.drawable.ic_baseline_redo_24),
+//                                    contentDescription = "Redo"
+//                                )
+//                            }
+//
+//
+//                        }
+//
+//
+//                    }
 
-                            IconButton(
-                                onClick = {
-                                    createViewModel.undo()
-                                },
-                                modifier = Modifier.clip(CircleShape).background(Color.Transparent)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_baseline_undo_24),
-                                    contentDescription = "Undo"
-                                )
-                            }
 
-                            Spacer(modifier = Modifier.padding(16.dp))
-
-                            IconButton(
-                                onClick = {
-                                    createViewModel.redo()
-                                },
-                                modifier = Modifier.clip(CircleShape).background(Color.Transparent)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_baseline_redo_24),
-                                    contentDescription = "Redo"
-                                )
-                            }
-
-
-                        }
-
-                        IconButton(
-                            onClick = {
-                                if(updateOrRequestPermissions()) {
-                                    createViewModel.saveAsBitmapInExternalStorage(
-                                        context = context,
-                                        onSuccess = {
-                                            coroutineScope.launch {
-                                                scaffoldState.snackbarHostState.showSnackbar(
-                                                    "Successfully Saved!"
-                                                )
-                                            }
-                                        },
-                                        onFail = {
-                                            coroutineScope.launch {
-                                                scaffoldState.snackbarHostState.showSnackbar(
-                                                    it
-                                                )
-                                            }
+                    IconButton(
+                        onClick = {
+                            if(updateOrRequestPermissions()) {
+                                createViewModel.saveAsBitmapInExternalStorage(
+                                    context = context,
+                                    onSuccess = {
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                "Successfully Saved!"
+                                            )
                                         }
-                                    )
-                                }
-                            },
-                            modifier = Modifier.clip(CircleShape).background(Color.Transparent)
-                        ) {
+                                    },
+                                    onFail = {
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                it
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        },
+                        modifier = Modifier.clip(CircleShape).background(Color.Transparent).align(Alignment.End)
+                    ) {
 
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_download_24),
-                                contentDescription = "Download"
-                            )
-                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_download_24),
+                            contentDescription = "Download"
+                        )
                     }
 
                     Row(
@@ -213,7 +214,12 @@ fun EditingScreen(
                         }
 
                     }
+
                 }
+
+
+
+
             }
 
 

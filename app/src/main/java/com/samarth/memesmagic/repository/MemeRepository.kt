@@ -22,6 +22,7 @@ import com.samarth.memesmagic.data.remote.ws.models.MessageReceived
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatMessage
 import com.samarth.memesmagic.data.remote.ws.models.PrivateChatRoom
 import com.samarth.memesmagic.util.Constants.BEARER
+import com.samarth.memesmagic.util.Constants.BUCKET_OBJECT_URL_PREFIX
 import com.samarth.memesmagic.util.Constants.MAXIMUM_MEME_MAKER_PAGE_NUMBER
 import com.samarth.memesmagic.util.Constants.NETWORK_UNKNOWN_PROBLEM
 import com.samarth.memesmagic.util.Constants.NO_MEME
@@ -379,11 +380,21 @@ class MemeRepository(
     }
 
 
-    override suspend fun deletePost(postId: String): Resource<String> {
+    override suspend fun deletePost(post:Post): Resource<String> {
         return try {
-            val response = memeApi.deletePost("$BEARER ${ getJwtToken(context) }",postId)
+            val response = memeApi.deletePost("$BEARER ${ getJwtToken(context) }",post.id)
             if(response.success && response.data!=null){
+
+                val key = post.mediaLink.takeLast(post.mediaLink.length - BUCKET_OBJECT_URL_PREFIX.length)
+                Log.d("post delete",post.mediaLink)
+                Log.d("post delete",key)
+                Amplify.Storage.remove(
+                    key,
+                    {},
+                    {}
+                )
                 Resource.Success(response.data)
+
             } else {
                 Resource.Error(response.message)
             }

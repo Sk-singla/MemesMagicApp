@@ -154,7 +154,7 @@ class CreateViewModel  @Inject constructor(
             .build()
 
         photoEditor.setBrushDrawingMode(false)
-        photoEditListeners()
+//        photoEditListeners()
         emojiList.value = getEmojis(context)
     }
 
@@ -240,21 +240,21 @@ class CreateViewModel  @Inject constructor(
     }
 
 
-    private fun photoEditListeners(){
-        photoEditor.setOnPhotoEditorListener(object :OnPhotoEditorListener{
-            override fun onEditTextChangeListener(rootView: View?, text: String?, colorCode: Int) {
-                initTextMode()
-                curText.value = text ?: ""
-                curTextColor.value = colorCode
-                selectedTextView.value = rootView
-            }
-
-            override fun onAddViewListener(viewType: ViewType?, numberOfAddedViews: Int) = Unit
-            override fun onRemoveViewListener(viewType: ViewType?, numberOfAddedViews: Int) = Unit
-            override fun onStartViewChangeListener(viewType: ViewType?) = Unit
-            override fun onStopViewChangeListener(viewType: ViewType?) = Unit
-        })
-    }
+//    private fun photoEditListeners(){
+//        photoEditor.setOnPhotoEditorListener(object :OnPhotoEditorListener{
+//            override fun onEditTextChangeListener(rootView: View?, text: String?, colorCode: Int) {
+//                initTextMode()
+//                curText.value = text ?: ""
+//                curTextColor.value = colorCode
+//                selectedTextView.value = rootView
+//            }
+//
+//            override fun onAddViewListener(viewType: ViewType?, numberOfAddedViews: Int) = Unit
+//            override fun onRemoveViewListener(viewType: ViewType?, numberOfAddedViews: Int) = Unit
+//            override fun onStartViewChangeListener(viewType: ViewType?) = Unit
+//            override fun onStopViewChangeListener(viewType: ViewType?) = Unit
+//        })
+//    }
 
     fun setTextColor(clr:Int){
         curTextColor.value = clr

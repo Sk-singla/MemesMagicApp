@@ -289,7 +289,7 @@ class FeedViewModel @Inject constructor(
 
     fun deletePost(post: Post,onSuccess: () -> Unit,onFail: (String) -> Unit) = viewModelScope.launch {
         isLoading.value = true
-        val result = memeRepo.deletePost(post.id)
+        val result = memeRepo.deletePost(post)
         if(result is Resource.Success){
             onSuccess()
         } else {

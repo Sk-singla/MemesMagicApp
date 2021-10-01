@@ -63,9 +63,10 @@ fun FeedScreen(
             when(event) {
                 Lifecycle.Event.ON_PAUSE -> {
                     feedViewModel.player.playWhenReady = false
+                    feedViewModel.playWhenReady = false
                 }
                 Lifecycle.Event.ON_RESUME -> {
-                    feedViewModel.player.playWhenReady = true
+                    feedViewModel.player.playWhenReady = feedViewModel.playWhenReady
                 }
             }
 
@@ -204,7 +205,7 @@ fun FeedScreen(
                 },
                 it,
                 onClick = {
-                    currentNavController.navigate("rewards")
+                    parentNavController.navigate("rewards")
                 }
             )
 
@@ -310,6 +311,7 @@ fun FeedScreen(
                                 coroutineScope.launch {
                                     scaffoldState.snackbarHostState.showSnackbar("It is a Bot!")
                                 }
+                                parentNavController.navigate("rewards")
                             }
                             else {
                                 parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${post.createdBy.email}")

@@ -69,9 +69,10 @@ fun SinglePostScreen(
             when(event) {
                 Lifecycle.Event.ON_PAUSE -> {
                     feedViewModel.player.playWhenReady = false
+                    feedViewModel.playWhenReady = false
                 }
                 Lifecycle.Event.ON_RESUME -> {
-                    feedViewModel.player.playWhenReady = true
+                    feedViewModel.player.playWhenReady = feedViewModel.playWhenReady
                 }
             }
 

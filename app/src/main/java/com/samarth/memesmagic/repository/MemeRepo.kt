@@ -43,7 +43,7 @@ interface MemeRepo {
     suspend fun uploadPost(postRequest: PostRequest):Resource<String>
     suspend fun likePost(postId:String):Resource<UserInfo>
     suspend fun dislikePost(postId:String):Resource<UserInfo>
-    suspend fun deletePost(postId: String):Resource<String>
+    suspend fun deletePost(post:Post):Resource<String>
 
 
     suspend fun findUsers( searchKeyWord:String):Resource<List<UserInfo>>

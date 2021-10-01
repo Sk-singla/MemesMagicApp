@@ -19,10 +19,14 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -557,7 +561,7 @@ fun ProfileScreenButtons(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp,start = 4.dp,end = 4.dp)
+                            .padding(top = 8.dp, start = 4.dp, end = 4.dp)
                             .shadow(2.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
                             backgroundColor = MaterialTheme.colors.surface,
@@ -577,7 +581,7 @@ fun ProfileScreenButtons(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp,start = 4.dp,end = 4.dp)
+                        .padding(top = 8.dp, start = 4.dp, end = 4.dp)
                         .shadow(2.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         backgroundColor = MaterialTheme.colors.surface,
@@ -597,7 +601,7 @@ fun ProfileScreenButtons(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp,start = 4.dp,end = 4.dp)
+                            .padding(top = 8.dp, start = 4.dp, end = 4.dp)
                             .shadow(2.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
                             backgroundColor = MaterialTheme.colors.surface,
@@ -659,33 +663,42 @@ fun ProfilePostsSection(
                 )
             } else {
 
-                if(thumbnails[post.id] != null){
-                    Image(
-                        bitmap = thumbnails[post.id]!!.asImageBitmap(),
-                        contentScale = ContentScale.Crop,
-                        contentDescription = "User Image",
-                        modifier = Modifier
-                            .padding(1.dp)
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .clickable {
-                                CommentsUtil.post = post
-                                detailView()
-                            },
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_image),
-                        contentScale = ContentScale.Crop,
-                        contentDescription = "User Image",
-                        modifier = Modifier
-                            .padding(1.dp)
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .clickable {
-                                CommentsUtil.post = post
-                                detailView()
-                            },
+                Box(
+                    modifier =  Modifier
+                        .padding(1.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .background(color= Color.LightGray)
+                        .clickable {
+                            CommentsUtil.post = post
+                            detailView()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+
+
+
+                    if(thumbnails[post.id] != null){
+                        Image(
+                            bitmap = thumbnails[post.id]!!.asImageBitmap(),
+                            contentScale = ContentScale.Crop,
+                            contentDescription = "User Image",
+                            modifier = Modifier
+                                .fillMaxSize(),
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_image),
+                            contentScale = ContentScale.Crop,
+                            contentDescription = "User Image",
+                            modifier = Modifier
+                                .fillMaxSize(),
+                        )
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Video Icon"
                     )
                 }
             }
