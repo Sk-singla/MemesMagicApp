@@ -197,8 +197,10 @@ fun Login(
                         nonClickableText = "Don't have an Account?",
                         clickableText = " Sign up here"
                     ) {
-                        loginScreenViewModel.clearAllTextFields()
-                        navigateWithPop(navController, Screens.REGISTER_SCREEN)
+                        if(!loginScreenViewModel.isLoading.value){
+                            loginScreenViewModel.clearAllTextFields()
+                            navigateWithPop(navController, Screens.REGISTER_SCREEN)
+                        }
                     }
                 }
             }

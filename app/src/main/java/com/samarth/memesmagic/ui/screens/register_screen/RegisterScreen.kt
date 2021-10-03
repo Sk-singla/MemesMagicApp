@@ -265,8 +265,10 @@ fun RegisterScreen(
                         nonClickableText = "Already have an Account?",
                         clickableText = " Login here"
                     ) {
-                        registerScreenViewModel.clearAllTextFields()
-                        navigateWithPop(navController, LOGIN_SCREEN)
+                        if(!registerScreenViewModel.isLoading.value){
+                            registerScreenViewModel.clearAllTextFields()
+                            navigateWithPop(navController, LOGIN_SCREEN)
+                        }
                     }
                 }
             }
