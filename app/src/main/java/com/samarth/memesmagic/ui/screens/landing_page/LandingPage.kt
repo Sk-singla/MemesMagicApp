@@ -1,5 +1,6 @@
 package com.samarth.memesmagic.ui.screens.landing_page
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -104,7 +105,12 @@ fun LandingPage(
                 nonClickableText = "Already have an Account?",
                 clickableText = " Login here"
             ) {
-                navController.navigate(LOGIN_SCREEN)
+                try{
+                    navController.navigate(LOGIN_SCREEN)
+                } catch (e:Exception){
+                    e.printStackTrace()
+                    Log.d("navigation login",e.message ?: e.localizedMessage ?: "Ohi error aagi")
+                }
             }
 
         }

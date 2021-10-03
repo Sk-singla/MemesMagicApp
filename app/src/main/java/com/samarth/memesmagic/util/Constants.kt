@@ -8,8 +8,6 @@ object Constants {
     const val IMAGE_FLIP_BASE_URL = "https://api.imgflip.com"
     const val MEME_MAKER_BASE_URL = "http://alpha-meme-maker.herokuapp.com"
     const val BASE_URL_HEROKU = "https://memesmagic.herokuapp.com"
-    const val BASE_URL_AWS = "http://ec2-13-127-71-143.ap-south-1.compute.amazonaws.com"
-    const val BASE_URL_LOCAL = "http://192.168.43.33:8081"
     const val BASE_URL = BASE_URL_HEROKU                  //  <-------- change this
     const val BASE_URL_WS = "$BASE_URL$API_VERSION/ws"
     const val RECONNECT_INTERVAL = 3000L
@@ -64,7 +62,7 @@ object Screens{
 
     const val LANDING_SCREEN = "landing_page"
     const val REGISTER_SCREEN = "register_screen"
-    const val LOGIN_SCREEN = "login_screen"
+    const val LOGIN_SCREEN = "login_screen_2"
     const val HOME_SCREEN = "home_screen"
     const val SPLASH_SCREEN = "splash_screen"
 

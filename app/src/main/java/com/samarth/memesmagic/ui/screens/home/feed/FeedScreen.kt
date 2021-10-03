@@ -311,7 +311,6 @@ fun FeedScreen(
                                 coroutineScope.launch {
                                     scaffoldState.snackbarHostState.showSnackbar("It is a Bot!")
                                 }
-                                parentNavController.navigate("rewards")
                             }
                             else {
                                 parentNavController.navigate("$ANOTHER_USER_PROFILE_SCREEN/${post.createdBy.email}")

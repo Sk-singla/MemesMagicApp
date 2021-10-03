@@ -23,7 +23,6 @@ import com.samarth.memesmagic.ui.screens.chat.ChatViewModel
 import com.samarth.memesmagic.ui.screens.chat.FindUserForChat
 import com.samarth.memesmagic.ui.screens.chat.PrivateChatRoomScreen
 import com.samarth.memesmagic.ui.screens.comments.CommentScreen
-import com.samarth.memesmagic.ui.screens.login_screen.LoginScreen
 import com.samarth.memesmagic.ui.screens.register_screen.RegisterScreen
 import com.samarth.memesmagic.ui.screens.home.profile.SinglePostScreen
 import com.samarth.memesmagic.ui.screens.edit_profile.EditProfileScreen
@@ -32,6 +31,7 @@ import com.samarth.memesmagic.ui.screens.home.create.*
 import com.samarth.memesmagic.ui.screens.home.feed.FeedViewModel
 import com.samarth.memesmagic.ui.screens.landing_page.LandingPage
 import com.samarth.memesmagic.ui.screens.landing_page.SplashScreen
+import com.samarth.memesmagic.ui.screens.login_screen.Login
 import com.samarth.memesmagic.ui.screens.rewards.RewardScreen
 import com.samarth.memesmagic.util.Constants.BASE_URL
 import com.samarth.memesmagic.util.Screens
@@ -92,6 +92,13 @@ fun MainNavGraph(
             )
         }
 
+        composable(LOGIN_SCREEN){
+            Login(
+                navController = navController,
+                onSignUpWithGoogle = onSignUpWithGoogle
+            )
+        }
+
         composable(
             REGISTER_SCREEN,
             deepLinks = listOf(
@@ -106,19 +113,15 @@ fun MainNavGraph(
             )
         }
 
+
+
+
         composable(HOME_SCREEN){
             HomeScreen(
                 navController = navController,
                 startActivity = startActivity,
                 feedViewModel = feedViewModel,
                 chatViewModel = chatViewModel,
-            )
-        }
-
-        composable(LOGIN_SCREEN){
-            LoginScreen(
-                navController = navController,
-                onSignUpWithGoogle = onSignUpWithGoogle
             )
         }
 

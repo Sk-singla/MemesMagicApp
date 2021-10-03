@@ -8,13 +8,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -26,33 +30,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.samarth.memesmagic.R
 import com.samarth.memesmagic.ui.components.*
-import com.samarth.memesmagic.util.Screens.HOME_SCREEN
-import com.samarth.memesmagic.util.Screens.REGISTER_SCREEN
+import com.samarth.memesmagic.util.Screens
 import com.samarth.memesmagic.util.TokenHandler
 import com.samarth.memesmagic.util.navigateWithPop
 import kotlinx.coroutines.launch
 
-
 @ExperimentalComposeUiApi
 @Composable
-fun LoginScreen(
-    navController: NavController,
-    loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),
+fun Login(
+    navController:NavController,
+    loginScreenViewModel:LoginScreenViewModel = hiltViewModel(),
     onSignUpWithGoogle:()->Unit
 ) {
 
-    val scaffoldState = rememberScaffoldState()
-    val configuration = LocalConfiguration.current
 
-    var passwordVisual: VisualTransformation by remember {
-        mutableStateOf(PasswordVisualTransformation())
-    }
-    var passwordTrailingIcon:Int by remember {
-        mutableStateOf(R.drawable.ic_eye)
-    }
-    val coroutineScope = rememberCoroutineScope()
+
+    val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
+
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -62,6 +59,13 @@ fun LoginScreen(
     ) {
 
         val colScrollState = rememberScrollState()
+        var passwordVisual: VisualTransformation by remember {
+            mutableStateOf(PasswordVisualTransformation())
+        }
+        var passwordTrailingIcon:Int by remember {
+            mutableStateOf(R.drawable.ic_eye)
+        }
+
 
         Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
 
@@ -71,17 +75,10 @@ fun LoginScreen(
                     .verticalScroll(colScrollState)
                     .padding(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceAround
             ) {
 
-                Column {
-                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp)
-                        )
-                    }
+                Column{
 
                     CustomTextField(
                         value = loginScreenViewModel.email.value,
@@ -141,13 +138,6 @@ fun LoginScreen(
                         }
                     )
 
-                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp)
-                        )
-                    }
 
                     CustomButton(
                         text = "Login",
@@ -164,7 +154,7 @@ fun LoginScreen(
                                         loginScreenViewModel.email.value
                                     )
                                     navController.popBackStack()
-                                    navigateWithPop(navController,HOME_SCREEN)
+                                    navigateWithPop(navController, Screens.HOME_SCREEN)
                                     scaffoldState.snackbarHostState.showSnackbar(
                                         "Login Successful!"
                                     )
@@ -181,12 +171,7 @@ fun LoginScreen(
                     }
                 }
 
-
-                if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    OrText(Modifier.padding(horizontal = 16.dp))
-                } else {
-                    OrText(Modifier.padding(horizontal = 16.dp))
-                }
+                OrText(Modifier.padding(horizontal = 16.dp))
 
                 Column {
                     CustomButton(
@@ -213,7 +198,7 @@ fun LoginScreen(
                         clickableText = " Sign up here"
                     ) {
                         loginScreenViewModel.clearAllTextFields()
-                        navigateWithPop(navController,REGISTER_SCREEN)
+                        navigateWithPop(navController, Screens.REGISTER_SCREEN)
                     }
                 }
             }
@@ -226,32 +211,4 @@ fun LoginScreen(
         }
 
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

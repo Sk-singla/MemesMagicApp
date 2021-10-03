@@ -323,57 +323,13 @@ class FeedViewModel @Inject constructor(
                 layoutInfo.visibleItemsInfo.sortedBy {
                     abs((it.offset + it.size/2) - midPoint)
                 }
-            itemsFromCenter.map { posts[it.index] }.firstOrNull{
+            currentlyPlayingItem.value = itemsFromCenter.map { posts[it.index] }.firstOrNull{
                 it.postType == PostType.VIDEO
             }
 
         }
 
 
-    }
-
-
-    fun updateCurrentlyPlayingItem(post:Post?){
-        player.apply {
-            if(post != null){
-
-                if(lastPlayingPost != null)
-                    postPlaybackDetails[lastPlayingPost!!.id] = ExoplayerStateProps(player.currentPosition,player.currentWindowIndex)
-
-
-
-                Log.d("current video","=========================")
-
-                // ======= FOR DASH FILE ===============
-                //                 DashMediaSource.Factory(DefaultHttpDataSource.Factory())
-                //                    .createMediaSource(
-                //                        MediaItem.fromUri(
-                //                        "http://rdmedia.bbc.co.uk/dash/ondemand/bbb/2/client_manifest-separate_init.mpd"
-                //                        )
-                //                    )
-
-                val source = ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(
-                        MediaItem.fromUri(
-                            post.mediaLink
-                        ))
-                setMediaSource(source)
-                if(postPlaybackDetails[post.id] == null){
-                    postPlaybackDetails[post.id] = ExoplayerStateProps(0,0)
-                }
-
-                seekTo(postPlaybackDetails[post.id]!!.windowIndex, postPlaybackDetails[post.id]!!.position)
-                prepare()
-                playWhenReady = true
-                repeatMode = ExoPlayer.REPEAT_MODE_ALL
-
-                lastPlayingPost = post
-            } else {
-                if(lastPlayingPost != null)
-                    postPlaybackDetails[lastPlayingPost!!.id] = ExoplayerStateProps(player.currentPosition,player.currentWindowIndex)
-                stop()
-            }
-        }
     }
 
 
