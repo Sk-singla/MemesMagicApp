@@ -105,12 +105,7 @@ fun LandingPage(
                 nonClickableText = "Already have an Account?",
                 clickableText = " Login here"
             ) {
-                try{
-                    navController.navigate(LOGIN_SCREEN)
-                } catch (e:Exception){
-                    e.printStackTrace()
-                    Log.d("navigation login",e.message ?: e.localizedMessage ?: "Ohi error aagi")
-                }
+                navController.navigate(LOGIN_SCREEN)
             }
 
         }

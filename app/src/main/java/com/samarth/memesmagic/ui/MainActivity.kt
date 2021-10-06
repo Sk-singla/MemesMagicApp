@@ -256,15 +256,14 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
             try {
                 if(task?.result != null){
                     val taskResult = task.result
-                    val result = memeRepo.registerUser(
-                        userRegisterRequest = RegisterUserRequest(
+                    val result = memeRepo.registerWithGoogle(
+                        registerUserRequest = RegisterUserRequest(
                             name = taskResult.displayName ?: "",
                             email = taskResult.email ?: "",
                             password = taskResult.id ?: UUID.randomUUID().toString(),
                             profilePic = taskResult.photoUrl?.toString()
                         )
                     )
-
                     updateUi(result, taskResult.email ?: "")
                 } else {
                     throw Exception("Task Result is NULL!")
