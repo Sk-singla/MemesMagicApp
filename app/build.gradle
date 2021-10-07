@@ -15,8 +15,8 @@ android {
         applicationId "com.samarth.myapplication"
         minSdk 23
         targetSdk 30
-        versionCode 3
-        versionName "3.0"
+        versionCode 4
+        versionName "3.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
